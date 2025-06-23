@@ -12,6 +12,7 @@ lifecycleRuntimeKtx = "2.6.1"
 lifecycleCompose = "2.6.1"
 activityCompose = "1.8.0"
 composeBom = "2024.09.00"
+foundationPager = "1.6.8"
 ktlintGradle = "12.3.0"
 ktlint = "1.6.0"
 protobufKotlinLite = "3.21.12"
@@ -37,6 +38,7 @@ androidxLifecycleViewmodelCompose = { group = "androidx.lifecycle", name = "life
 androidxLifecycleRuntimeCompose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleCompose" }
 androidxActivityCompose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidxComposeBom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidxFoundationPager = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundationPager" }
 androidxUi = { group = "androidx.compose.ui", name = "ui" }
 androidxUiGraphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidxUiTooling = { group = "androidx.compose.ui", name = "ui-tooling" }

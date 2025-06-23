@@ -91,7 +91,8 @@ fun ScreenSaverScreen(
                     .weight(0.1f),
             ) {
                 SlideShowScreen(
-                    uri = uiStateState.value.imageUri,
+                    pagerItems = uiStateState.value.pagerItems,
+                    onPageChange = uiStateState.value.listener::onPageChanged,
                 )
 //                modifier = Modifier
 //                    .drawWithContent {

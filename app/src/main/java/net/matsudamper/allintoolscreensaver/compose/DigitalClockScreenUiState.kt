@@ -11,10 +11,17 @@ data class DigitalClockScreenUiState(
     val currentAlert: CalendarEvent?,
     val imageUri: Uri?,
     val isLoading: Boolean,
+    val pagerItems: List<PagerItem>,
     val listener: Listener,
 ) {
     @Immutable
     interface Listener {
         suspend fun onStart()
+        fun onPageChanged(newPage: Int)
     }
 }
+
+data class PagerItem(
+    val id: String,
+    val imageUri: Uri?,
+)

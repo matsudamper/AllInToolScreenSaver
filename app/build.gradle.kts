@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.androidxUiGraphics)
     implementation(libs.androidxUiToolingPreview)
     implementation(libs.androidxMaterial3)
+    implementation(libs.androidxFoundationPager)
     implementation(libs.androidxDocumentfile)
     implementation(libs.androidxLifecycleViewmodelCompose)
     implementation(libs.androidxDatastore)

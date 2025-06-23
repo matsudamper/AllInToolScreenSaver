@@ -37,20 +37,17 @@ class DigitalClockScreenViewModel(
                 launch {
                     while (isActive) {
                         delay(30.seconds)
-                        viewModelStateFlow.update { viewModelState ->
-                            val nextShuffledIndex = viewModelState.currentShuffledIndex + 1
-                            val nextImageIndex = viewModelState.imagesShuffledIndex.getOrNull(nextShuffledIndex)
-
-                            viewModelState.copy(
-                                currentShuffledIndex = if (nextImageIndex == null) {
-                                    0
-                                } else {
-                                    nextShuffledIndex
-                                },
-                            )
-                        }
+                        moveToNextImage()
                     }
                 }
+            }
+        }
+
+        override fun onPageChanged(newPage: Int) {
+            when (newPage) {
+                0 -> moveToPreviousImage() // 左スワイプで前の画像へ
+                2 -> moveToNextImage() // 右スワイプで次の画像へ
+                // 1 (中央) は何もしない
             }
         }
     }
@@ -63,6 +60,7 @@ class DigitalClockScreenViewModel(
             currentAlert = null,
             imageUri = null,
             isLoading = true,
+            pagerItems = listOf(),
             listener = listener,
         ),
     ).also { uiStateFlow ->
@@ -88,11 +86,73 @@ class DigitalClockScreenViewModel(
                             viewModelState.imagesShuffledIndex.getOrNull(viewModelState.currentShuffledIndex) ?: 0,
                         ),
                         isLoading = viewModelState.isLoading,
+                        pagerItems = createPagerItems(viewModelState),
                     )
                 }
             }
         }
     }.asStateFlow()
+
+    private fun createPagerItems(viewModelState: ViewModelState): List<PagerItem> {
+        if (viewModelState.images.isEmpty()) {
+            return listOf(
+                PagerItem(id = "left", imageUri = null),
+                PagerItem(id = "center", imageUri = null),
+                PagerItem(id = "right", imageUri = null),
+            )
+        }
+
+        val currentIndex = viewModelState.currentShuffledIndex
+        val shuffledIndices = viewModelState.imagesShuffledIndex
+        val images = viewModelState.images
+
+        val prevIndex = if (currentIndex > 0) currentIndex - 1 else shuffledIndices.size - 1
+        val nextIndex = if (currentIndex < shuffledIndices.size - 1) currentIndex + 1 else 0
+
+        return listOf(
+            PagerItem(
+                id = "left_${shuffledIndices.getOrNull(prevIndex) ?: 0}",
+                imageUri = images.getOrNull(shuffledIndices.getOrNull(prevIndex) ?: 0),
+            ),
+            PagerItem(
+                id = "center_${shuffledIndices.getOrNull(currentIndex) ?: 0}",
+                imageUri = images.getOrNull(shuffledIndices.getOrNull(currentIndex) ?: 0),
+            ),
+            PagerItem(
+                id = "right_${shuffledIndices.getOrNull(nextIndex) ?: 0}",
+                imageUri = images.getOrNull(shuffledIndices.getOrNull(nextIndex) ?: 0),
+            ),
+        )
+    }
+
+    private fun moveToNextImage() {
+        viewModelStateFlow.update { viewModelState ->
+            val nextShuffledIndex = viewModelState.currentShuffledIndex + 1
+            val nextImageIndex = viewModelState.imagesShuffledIndex.getOrNull(nextShuffledIndex)
+
+            viewModelState.copy(
+                currentShuffledIndex = if (nextImageIndex == null) {
+                    0
+                } else {
+                    nextShuffledIndex
+                },
+            )
+        }
+    }
+
+    private fun moveToPreviousImage() {
+        viewModelStateFlow.update { viewModelState ->
+            val prevShuffledIndex = if (viewModelState.currentShuffledIndex > 0) {
+                viewModelState.currentShuffledIndex - 1
+            } else {
+                viewModelState.imagesShuffledIndex.size - 1
+            }
+
+            viewModelState.copy(
+                currentShuffledIndex = prevShuffledIndex,
+            )
+        }
+    }
 
     private suspend fun updateImages() {
         fun updateLoadingFalse() {
