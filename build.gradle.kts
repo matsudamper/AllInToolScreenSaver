@@ -16,10 +16,14 @@ allprojects {
     val detektPlugins by configurations
     configure<DetektExtension> {
         parallel = true
-        config.setFrom("${rootDir}/.detekt/config.yml")
+        config.setFrom(
+            "${rootDir}/.detekt/default.yml",
+            "${rootDir}/.detekt/compose.yml",
+        )
     }
     dependencies {
         detektPlugins("com.braisgabin.detekt:kotlin-compiler-wrapper:0.0.4")
+        detektPlugins("io.nlopez.compose.rules:detekt:0.4.22")
     }
 
     configure<KtlintExtension> {
