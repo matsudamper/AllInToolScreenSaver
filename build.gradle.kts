@@ -17,8 +17,8 @@ allprojects {
     configure<DetektExtension> {
         parallel = true
         config.setFrom(
-            "${rootDir}/.detekt/default.yml",
-            "${rootDir}/.detekt/compose.yml",
+            "$rootDir/.detekt/default.yml",
+            "$rootDir/.detekt/compose.yml",
         )
     }
     dependencies {
