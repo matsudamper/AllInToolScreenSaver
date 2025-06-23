@@ -21,7 +21,24 @@ class SettingsManager(context: Context) {
         return if (uriString != null) Uri.parse(uriString) else null
     }
 
+    fun saveSelectedCalendarIds(calendarIds: List<Long>) {
+        val idsString = calendarIds.joinToString(",")
+        sharedPreferences.edit()
+            .putString(KEY_SELECTED_CALENDAR_IDS, idsString)
+            .apply()
+    }
+
+    fun getSelectedCalendarIds(): List<Long> {
+        val idsString = sharedPreferences.getString(KEY_SELECTED_CALENDAR_IDS, null)
+        return if (idsString.isNullOrEmpty()) {
+            listOf()
+        } else {
+            idsString.split(",").mapNotNull { it.toLongOrNull() }
+        }
+    }
+
     companion object {
         private const val KEY_IMAGE_DIRECTORY_URI = "image_directory_uri"
+        private const val KEY_SELECTED_CALENDAR_IDS = "selected_calendar_ids"
     }
 } 

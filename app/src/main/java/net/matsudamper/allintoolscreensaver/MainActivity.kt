@@ -1,6 +1,8 @@
 package net.matsudamper.allintoolscreensaver
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -10,18 +12,24 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
 
 class MainActivity : ComponentActivity() {
@@ -46,7 +54,12 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val settingsManager = remember { SettingsManager(context) }
+    val calendarManager = remember { CalendarManager(context) }
+    
     var selectedDirectoryPath by remember { mutableStateOf<String?>(null) }
+    var availableCalendars by remember { mutableStateOf<List<CalendarInfo>>(listOf()) }
+    var selectedCalendarIds by remember { mutableStateOf<List<Long>>(listOf()) }
+    var hasCalendarPermission by remember { mutableStateOf(false) }
 
     val directoryPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree()
@@ -62,89 +75,212 @@ fun MainScreen(modifier: Modifier = Modifier) {
         }
     }
 
-    val currentDirectoryUri = settingsManager.getImageDirectoryUri()
-    if (currentDirectoryUri != null && selectedDirectoryPath == null) {
-        selectedDirectoryPath = currentDirectoryUri.toString()
+    val calendarPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasCalendarPermission = isGranted
+        if (isGranted) {
+            // 権限が許可されたらカレンダーを読み込む
+        }
     }
 
-    Column(
+    LaunchedEffect(Unit) {
+        // 初期設定の読み込み
+        val currentDirectoryUri = settingsManager.getImageDirectoryUri()
+        if (currentDirectoryUri != null) {
+            selectedDirectoryPath = currentDirectoryUri.toString()
+        }
+        
+        selectedCalendarIds = settingsManager.getSelectedCalendarIds()
+        
+        // カレンダー権限チェック
+        hasCalendarPermission = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.READ_CALENDAR
+        ) == PackageManager.PERMISSION_GRANTED
+        
+        if (hasCalendarPermission) {
+            availableCalendars = calendarManager.getAvailableCalendars()
+        }
+    }
+
+    LaunchedEffect(hasCalendarPermission) {
+        if (hasCalendarPermission) {
+            availableCalendars = calendarManager.getAvailableCalendars()
+        }
+    }
+
+    LazyColumn(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(
-            text = "オールインワンツールスクリーンセーバー",
-            style = MaterialTheme.typography.headlineMedium,
-            textAlign = TextAlign.Center
-        )
+        item {
+            Text(
+                text = "オールインワンツールスクリーンセーバー",
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center
+            )
+        }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        item {
+            Text(
+                text = "このアプリはデジタル時計、画像表示、カレンダー機能を持つスクリーンセーバーです。",
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center
+            )
+        }
 
-        Text(
-            text = "このアプリはデジタル時計、画像表示、カレンダー機能を持つスクリーンセーバーです。",
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Button(
-            onClick = {
-                directoryPickerLauncher.launch(null)
+        item {
+            Button(
+                onClick = {
+                    directoryPickerLauncher.launch(null)
+                }
+            ) {
+                Text("画像フォルダを選択")
             }
-        ) {
-            Text("画像フォルダを選択")
         }
 
         if (selectedDirectoryPath != null) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
                 ) {
-                    Text(
-                        text = "選択されたフォルダ:",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = selectedDirectoryPath!!,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = "選択されたフォルダ:",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = selectedDirectoryPath!!,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Button(
-            onClick = {
-                // スクリーンセーバー設定画面を開く
-                Log.d("MainActivity", "Opening dream settings")
-                val intent = Intent(Settings.ACTION_DREAM_SETTINGS)
-                context.startActivity(intent)
+        item {
+            if (!hasCalendarPermission) {
+                Button(
+                    onClick = {
+                        calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR)
+                    }
+                ) {
+                    Text("カレンダーアクセス許可")
+                }
+            } else {
+                Text(
+                    text = "カレンダー選択:",
+                    style = MaterialTheme.typography.titleMedium
+                )
             }
-        ) {
-            Text("スクリーンセーバー設定を開く")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        if (hasCalendarPermission && availableCalendars.isNotEmpty()) {
+            items(availableCalendars) { calendar ->
+                CalendarItem(
+                    calendar = calendar,
+                    isSelected = selectedCalendarIds.contains(calendar.id),
+                    onSelectionChanged = { isSelected ->
+                        selectedCalendarIds = if (isSelected) {
+                            selectedCalendarIds + calendar.id
+                        } else {
+                            selectedCalendarIds - calendar.id
+                        }
+                        settingsManager.saveSelectedCalendarIds(selectedCalendarIds)
+                    }
+                )
+            }
+        }
 
-        Text(
-            text = "設定画面で「オールインワンツールスクリーンセーバー」を選択してください。",
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+        item {
+            Button(
+                onClick = {
+                    Log.d("MainActivity", "Opening dream settings")
+                    val intent = Intent(Settings.ACTION_DREAM_SETTINGS)
+                    context.startActivity(intent)
+                }
+            ) {
+                Text("スクリーンセーバー設定を開く")
+            }
+        }
+
+        item {
+            Text(
+                text = "設定画面で「オールインワンツールスクリーンセーバー」を選択してください。",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+fun CalendarItem(
+    calendar: CalendarInfo,
+    isSelected: Boolean,
+    onSelectionChanged: (Boolean) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) 
+                MaterialTheme.colorScheme.primaryContainer 
+            else 
+                MaterialTheme.colorScheme.surface
         )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = isSelected,
+                onCheckedChange = onSelectionChanged
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = calendar.displayName,
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Text(
+                    text = calendar.accountName,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .padding(2.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                // カレンダーカラーを表示
+                Card(
+                    modifier = Modifier.size(20.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(calendar.color)
+                    )
+                ) {}
+            }
+        }
     }
 }
 
