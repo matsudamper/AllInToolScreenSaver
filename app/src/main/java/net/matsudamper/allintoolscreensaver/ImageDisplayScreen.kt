@@ -18,20 +18,19 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import kotlinx.coroutines.delay
 import kotlin.math.abs
-import kotlin.random.Random
+import kotlinx.coroutines.delay
+import coil.compose.AsyncImage
 
 @Composable
 fun ImageDisplayScreen(
     modifier: Modifier = Modifier,
-    imageChangeIntervalSeconds: Int = 30
+    imageChangeIntervalSeconds: Int = 30,
 ) {
     val context = LocalContext.current
     val settingsManager = remember { SettingsManager(context) }
     val imageManager = remember { ImageManager(context) }
-    
+
     var imageUris by remember { mutableStateOf<List<Uri>>(listOf()) }
     var currentImageIndex by remember { mutableStateOf(0) }
     var isLoading by remember { mutableStateOf(true) }
@@ -81,11 +80,11 @@ fun ImageDisplayScreen(
                 detectDragGestures(
                     onDragEnd = {
                         autoChangeEnabled = true
-                    }
+                    },
                 ) { _, dragAmount ->
                     autoChangeEnabled = false
                     val dragThreshold = 100f
-                    
+
                     if (abs(dragAmount.x) > dragThreshold) {
                         if (dragAmount.x > 0) {
                             previousImage()
@@ -95,12 +94,12 @@ fun ImageDisplayScreen(
                     }
                 }
             },
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         when {
             isLoading -> {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(48.dp)
+                    modifier = Modifier.size(48.dp),
                 )
             }
             imageUris.isEmpty() -> {
@@ -111,7 +110,7 @@ fun ImageDisplayScreen(
                     model = imageUris[currentImageIndex],
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
                 )
             }
         }

@@ -16,7 +16,8 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
 
-class ClockDreamService : DreamService(),
+class ClockDreamService :
+    DreamService(),
     LifecycleOwner,
     ViewModelStoreOwner,
     SavedStateRegistryOwner {

@@ -6,12 +6,12 @@ import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
 import androidx.datastore.dataStore
-import com.google.protobuf.InvalidProtocolBufferException
+import java.io.InputStream
+import java.io.OutputStream
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import java.io.InputStream
-import java.io.OutputStream
+import com.google.protobuf.InvalidProtocolBufferException
 
 object SettingsSerializer : Serializer<Settings> {
     override val defaultValue: Settings = Settings.getDefaultInstance()
@@ -29,7 +29,7 @@ object SettingsSerializer : Serializer<Settings> {
 
 private val Context.settingsDataStore: DataStore<Settings> by dataStore(
     fileName = "settings.pb",
-    serializer = SettingsSerializer
+    serializer = SettingsSerializer,
 )
 
 class SettingsManager(private val context: Context) {

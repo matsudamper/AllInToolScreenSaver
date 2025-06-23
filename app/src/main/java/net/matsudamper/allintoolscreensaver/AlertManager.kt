@@ -8,7 +8,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.Calendar
 
 class AlertManager(private val context: Context) {
     private val settingsManager = SettingsManager(context)
@@ -34,7 +33,7 @@ class AlertManager(private val context: Context) {
 
     fun startAlertMonitoring() {
         stopAlertMonitoring()
-        
+
         alertJob = alertScope.launch {
             while (true) {
                 val currentTime = System.currentTimeMillis()
@@ -56,7 +55,7 @@ class AlertManager(private val context: Context) {
         // 現在時刻から5分後までのイベントを取得
         val endTime = currentTime + (5 * 60 * 1000)
         val events = calendarManager.getEventsForTimeRange(selectedCalendarIds, currentTime, endTime)
-        
+
         for (event in events) {
             // イベント開始時刻の前後1分以内かつ、まだトリガーされていないイベントをチェック
             val timeDiff = kotlin.math.abs(event.startTime - currentTime)
@@ -65,7 +64,7 @@ class AlertManager(private val context: Context) {
                 alreadyTriggeredEvents.add(event.id)
             }
         }
-        
+
         // 古いトリガー済みイベントIDをクリーンアップ（1時間以上前のものを削除）
         cleanupOldTriggeredEvents(currentTime)
     }

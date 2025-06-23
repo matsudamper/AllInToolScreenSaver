@@ -12,11 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -47,7 +45,7 @@ fun DigitalClockScreen() {
     var currentDate by remember { mutableStateOf(getCurrentDate()) }
     var showAlertDialog by remember { mutableStateOf(false) }
     var currentAlert by remember { mutableStateOf<CalendarEvent?>(null) }
-    
+
     val alertManager = remember { AlertManager(context) }
 
     LaunchedEffect(Unit) {
@@ -75,47 +73,47 @@ fun DigitalClockScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(Color.Black),
     ) {
         Row(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         ) {
             // 左側：画像表示エリア（40%の幅）
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .weight(0.4f)
+                    .weight(0.4f),
             ) {
                 ImageDisplayScreen()
             }
-            
+
             // 中央：デジタル時計エリア（20%の幅）
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(0.2f),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Center,
                 ) {
                     ClockTimeText(currentTime)
                     Spacer(modifier = Modifier.height(16.dp))
                     ClockDateText(currentDate)
                 }
             }
-            
+
             // 右側：カレンダー表示エリア（40%の幅）
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .weight(0.4f)
+                    .weight(0.4f),
             ) {
                 CalendarDisplayScreen()
             }
         }
-        
+
         // アラートダイアログ
         if (showAlertDialog && currentAlert != null) {
             AlertDialogScreen(
@@ -124,7 +122,7 @@ fun DigitalClockScreen() {
                     showAlertDialog = false
                     currentAlert = null
                 },
-                alertManager = alertManager
+                alertManager = alertManager,
             )
         }
     }
@@ -134,10 +132,10 @@ fun DigitalClockScreen() {
 fun AlertDialogScreen(
     alertTime: CalendarEvent,
     onDismiss: () -> Unit,
-    alertManager: AlertManager
+    alertManager: AlertManager,
 ) {
     var repeatCount by remember { mutableStateOf(0) }
-    
+
     LaunchedEffect(Unit) {
         while (repeatCount < 30) { // 最大30回（5分間）
             delay(10000) // 10秒待機
@@ -151,61 +149,61 @@ fun AlertDialogScreen(
         onDismissRequest = { /* 空にして自動で閉じないようにする */ },
         properties = DialogProperties(
             dismissOnBackPress = false,
-            dismissOnClickOutside = false
-        )
+            dismissOnClickOutside = false,
+        ),
     ) {
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color.Red.copy(alpha = 0.9f)
-            )
+                containerColor = Color.Red.copy(alpha = 0.9f),
+            ),
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
                     text = "予定のアラート",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = Color.White,
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 Text(
                     text = alertTime.title,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = Color.White,
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 val startTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(alertTime.startTime))
                 Text(
                     text = "開始時刻: $startTime",
                     fontSize = 16.sp,
                     color = Color.White,
-                    fontFamily = FontFamily.Monospace
+                    fontFamily = FontFamily.Monospace,
                 )
-                
+
                 if (!alertTime.description.isNullOrEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = alertTime.description!!,
                         fontSize = 14.sp,
                         color = Color.White.copy(alpha = 0.9f),
-                        maxLines = 3
+                        maxLines = 3,
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 Button(
                     onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text("OK", fontSize = 18.sp)
                 }
