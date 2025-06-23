@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.ui.theme
+package net.matsudamper.allintoolscreensaver.theme
 
 import androidx.compose.ui.graphics.Color
 

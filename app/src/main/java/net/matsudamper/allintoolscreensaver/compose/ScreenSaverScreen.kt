@@ -43,7 +43,7 @@ import net.matsudamper.allintoolscreensaver.SettingsManager
 fun ScreenSaverScreen() {
     val context = LocalContext.current
     var showAlertDialog by remember { mutableStateOf(false) }
-    var currentAlert by remember { mutableStateOf<CalendarEvent?>(null) }
+    val currentAlertState = remember { mutableStateOf<CalendarEvent?>(null) }
     val viewModel = viewModel(
         initializer = {
             DigitalClockScreenViewModel(
@@ -64,7 +64,7 @@ fun ScreenSaverScreen() {
 
     LaunchedEffect(Unit) {
         alertManager.onAlertTriggered = { calendarEvent ->
-            currentAlert = calendarEvent
+            currentAlertState.value = calendarEvent
             showAlertDialog = true
         }
         alertManager.startAlertMonitoring()
@@ -130,12 +130,13 @@ fun ScreenSaverScreen() {
         }
 
         // アラートダイアログ
+        val currentAlert = currentAlertState.value
         if (showAlertDialog && currentAlert != null) {
             ClockAlertDialog(
-                alertTime = currentAlert!!,
+                alertTime = currentAlert,
                 onDismiss = {
                     showAlertDialog = false
-                    currentAlert = null
+                    currentAlertState.value = null
                 },
                 alertManager = alertManager,
             )

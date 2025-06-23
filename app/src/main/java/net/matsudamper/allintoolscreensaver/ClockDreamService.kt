@@ -15,7 +15,7 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import net.matsudamper.allintoolscreensaver.compose.ScreenSaverScreen
-import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
+import net.matsudamper.allintoolscreensaver.theme.AllInToolScreenSaverTheme
 
 class ClockDreamService :
     DreamService(),

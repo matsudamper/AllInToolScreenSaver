@@ -111,7 +111,7 @@ fun CalendarDisplayScreen(
             .fillMaxSize()
             .pointerInput(Unit) {
                 detectTransformGestures(
-                    onGesture = { _, pan, zoom, _ ->
+                    onGesture = { _, _, zoom, _ ->
                         lastInteractionTime = System.currentTimeMillis()
                         scale = max(0.5f, min(3f, scale * zoom))
                     },
@@ -160,7 +160,6 @@ private fun TimeSlotItem(
 
     val itemHeight = (60.dp * scale).coerceAtLeast(30.dp)
     val fontSize = 14.sp * scale
-    val eventFontSize = 10.sp * scale
 
     Row(
         modifier = Modifier
@@ -274,7 +273,7 @@ private fun generateTimeSlots(): List<TimeSlot> {
         calendar.add(Calendar.HOUR_OF_DAY, 1)
         val endTime = calendar.timeInMillis
 
-        val hourText = String.format("%02d:00", hour)
+        val hourText = String.format(Locale.US, "%02d:00", hour)
         timeSlots.add(TimeSlot(startTime, endTime, hourText))
 
         // 1時間戻す（次のループで正しく進むため）

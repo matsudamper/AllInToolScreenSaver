@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import net.matsudamper.allintoolscreensaver.compose.MainScreen
-import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
+import net.matsudamper.allintoolscreensaver.theme.AllInToolScreenSaverTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

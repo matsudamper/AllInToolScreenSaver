@@ -46,7 +46,7 @@ import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.CalendarInfo
 import net.matsudamper.allintoolscreensaver.CalendarManager
 import net.matsudamper.allintoolscreensaver.SettingsManager
-import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
+import net.matsudamper.allintoolscreensaver.theme.AllInToolScreenSaverTheme
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
@@ -162,7 +162,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = selectedDirectoryPath!!,
+                            text = selectedDirectoryPath.orEmpty(),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

@@ -94,7 +94,7 @@ class CalendarManager(private val context: Context) {
             cursor?.use { c ->
                 while (c.moveToNext()) {
                     val id = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events._ID))
-                    val title = c.getString(c.getColumnIndexOrThrow(CalendarContract.Events.TITLE)) ?: ""
+                    val title = c.getString(c.getColumnIndexOrThrow(CalendarContract.Events.TITLE)).orEmpty()
                     val description = c.getString(c.getColumnIndexOrThrow(CalendarContract.Events.DESCRIPTION))
                     val eventStartTime = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events.DTSTART))
                     val eventEndTime = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events.DTEND))

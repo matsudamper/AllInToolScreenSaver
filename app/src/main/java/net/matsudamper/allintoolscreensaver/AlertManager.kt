@@ -9,7 +9,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class AlertManager(private val context: Context) {
+class AlertManager(context: Context) {
     private val settingsManager = SettingsManager(context)
     private val calendarManager = CalendarManager(context)
     private var alertJob: Job? = null
@@ -26,7 +26,7 @@ class AlertManager(private val context: Context) {
     private fun initializeToneGenerator() {
         try {
             toneGenerator = ToneGenerator(AudioManager.STREAM_ALARM, 100)
-        } catch (e: RuntimeException) {
+        } catch (_: RuntimeException) {
             // ToneGeneratorの初期化に失敗した場合
         }
     }
@@ -66,10 +66,10 @@ class AlertManager(private val context: Context) {
         }
 
         // 古いトリガー済みイベントIDをクリーンアップ（1時間以上前のものを削除）
-        cleanupOldTriggeredEvents(currentTime)
+        cleanupOldTriggeredEvents()
     }
 
-    private fun cleanupOldTriggeredEvents(currentTime: Long) {
+    private fun cleanupOldTriggeredEvents() {
         // 1時間前より古いイベントIDを削除（簡易的に全クリア）
         if (alreadyTriggeredEvents.size > 100) {
             alreadyTriggeredEvents.clear()
@@ -84,7 +84,7 @@ class AlertManager(private val context: Context) {
     fun playAlertSound() {
         try {
             toneGenerator?.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 1000)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // 音の再生に失敗した場合
         }
     }
