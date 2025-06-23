@@ -1,0 +1,234 @@
+package net.matsudamper.allintoolscreensaver
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+import kotlinx.coroutines.delay
+
+@Composable
+fun CalendarDisplayScreen(
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val settingsManager = remember { SettingsManager(context) }
+    val calendarManager = remember { CalendarManager(context) }
+    
+    var events by remember { mutableStateOf<List<CalendarEvent>>(listOf()) }
+    var currentTime by remember { mutableStateOf(System.currentTimeMillis()) }
+    var timeSlots by remember { mutableStateOf<List<TimeSlot>>(listOf()) }
+    
+    // 現在時刻を更新
+    LaunchedEffect(Unit) {
+        while (true) {
+            currentTime = System.currentTimeMillis()
+            delay(60000) // 1分ごとに更新
+        }
+    }
+    
+    // イベントの読み込み
+    LaunchedEffect(Unit) {
+        val selectedCalendarIds = settingsManager.getSelectedCalendarIds()
+        if (selectedCalendarIds.isNotEmpty()) {
+            val (startTime, endTime) = calendarManager.getTodayRange()
+            events = calendarManager.getEventsForTimeRange(selectedCalendarIds, startTime, endTime)
+        }
+        
+        // 24時間分のタイムスロットを生成
+        timeSlots = generateTimeSlots()
+    }
+    
+    Box(modifier = modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            items(timeSlots) { timeSlot ->
+                TimeSlotItem(
+                    timeSlot = timeSlot,
+                    events = events.filter { event ->
+                        event.startTime <= timeSlot.endTime && event.endTime >= timeSlot.startTime
+                    },
+                    isCurrentTime = isCurrentTimeSlot(currentTime, timeSlot)
+                )
+            }
+        }
+    }
+}
+
+data class TimeSlot(
+    val startTime: Long,
+    val endTime: Long,
+    val hourText: String
+)
+
+@Composable
+private fun TimeSlotItem(
+    timeSlot: TimeSlot,
+    events: List<CalendarEvent>,
+    isCurrentTime: Boolean
+) {
+    val backgroundColor = if (isCurrentTime) 
+        Color.Yellow.copy(alpha = 0.3f) 
+    else 
+        Color.Transparent
+    
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(60.dp)
+            .background(backgroundColor)
+            .drawBehind {
+                if (isCurrentTime) {
+                    // 現在時刻に横線を描画
+                    drawLine(
+                        color = Color.Yellow,
+                        start = Offset(0f, size.height / 2),
+                        end = Offset(size.width, size.height / 2),
+                        strokeWidth = 4.dp.toPx()
+                    )
+                }
+            }
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // 時刻表示
+        Text(
+            text = timeSlot.hourText,
+            color = Color.White,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.width(60.dp)
+        )
+        
+        Spacer(modifier = Modifier.width(8.dp))
+        
+        // イベント表示エリア
+        if (events.isNotEmpty()) {
+            // 複数のイベントがある場合は2列、3列に分けて表示
+            val columns = when {
+                events.size <= 1 -> 1
+                events.size <= 2 -> 2
+                else -> 3
+            }
+            
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                events.chunked(events.size / columns + if (events.size % columns > 0) 1 else 0)
+                    .forEach { columnEvents ->
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            columnEvents.forEach { event ->
+                                EventItem(event = event)
+                            }
+                        }
+                    }
+            }
+        } else {
+            Spacer(modifier = Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun EventItem(event: CalendarEvent) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.Blue.copy(alpha = 0.7f)
+        ),
+        shape = RoundedCornerShape(4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(6.dp)
+        ) {
+            Text(
+                text = event.title,
+                color = Color.White,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1
+            )
+            if (!event.allDay) {
+                val startTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(event.startTime))
+                val endTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(event.endTime))
+                Text(
+                    text = "$startTime-$endTime",
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 8.sp,
+                    maxLines = 1
+                )
+            }
+        }
+    }
+}
+
+private fun generateTimeSlots(): List<TimeSlot> {
+    val timeSlots = mutableListOf<TimeSlot>()
+    val calendar = Calendar.getInstance()
+    
+    // 今日の0時から開始
+    calendar.set(Calendar.HOUR_OF_DAY, 0)
+    calendar.set(Calendar.MINUTE, 0)
+    calendar.set(Calendar.SECOND, 0)
+    calendar.set(Calendar.MILLISECOND, 0)
+    
+    for (hour in 0..23) {
+        val startTime = calendar.timeInMillis
+        calendar.add(Calendar.HOUR_OF_DAY, 1)
+        val endTime = calendar.timeInMillis
+        
+        val hourText = String.format("%02d:00", hour)
+        timeSlots.add(TimeSlot(startTime, endTime, hourText))
+        
+        // 1時間戻す（次のループで正しく進むため）
+        calendar.add(Calendar.HOUR_OF_DAY, -1)
+        calendar.add(Calendar.HOUR_OF_DAY, 1)
+    }
+    
+    return timeSlots
+}
+
+private fun isCurrentTimeSlot(currentTime: Long, timeSlot: TimeSlot): Boolean {
+    return currentTime >= timeSlot.startTime && currentTime < timeSlot.endTime
+} 

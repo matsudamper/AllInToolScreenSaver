@@ -50,20 +50,20 @@ fun DigitalClockScreen() {
         Row(
             modifier = Modifier.fillMaxSize()
         ) {
-            // 左側：画像表示エリア
+            // 左側：画像表示エリア（40%の幅）
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .weight(1f)
+                    .weight(0.4f)
             ) {
                 ImageDisplayScreen()
             }
             
-            // 右側：デジタル時計エリア
+            // 中央：デジタル時計エリア（20%の幅）
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .weight(1f),
+                    .weight(0.2f),
                 contentAlignment = Alignment.Center
             ) {
                 Column(
@@ -75,6 +75,15 @@ fun DigitalClockScreen() {
                     ClockDateText(currentDate)
                 }
             }
+            
+            // 右側：カレンダー表示エリア（40%の幅）
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(0.4f)
+            ) {
+                CalendarDisplayScreen()
+            }
         }
     }
 }
@@ -84,7 +93,7 @@ private fun ClockTimeText(time: String) {
     Text(
         text = time,
         color = Color.White,
-        fontSize = 72.sp,
+        fontSize = 48.sp,
         fontFamily = FontFamily.Monospace,
         fontWeight = FontWeight.Bold,
     )
@@ -95,7 +104,7 @@ private fun ClockDateText(date: String) {
     Text(
         text = date,
         color = Color.Gray,
-        fontSize = 28.sp,
+        fontSize = 18.sp,
         fontFamily = FontFamily.Monospace,
         fontWeight = FontWeight.Normal,
     )
