@@ -13,9 +13,13 @@ plugins {
 allprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
     apply(plugin = "io.gitlab.arturbosch.detekt")
+    val detektPlugins by configurations
     configure<DetektExtension> {
         parallel = true
         config.setFrom("${rootDir}/.detekt/config.yml")
+    }
+    dependencies {
+        detektPlugins("com.braisgabin.detekt:kotlin-compiler-wrapper:0.0.4")
     }
 
     configure<KtlintExtension> {
