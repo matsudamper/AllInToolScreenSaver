@@ -14,7 +14,7 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import net.matsudamper.allintoolscreensaver.compose.DigitalClockScreen
+import net.matsudamper.allintoolscreensaver.compose.ScreenSaverScreen
 import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
 
 class ClockDreamService :
@@ -57,7 +57,7 @@ class ClockDreamService :
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 AllInToolScreenSaverTheme {
-                    DigitalClockScreen()
+                    ScreenSaverScreen()
                 }
             }
         }

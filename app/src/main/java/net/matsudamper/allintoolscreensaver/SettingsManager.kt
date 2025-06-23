@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import com.google.protobuf.InvalidProtocolBufferException
+import androidx.core.net.toUri
 
 object SettingsSerializer : Serializer<Settings> {
     override val defaultValue: Settings = Settings.getDefaultInstance()
@@ -48,7 +49,7 @@ class SettingsManager(private val context: Context) {
     suspend fun getImageDirectoryUri(): Uri? {
         val settings = dataStore.data.first()
         return if (settings.imageDirectoryUri.isNotEmpty()) {
-            Uri.parse(settings.imageDirectoryUri)
+            settings.imageDirectoryUri.toUri()
         } else {
             null
         }

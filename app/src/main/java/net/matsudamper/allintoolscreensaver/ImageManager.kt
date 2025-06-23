@@ -15,21 +15,19 @@ class ImageManager(private val context: Context) {
                 return@withContext listOf()
             }
 
-            val imageUris = mutableListOf<Uri>()
-
-            fun collectImages(folder: DocumentFile) {
-                folder.listFiles().forEach { file ->
-                    if (file.isDirectory) {
-                        collectImages(file)
-                    } else if (file.isFile && isImageFile(file)) {
-                        imageUris.add(file.uri)
-                    }
-                }
-            }
-
-            collectImages(directory)
-            imageUris
+            mutableListOf<Uri>().collectImages(folder = directory)
         }
+    }
+
+    private fun MutableList<Uri>.collectImages(folder: DocumentFile): MutableList<Uri> {
+        folder.listFiles().forEach { file ->
+            if (file.isDirectory) {
+                collectImages(file)
+            } else if (file.isFile && isImageFile(file)) {
+                add(file.uri)
+            }
+        }
+        return this
     }
 
     private fun isImageFile(file: DocumentFile): Boolean {
