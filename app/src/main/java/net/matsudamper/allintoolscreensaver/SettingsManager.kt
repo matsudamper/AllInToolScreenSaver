@@ -2,6 +2,7 @@ package net.matsudamper.allintoolscreensaver
 
 import android.content.Context
 import android.net.Uri
+import androidx.core.net.toUri
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
@@ -12,7 +13,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import com.google.protobuf.InvalidProtocolBufferException
-import androidx.core.net.toUri
 
 object SettingsSerializer : Serializer<Settings> {
     override val defaultValue: Settings = Settings.getDefaultInstance()

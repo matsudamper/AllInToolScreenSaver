@@ -38,7 +38,6 @@ import net.matsudamper.allintoolscreensaver.CalendarEvent
 import net.matsudamper.allintoolscreensaver.ImageManager
 import net.matsudamper.allintoolscreensaver.SettingsManager
 
-
 @Composable
 fun ScreenSaverScreen(
     modifier: Modifier = Modifier,
