@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -38,9 +39,9 @@ fun ClockAlertDialog(
     onDismiss: () -> Unit,
     alertManager: AlertManager,
 ) {
-    var repeatCount by remember { mutableStateOf(0) }
+    var repeatCount by remember { mutableIntStateOf(0) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(onDismiss) {
         while (repeatCount < 30) {
             delay(10000)
             alertManager.playAlertSound()

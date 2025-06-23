@@ -40,11 +40,13 @@ import net.matsudamper.allintoolscreensaver.SettingsManager
 
 
 @Composable
-fun ScreenSaverScreen() {
+fun ScreenSaverScreen(
+    modifier: Modifier = Modifier,
+) {
     val context = LocalContext.current
     var showAlertDialog by remember { mutableStateOf(false) }
     val currentAlertState = remember { mutableStateOf<CalendarEvent?>(null) }
-    val viewModel = viewModel(
+    val viewModel: DigitalClockScreenViewModel = viewModel(
         initializer = {
             DigitalClockScreenViewModel(
                 settingsManager = SettingsManager(context),
@@ -77,7 +79,7 @@ fun ScreenSaverScreen() {
     }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color.Black),
     ) {

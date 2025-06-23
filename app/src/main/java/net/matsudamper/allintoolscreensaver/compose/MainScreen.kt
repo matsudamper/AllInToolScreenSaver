@@ -193,7 +193,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 CalendarItem(
                     calendar = calendar,
                     isSelected = selectedCalendarIds.contains(calendar.id),
-                    onSelectionChanged = { isSelected ->
+                    onSelectionChange = { isSelected ->
                         val newIds = if (isSelected) {
                             selectedCalendarIds + calendar.id
                         } else {
@@ -252,10 +252,11 @@ fun MainScreen(modifier: Modifier = Modifier) {
 private fun CalendarItem(
     calendar: CalendarInfo,
     isSelected: Boolean,
-    onSelectionChanged: (Boolean) -> Unit,
+    onSelectionChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) {
                 MaterialTheme.colorScheme.primaryContainer
@@ -272,7 +273,7 @@ private fun CalendarItem(
         ) {
             Checkbox(
                 checked = isSelected,
-                onCheckedChange = onSelectionChanged,
+                onCheckedChange = onSelectionChange,
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(
