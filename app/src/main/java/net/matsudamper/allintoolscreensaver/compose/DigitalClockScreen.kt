@@ -80,37 +80,29 @@ fun DigitalClockScreen() {
         Row(
             modifier = Modifier.fillMaxSize(),
         ) {
-            // 左側：画像表示エリア（40%の幅）
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .weight(0.4f),
+                    .weight(0.1f),
             ) {
                 ImageDisplayScreen()
+
+                Clock(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(
+                            end = 24.dp,
+                            bottom = 24.dp,
+                        ),
+                    date = currentDate,
+                    time = currentTime,
+                )
             }
 
-            // 中央：デジタル時計エリア（20%の幅）
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .weight(0.2f),
-                contentAlignment = Alignment.Center,
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    ClockTimeText(currentTime)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    ClockDateText(currentDate)
-                }
-            }
-
-            // 右側：カレンダー表示エリア（40%の幅）
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(0.4f),
+                    .weight(0.1f),
             ) {
                 CalendarDisplayScreen()
             }
@@ -215,25 +207,32 @@ fun AlertDialogScreen(
 }
 
 @Composable
-private fun ClockTimeText(time: String) {
-    Text(
-        text = time,
-        color = Color.White,
-        fontSize = 48.sp,
-        fontFamily = FontFamily.Monospace,
-        fontWeight = FontWeight.Bold,
-    )
-}
-
-@Composable
-private fun ClockDateText(date: String) {
-    Text(
-        text = date,
-        color = Color.Gray,
-        fontSize = 18.sp,
-        fontFamily = FontFamily.Monospace,
-        fontWeight = FontWeight.Normal,
-    )
+private fun Clock(
+    date: String,
+    time: String,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            text = time,
+            color = Color.White,
+            fontSize = 48.sp,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Bold,
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = date,
+            color = Color.Gray,
+            fontSize = 18.sp,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Normal,
+        )
+    }
 }
 
 private fun getCurrentTime(): String {
