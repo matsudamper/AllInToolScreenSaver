@@ -37,6 +37,8 @@ class SettingsManager(context: Context) {
         }
     }
 
+
+
     companion object {
         private const val KEY_IMAGE_DIRECTORY_URI = "image_directory_uri"
         private const val KEY_SELECTED_CALENDAR_IDS = "selected_calendar_ids"

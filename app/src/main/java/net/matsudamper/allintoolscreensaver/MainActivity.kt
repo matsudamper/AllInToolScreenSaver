@@ -224,8 +224,25 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "アラート機能について:",
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+
+        item {
+            Text(
+                text = "選択されたカレンダーの予定開始時刻に自動でアラートが鳴ります。",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
+
 
 @Composable
 fun CalendarItem(
