@@ -71,4 +71,4 @@ class SettingsManager(private val context: Context) {
     fun getSelectedCalendarIdsFlow(): Flow<List<Long>> = dataStore.data.map { settings ->
         settings.selectedCalendarIdsList
     }
-} 
+}

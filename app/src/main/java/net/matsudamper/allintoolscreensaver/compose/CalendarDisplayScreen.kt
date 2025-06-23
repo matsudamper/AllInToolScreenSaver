@@ -284,4 +284,4 @@ private fun generateTimeSlots(): List<TimeSlot> {
 
 private fun isCurrentTimeSlot(currentTime: Long, timeSlot: TimeSlot): Boolean {
     return currentTime >= timeSlot.startTime && currentTime < timeSlot.endTime
-} 
+}

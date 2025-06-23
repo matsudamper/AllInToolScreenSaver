@@ -94,4 +94,4 @@ class AlertManager(private val context: Context) {
         toneGenerator?.release()
         toneGenerator = null
     }
-} 
+}

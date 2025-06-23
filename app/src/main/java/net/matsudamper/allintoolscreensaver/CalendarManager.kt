@@ -122,4 +122,4 @@ class CalendarManager(private val context: Context) {
 
         return Pair(startOfDay, endOfDay)
     }
-} 
+}

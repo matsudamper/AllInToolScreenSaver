@@ -45,7 +45,6 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
 
-
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current

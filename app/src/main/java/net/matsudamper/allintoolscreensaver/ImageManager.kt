@@ -36,4 +36,4 @@ class ImageManager(private val context: Context) {
         val mimeType = file.type
         return mimeType?.startsWith("image/") == true
     }
-} 
+}
