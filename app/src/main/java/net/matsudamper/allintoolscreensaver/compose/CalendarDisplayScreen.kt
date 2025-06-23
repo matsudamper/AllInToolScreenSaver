@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver
+package net.matsudamper.allintoolscreensaver.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -44,6 +44,9 @@ import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.delay
+import net.matsudamper.allintoolscreensaver.CalendarEvent
+import net.matsudamper.allintoolscreensaver.CalendarManager
+import net.matsudamper.allintoolscreensaver.SettingsManager
 
 @Composable
 fun CalendarDisplayScreen(

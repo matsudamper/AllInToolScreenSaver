@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import net.matsudamper.allintoolscreensaver.compose.MainScreen
 import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
 
 class MainActivity : ComponentActivity() {

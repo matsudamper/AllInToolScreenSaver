@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver
+package net.matsudamper.allintoolscreensaver.compose
 
 import android.Manifest
 import android.content.Intent
@@ -43,6 +43,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
+import net.matsudamper.allintoolscreensaver.CalendarInfo
+import net.matsudamper.allintoolscreensaver.CalendarManager
+import net.matsudamper.allintoolscreensaver.SettingsManager
 import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
 
 @Composable

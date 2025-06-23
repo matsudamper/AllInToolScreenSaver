@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver
+package net.matsudamper.allintoolscreensaver.compose
 
 import android.net.Uri
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -21,6 +21,9 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 import kotlinx.coroutines.delay
 import coil.compose.AsyncImage
+import net.matsudamper.allintoolscreensaver.ImageColorAnalyzer
+import net.matsudamper.allintoolscreensaver.ImageManager
+import net.matsudamper.allintoolscreensaver.SettingsManager
 
 @Composable
 fun ImageDisplayScreen(

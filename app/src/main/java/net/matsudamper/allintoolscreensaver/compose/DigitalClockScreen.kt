@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver
+package net.matsudamper.allintoolscreensaver.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +37,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.delay
+import net.matsudamper.allintoolscreensaver.AlertManager
+import net.matsudamper.allintoolscreensaver.CalendarEvent
 
 @Composable
 fun DigitalClockScreen() {
