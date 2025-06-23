@@ -30,6 +30,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
 
 class MainActivity : ComponentActivity() {
@@ -53,6 +55,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
+    val activity = context as ComponentActivity
     val settingsManager = remember { SettingsManager(context) }
     val calendarManager = remember { CalendarManager(context) }
     
@@ -69,9 +72,11 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 uri,
                 Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             )
-            settingsManager.saveImageDirectoryUri(uri)
-            selectedDirectoryPath = uri.toString()
-            Log.d("MainActivity", "Selected directory: $uri")
+            activity.lifecycleScope.launch {
+                settingsManager.saveImageDirectoryUri(uri)
+                selectedDirectoryPath = uri.toString()
+                Log.d("MainActivity", "Selected directory: $uri")
+            }
         }
     }
 
@@ -193,12 +198,16 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     calendar = calendar,
                     isSelected = selectedCalendarIds.contains(calendar.id),
                     onSelectionChanged = { isSelected ->
-                        selectedCalendarIds = if (isSelected) {
+                        val newIds = if (isSelected) {
                             selectedCalendarIds + calendar.id
                         } else {
                             selectedCalendarIds - calendar.id
                         }
-                        settingsManager.saveSelectedCalendarIds(selectedCalendarIds)
+                        selectedCalendarIds = newIds
+                        
+                        activity.lifecycleScope.launch {
+                            settingsManager.saveSelectedCalendarIds(newIds)
+                        }
                     }
                 )
             }
