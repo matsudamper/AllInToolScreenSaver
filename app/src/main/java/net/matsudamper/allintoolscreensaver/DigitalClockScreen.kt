@@ -4,8 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,16 +45,36 @@ fun DigitalClockScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black),
-        contentAlignment = Alignment.Center,
+            .background(Color.Black)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+        Row(
+            modifier = Modifier.fillMaxSize()
         ) {
-            ClockTimeText(currentTime)
-            Spacer(modifier = Modifier.height(16.dp))
-            ClockDateText(currentDate)
+            // 左側：画像表示エリア
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(1f)
+            ) {
+                ImageDisplayScreen()
+            }
+            
+            // 右側：デジタル時計エリア
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    ClockTimeText(currentTime)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    ClockDateText(currentDate)
+                }
+            }
         }
     }
 }

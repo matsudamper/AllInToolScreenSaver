@@ -43,7 +43,7 @@ class ClockDreamService : DreamService(),
 
         isFullscreen = true
         isScreenBright = true
-        isInteractive = false
+        isInteractive = true
 
         val composeView = createComposeView()
         setContentView(composeView)
