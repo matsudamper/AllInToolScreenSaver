@@ -1,6 +1,7 @@
 package net.matsudamper.allintoolscreensaver
 
 import android.net.Uri
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -13,11 +14,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import kotlinx.coroutines.delay
+import kotlin.math.abs
 import kotlin.random.Random
 
 @Composable
@@ -32,6 +35,7 @@ fun ImageDisplayScreen(
     var imageUris by remember { mutableStateOf<List<Uri>>(listOf()) }
     var currentImageIndex by remember { mutableStateOf(0) }
     var isLoading by remember { mutableStateOf(true) }
+    var autoChangeEnabled by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         val directoryUri = settingsManager.getImageDirectoryUri()
@@ -39,23 +43,58 @@ fun ImageDisplayScreen(
             val uris = imageManager.getImageUrisFromDirectory(directoryUri)
             imageUris = uris
             if (uris.isNotEmpty()) {
-                currentImageIndex = Random.nextInt(uris.size)
+                currentImageIndex = (0 until uris.size).random()
             }
         }
         isLoading = false
     }
 
-    LaunchedEffect(imageUris) {
-        if (imageUris.isNotEmpty()) {
+    LaunchedEffect(imageUris, autoChangeEnabled) {
+        if (imageUris.isNotEmpty() && autoChangeEnabled) {
             while (true) {
                 delay(imageChangeIntervalSeconds * 1000L)
-                currentImageIndex = Random.nextInt(imageUris.size)
+                currentImageIndex = (0 until imageUris.size).random()
+            }
+        }
+    }
+
+    fun nextImage() {
+        if (imageUris.isNotEmpty()) {
+            currentImageIndex = (currentImageIndex + 1) % imageUris.size
+        }
+    }
+
+    fun previousImage() {
+        if (imageUris.isNotEmpty()) {
+            currentImageIndex = if (currentImageIndex == 0) {
+                imageUris.size - 1
+            } else {
+                currentImageIndex - 1
             }
         }
     }
 
     Box(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDragEnd = {
+                        autoChangeEnabled = true
+                    }
+                ) { _, dragAmount ->
+                    autoChangeEnabled = false
+                    val dragThreshold = 100f
+                    
+                    if (abs(dragAmount.x) > dragThreshold) {
+                        if (dragAmount.x > 0) {
+                            previousImage()
+                        } else {
+                            nextImage()
+                        }
+                    }
+                }
+            },
         contentAlignment = Alignment.Center
     ) {
         when {
