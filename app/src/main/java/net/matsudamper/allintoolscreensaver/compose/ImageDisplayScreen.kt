@@ -9,6 +9,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -21,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 import kotlinx.coroutines.delay
 import coil.compose.AsyncImage
-import net.matsudamper.allintoolscreensaver.ImageColorAnalyzer
 import net.matsudamper.allintoolscreensaver.ImageManager
 import net.matsudamper.allintoolscreensaver.SettingsManager
 
@@ -35,7 +35,7 @@ fun ImageDisplayScreen(
     val imageManager = remember { ImageManager(context) }
 
     var imageUris by remember { mutableStateOf<List<Uri>>(listOf()) }
-    var currentImageIndex by remember { mutableStateOf(0) }
+    var currentImageIndex by remember { mutableIntStateOf(0) }
     var isLoading by remember { mutableStateOf(true) }
     var autoChangeEnabled by remember { mutableStateOf(true) }
 
@@ -45,7 +45,7 @@ fun ImageDisplayScreen(
             val uris = imageManager.getImageUrisFromDirectory(directoryUri)
             imageUris = uris
             if (uris.isNotEmpty()) {
-                currentImageIndex = (0 until uris.size).random()
+                currentImageIndex = uris.indices.random()
             }
         }
         isLoading = false
@@ -55,7 +55,7 @@ fun ImageDisplayScreen(
         if (imageUris.isNotEmpty() && autoChangeEnabled) {
             while (true) {
                 delay(imageChangeIntervalSeconds * 1000L)
-                currentImageIndex = (0 until imageUris.size).random()
+                currentImageIndex = imageUris.indices.random()
             }
         }
     }
