@@ -38,6 +38,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -49,15 +50,16 @@ import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.CalendarEvent
 import net.matsudamper.allintoolscreensaver.CalendarManager
 import net.matsudamper.allintoolscreensaver.SettingsManager
+import java.time.Instant
 
 @Composable
 fun CalendarDisplayScreen(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val settingsManager = remember { SettingsManager(context) }
-    val calendarManager = remember { CalendarManager(context) }
-    val viewModel = viewModel(initializer = { CalendarDisplayScreenViewModel(settingsManager, calendarRepository) })
+    val settingsRepository = remember { SettingsManager(context) }
+    val calendarRepository = remember { CalendarManager(context) }
+    val viewModel = viewModel(initializer = { CalendarDisplayScreenViewModel(settingsRepository, calendarRepository) })
 
     val uiState by viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
@@ -128,6 +130,7 @@ private fun CalendarLayout(
         state = listState,
         modifier = modifier
             .fillMaxSize()
+            .testTag(CalendarDisplayScreenTestTag.CalendarLayout.testTag())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(spacingDp),
     ) {
@@ -135,8 +138,7 @@ private fun CalendarLayout(
             TimeSlotLayout(
                 timeSlot = timeSlot,
                 events = uiState.events.filter { event ->
-                    // イベントの開始時刻と終了時刻が該当の分に重複しているかチェック
-                    event.startTime < timeSlot.endTime && event.endTime > timeSlot.startTime
+                    event.startTime.isBefore(timeSlot.endTime) && event.endTime.isAfter(timeSlot.startTime)
                 },
                 currentTime = uiState.currentTime,
                 scale = uiState.scale,
@@ -157,7 +159,9 @@ private fun ZoomControls(
     ) {
         FloatingActionButton(
             onClick = onZoomIn,
-            modifier = Modifier.size(40.dp),
+            modifier = Modifier
+                .size(40.dp)
+                .testTag(CalendarDisplayScreenTestTag.ZoomInButton.testTag()),
             containerColor = Color.Black.copy(alpha = 0.7f),
             contentColor = Color.White,
         ) {
@@ -166,7 +170,9 @@ private fun ZoomControls(
 
         FloatingActionButton(
             onClick = onZoomOut,
-            modifier = Modifier.size(40.dp),
+            modifier = Modifier
+                .size(40.dp)
+                .testTag(CalendarDisplayScreenTestTag.ZoomOutButton.testTag()),
             containerColor = Color.Black.copy(alpha = 0.7f),
             contentColor = Color.White,
         ) {
@@ -187,7 +193,9 @@ private fun ScrollControls(
     ) {
         FloatingActionButton(
             onClick = onScrollUp,
-            modifier = Modifier.size(40.dp),
+            modifier = Modifier
+                .size(40.dp)
+                .testTag(CalendarDisplayScreenTestTag.ScrollUpButton.testTag()),
             containerColor = Color.Black.copy(alpha = 0.7f),
             contentColor = Color.White,
         ) {
@@ -196,7 +204,9 @@ private fun ScrollControls(
 
         FloatingActionButton(
             onClick = onScrollDown,
-            modifier = Modifier.size(40.dp),
+            modifier = Modifier
+                .size(40.dp)
+                .testTag(CalendarDisplayScreenTestTag.ScrollDownButton.testTag()),
             containerColor = Color.Black.copy(alpha = 0.7f),
             contentColor = Color.White,
         ) {
@@ -209,10 +219,10 @@ private fun ScrollControls(
 private fun TimeSlotLayout(
     timeSlot: TimeSlot,
     events: List<CalendarEvent>,
-    currentTime: Long,
+    currentTime: Instant,
     scale: Float,
 ) {
-    val isCurrentTime = currentTime >= timeSlot.startTime && currentTime < timeSlot.endTime
+    val isCurrentTime = !currentTime.isBefore(timeSlot.startTime) && currentTime.isBefore(timeSlot.endTime)
     val isHourMark = timeSlot.hourText.endsWith("00")
 
     val itemHeight = if (20.dp * scale > 20.dp) 20.dp * scale else 20.dp

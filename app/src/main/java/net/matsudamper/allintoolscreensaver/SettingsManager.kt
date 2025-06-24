@@ -14,6 +14,15 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import com.google.protobuf.InvalidProtocolBufferException
 
+interface SettingsRepository {
+    val settingsFlow: Flow<Settings>
+    suspend fun saveImageDirectoryUri(uri: Uri)
+    suspend fun getImageDirectoryUri(): Uri?
+    suspend fun saveSelectedCalendarIds(calendarIds: List<Long>)
+    suspend fun getSelectedCalendarIds(): List<Long>
+    fun getSelectedCalendarIdsFlow(): Flow<List<Long>>
+}
+
 object SettingsSerializer : Serializer<Settings> {
     override val defaultValue: Settings = Settings.getDefaultInstance()
 
@@ -33,12 +42,12 @@ private val Context.settingsDataStore: DataStore<Settings> by dataStore(
     serializer = SettingsSerializer,
 )
 
-class SettingsManager(private val context: Context) {
+class SettingsManager(private val context: Context) : SettingsRepository {
     private val dataStore = context.settingsDataStore
 
-    val settingsFlow: Flow<Settings> = dataStore.data
+    override val settingsFlow: Flow<Settings> = dataStore.data
 
-    suspend fun saveImageDirectoryUri(uri: Uri) {
+    override suspend fun saveImageDirectoryUri(uri: Uri) {
         dataStore.updateData { currentSettings ->
             currentSettings.toBuilder()
                 .setImageDirectoryUri(uri.toString())
@@ -46,7 +55,7 @@ class SettingsManager(private val context: Context) {
         }
     }
 
-    suspend fun getImageDirectoryUri(): Uri? {
+    override suspend fun getImageDirectoryUri(): Uri? {
         val settings = dataStore.data.first()
         return if (settings.imageDirectoryUri.isNotEmpty()) {
             settings.imageDirectoryUri.toUri()
@@ -55,7 +64,7 @@ class SettingsManager(private val context: Context) {
         }
     }
 
-    suspend fun saveSelectedCalendarIds(calendarIds: List<Long>) {
+    override suspend fun saveSelectedCalendarIds(calendarIds: List<Long>) {
         dataStore.updateData { currentSettings ->
             currentSettings.toBuilder()
                 .clearSelectedCalendarIds()
@@ -64,12 +73,12 @@ class SettingsManager(private val context: Context) {
         }
     }
 
-    suspend fun getSelectedCalendarIds(): List<Long> {
+    override suspend fun getSelectedCalendarIds(): List<Long> {
         val settings = dataStore.data.first()
         return settings.selectedCalendarIdsList
     }
 
-    fun getSelectedCalendarIdsFlow(): Flow<List<Long>> = dataStore.data.map { settings ->
+    override fun getSelectedCalendarIdsFlow(): Flow<List<Long>> = dataStore.data.map { settings ->
         settings.selectedCalendarIdsList
     }
 }

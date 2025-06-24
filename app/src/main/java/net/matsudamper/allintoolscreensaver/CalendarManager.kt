@@ -2,7 +2,9 @@ package net.matsudamper.allintoolscreensaver
 
 import android.content.Context
 import android.provider.CalendarContract
-import java.util.Calendar
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -17,15 +19,25 @@ data class CalendarEvent(
     val id: Long,
     val title: String,
     val description: String?,
-    val startTime: Long,
-    val endTime: Long,
+    val startTime: Instant,
+    val endTime: Instant,
     val allDay: Boolean,
     val calendarId: Long,
 )
 
-class CalendarManager(private val context: Context) {
+interface CalendarRepository {
+    suspend fun getAvailableCalendars(): List<CalendarInfo>
+    suspend fun getEventsForTimeRange(
+        calendarIds: List<Long>,
+        startTime: Instant,
+        endTime: Instant,
+    ): List<CalendarEvent>
+    fun getTodayRange(): Pair<Instant, Instant>
+}
 
-    suspend fun getAvailableCalendars(): List<CalendarInfo> {
+class CalendarManager(private val context: Context) : CalendarRepository {
+
+    override suspend fun getAvailableCalendars(): List<CalendarInfo> {
         return withContext(Dispatchers.IO) {
             val calendars = mutableListOf<CalendarInfo>()
 
@@ -59,10 +71,10 @@ class CalendarManager(private val context: Context) {
         }
     }
 
-    suspend fun getEventsForTimeRange(
+    override suspend fun getEventsForTimeRange(
         calendarIds: List<Long>,
-        startTime: Long,
-        endTime: Long,
+        startTime: Instant,
+        endTime: Instant,
     ): List<CalendarEvent> {
         return withContext(Dispatchers.IO) {
             val events = mutableListOf<CalendarEvent>()
@@ -81,7 +93,7 @@ class CalendarManager(private val context: Context) {
                 "${CalendarContract.Events.DTSTART} <= ? AND " +
                 "${CalendarContract.Events.DTEND} >= ?"
 
-            val selectionArgs = arrayOf(endTime.toString(), startTime.toString())
+            val selectionArgs = arrayOf(endTime.toEpochMilli().toString(), startTime.toEpochMilli().toString())
 
             val cursor = context.contentResolver.query(
                 CalendarContract.Events.CONTENT_URI,
@@ -101,7 +113,7 @@ class CalendarManager(private val context: Context) {
                     val allDay = c.getInt(c.getColumnIndexOrThrow(CalendarContract.Events.ALL_DAY)) == 1
                     val calendarId = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events.CALENDAR_ID))
 
-                    events.add(CalendarEvent(id, title, description, eventStartTime, eventEndTime, allDay, calendarId))
+                    events.add(CalendarEvent(id, title, description, Instant.ofEpochMilli(eventStartTime), Instant.ofEpochMilli(eventEndTime), allDay, calendarId))
                 }
             }
 
@@ -109,17 +121,11 @@ class CalendarManager(private val context: Context) {
         }
     }
 
-    fun getTodayRange(): Pair<Long, Long> {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-        val startOfDay = calendar.timeInMillis
-
-        calendar.add(Calendar.DAY_OF_MONTH, 1)
-        val endOfDay = calendar.timeInMillis
-
+    override fun getTodayRange(): Pair<Instant, Instant> {
+        val today = LocalDate.now()
+        val startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toInstant()
+        val endOfDay = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()
+        
         return Pair(startOfDay, endOfDay)
     }
 }

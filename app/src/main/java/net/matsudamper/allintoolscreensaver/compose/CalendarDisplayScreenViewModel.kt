@@ -2,7 +2,10 @@ package net.matsudamper.allintoolscreensaver.compose
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import java.util.Calendar
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
@@ -14,12 +17,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.CalendarEvent
-import net.matsudamper.allintoolscreensaver.CalendarManager
-import net.matsudamper.allintoolscreensaver.SettingsManager
+import net.matsudamper.allintoolscreensaver.CalendarRepository
+import net.matsudamper.allintoolscreensaver.SettingsRepository
 
 class CalendarDisplayScreenViewModel(
-    private val settingsManager: SettingsManager,
-    private val calendarManager: CalendarManager,
+    private val settingsRepository: SettingsRepository,
+    private val calendarRepository: CalendarRepository,
 ) : ViewModel() {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
@@ -32,7 +35,7 @@ class CalendarDisplayScreenViewModel(
             viewModelStateFlow.update { state ->
                 state.copy(
                     scale = min(3f, state.scale * 1.2f),
-                    lastInteractionTime = System.currentTimeMillis(),
+                    lastInteractionTime = Instant.now(),
                 )
             }
         }
@@ -41,14 +44,14 @@ class CalendarDisplayScreenViewModel(
             viewModelStateFlow.update { state ->
                 state.copy(
                     scale = max(0.5f, state.scale / 1.2f),
-                    lastInteractionTime = System.currentTimeMillis(),
+                    lastInteractionTime = Instant.now(),
                 )
             }
         }
 
         override fun onInteraction() {
             viewModelStateFlow.update { state ->
-                state.copy(lastInteractionTime = System.currentTimeMillis())
+                state.copy(lastInteractionTime = Instant.now())
             }
         }
     }
@@ -57,23 +60,21 @@ class CalendarDisplayScreenViewModel(
         CalendarDisplayScreenUiState(
             events = listOf(),
             timeSlots = generateMinuteTimeSlots(),
-            currentTime = System.currentTimeMillis(),
+            currentTime = Instant.now(),
             scale = 1f,
             isLoading = true,
             listener = listener,
         ),
     ).also { uiStateFlow ->
-        // 現在時刻を1分ごとに更新
         viewModelScope.launch {
             while (isActive) {
                 uiStateFlow.update { uiState ->
-                    uiState.copy(currentTime = System.currentTimeMillis())
+                    uiState.copy(currentTime = Instant.now())
                 }
-                delay(60000) // 1分ごとに更新
+                delay(60000)
             }
         }
 
-        // ViewModelStateの変更をUiStateに反映
         viewModelScope.launch {
             viewModelStateFlow.collect { viewModelState ->
                 uiStateFlow.update { uiState ->
@@ -92,11 +93,11 @@ class CalendarDisplayScreenViewModel(
             state.copy(isLoading = true)
         }
 
-        val selectedCalendarIds = settingsManager.getSelectedCalendarIds()
+        val selectedCalendarIds = settingsRepository.getSelectedCalendarIds()
 
         if (selectedCalendarIds.isNotEmpty()) {
-            val (startTime, endTime) = calendarManager.getTodayRange()
-            val events = calendarManager.getEventsForTimeRange(selectedCalendarIds, startTime, endTime)
+            val (startTime, endTime) = calendarRepository.getTodayRange()
+            val events = calendarRepository.getEventsForTimeRange(selectedCalendarIds, startTime, endTime)
 
             viewModelStateFlow.update { state ->
                 state.copy(
@@ -113,29 +114,18 @@ class CalendarDisplayScreenViewModel(
 
     private fun generateMinuteTimeSlots(): List<TimeSlot> {
         val timeSlots = mutableListOf<TimeSlot>()
-        val calendar = Calendar.getInstance()
+        val today = LocalDate.now()
+        val startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toInstant()
 
-        // 今日の0時から開始
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-
-        // 24時間 × 60分 = 1440分
         for (totalMinutes in 0 until 1440) {
-            val startTime = calendar.timeInMillis
-            calendar.add(Calendar.MINUTE, 1)
-            val endTime = calendar.timeInMillis
+            val slotStart = startOfDay.plusSeconds(totalMinutes * 60L)
+            val slotEnd = slotStart.plusSeconds(60)
 
             val hour = totalMinutes / 60
             val minute = totalMinutes % 60
             val hourText = String.format(Locale.US, "%02d:%02d", hour, minute)
 
-            timeSlots.add(TimeSlot(startTime, endTime, hourText))
-
-            // 1分戻す（次のループで正しく進むため）
-            calendar.add(Calendar.MINUTE, -1)
-            calendar.add(Calendar.MINUTE, 1)
+            timeSlots.add(TimeSlot(slotStart, slotEnd, hourText))
         }
 
         return timeSlots
@@ -145,6 +135,6 @@ class CalendarDisplayScreenViewModel(
         val events: List<CalendarEvent> = listOf(),
         val scale: Float = 1f,
         val isLoading: Boolean = true,
-        val lastInteractionTime: Long = System.currentTimeMillis(),
+        val lastInteractionTime: Instant = Instant.now(),
     )
 }

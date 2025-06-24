@@ -3,6 +3,8 @@ package net.matsudamper.allintoolscreensaver
 import android.content.Context
 import android.media.AudioManager
 import android.media.ToneGenerator
+import java.time.Duration
+import java.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -36,7 +38,7 @@ class AlertManager(context: Context) {
 
         alertJob = alertScope.launch {
             while (true) {
-                val currentTime = System.currentTimeMillis()
+                val currentTime = Instant.now()
                 checkCalendarAlerts(currentTime)
                 delay(60000) // 1分ごとにチェック
             }
@@ -48,18 +50,18 @@ class AlertManager(context: Context) {
         alertJob = null
     }
 
-    private suspend fun checkCalendarAlerts(currentTime: Long) {
+    private suspend fun checkCalendarAlerts(currentTime: Instant) {
         val selectedCalendarIds = settingsManager.getSelectedCalendarIds()
         if (selectedCalendarIds.isEmpty()) return
 
         // 現在時刻から5分後までのイベントを取得
-        val endTime = currentTime + (5 * 60 * 1000)
+        val endTime = currentTime.plusSeconds(5 * 60)
         val events = calendarManager.getEventsForTimeRange(selectedCalendarIds, currentTime, endTime)
 
         for (event in events) {
             // イベント開始時刻の前後1分以内かつ、まだトリガーされていないイベントをチェック
-            val timeDiff = kotlin.math.abs(event.startTime - currentTime)
-            if (timeDiff <= 60000 && !alreadyTriggeredEvents.contains(event.id)) {
+            val timeDiff = Duration.between(event.startTime, currentTime).abs()
+            if (timeDiff <= Duration.ofMinutes(1) && !alreadyTriggeredEvents.contains(event.id)) {
                 triggerAlert(event)
                 alreadyTriggeredEvents.add(event.id)
             }

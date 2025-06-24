@@ -85,7 +85,7 @@ fun ClockAlertDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                val startTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(alertTime.startTime))
+                val startTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date.from(alertTime.startTime))
                 Text(
                     text = "開始時刻: $startTime",
                     fontSize = 16.sp,

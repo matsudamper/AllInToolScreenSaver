@@ -2,11 +2,12 @@ package net.matsudamper.allintoolscreensaver.compose
 
 import androidx.compose.runtime.Immutable
 import net.matsudamper.allintoolscreensaver.CalendarEvent
+import java.time.Instant
 
 data class CalendarDisplayScreenUiState(
     val events: List<CalendarEvent>,
     val timeSlots: List<TimeSlot>,
-    val currentTime: Long,
+    val currentTime: Instant,
     val scale: Float,
     val isLoading: Boolean,
     val listener: Listener,
@@ -21,7 +22,7 @@ data class CalendarDisplayScreenUiState(
 }
 
 data class TimeSlot(
-    val startTime: Long,
-    val endTime: Long,
+    val startTime: Instant,
+    val endTime: Instant,
     val hourText: String,
 )
