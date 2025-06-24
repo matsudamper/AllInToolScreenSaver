@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.flowOn
 class ImageManager(private val context: Context) {
 
     fun getImageUrisFromDirectory(directoryUri: Uri): Flow<Uri> {
+        val directory = DocumentFile.fromTreeUri(context, directoryUri)
         return flow {
-            val directory = DocumentFile.fromTreeUri(context, directoryUri)
             if (directory?.exists() == true && directory.isDirectory) {
                 collectImages(folder = directory)
             }
