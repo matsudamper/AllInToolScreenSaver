@@ -23,7 +23,7 @@ class ImageManager(private val context: Context) {
     private suspend fun FlowCollector<Uri>.collectImages(
         folder: DocumentFile,
     ) {
-        folder.listFiles().forEach { file ->
+        folder.listFiles().reversed().forEach { file ->
             if (file.isDirectory) {
                 collectImages(file)
             } else if (file.isFile && isImageFile(file)) {
