@@ -47,6 +47,7 @@ android {
     }
 
     testOptions {
+        @Suppress("UnstableApiUsage")
         managedDevices {
             allDevices {
                 maybeCreate<com.android.build.api.dsl.ManagedVirtualDevice>("pixel9api35").apply {
