@@ -17,6 +17,8 @@ ktlintGradle = "12.3.0"
 ktlint = "1.6.0"
 protobufKotlinLite = "3.21.12"
 detekt = "1.23.8"
+coroutinesTest = "1.7.3"
+mockk = "1.13.8"
 koin = "4.0.0"
 
 [plugins]
@@ -31,7 +33,6 @@ androidxCoreKtx = { group = "androidx.core", name = "core-ktx", version.ref = "c
 androidxDatastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidxDocumentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
 coilCompose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidxJunit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidxEspressoCore = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidxLifecycleRuntimeKtx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
@@ -49,3 +50,6 @@ androidxUiTestJunit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" 
 androidxMaterial3 = { group = "androidx.compose.material3", name = "material3" }
 ktlint = { module = "com.pinterest:ktlint", version.ref = "ktlint" }
 protobufKotlinLite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobufKotlinLite" }
+coroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesTest" }
+koinAndroid = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+koinAndroidxCompose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }

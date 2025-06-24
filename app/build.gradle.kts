@@ -38,6 +38,25 @@ android {
     buildFeatures {
         compose = true
     }
+
+    packaging {
+        resources {
+            excludes += "META-INF/LICENSE.md"
+            excludes += "META-INF/LICENSE-notice.md"
+        }
+    }
+
+    testOptions {
+        managedDevices {
+            allDevices {
+                maybeCreate<com.android.build.api.dsl.ManagedVirtualDevice>("pixel9api35").apply {
+                    device = "Pixel 9"
+                    apiLevel = 35
+                    systemImageSource = "aosp"
+                }
+            }
+        }
+    }
 }
 
 protobuf {
@@ -78,11 +97,14 @@ dependencies {
     implementation(libs.koinAndroid)
     implementation(libs.koinAndroidxCompose)
 
-    testImplementation(libs.junit)
+    androidTestImplementation(libs.coroutinesTest)
+
     androidTestImplementation(libs.androidxJunit)
     androidTestImplementation(libs.androidxEspressoCore)
     androidTestImplementation(platform(libs.androidxComposeBom))
     androidTestImplementation(libs.androidxUiTestJunit4)
+    androidTestImplementation(libs.coroutinesTest)
+
     debugImplementation(libs.androidxUiTooling)
     debugImplementation(libs.androidxUiTestManifest)
 }
