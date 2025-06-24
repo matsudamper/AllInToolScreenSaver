@@ -28,8 +28,8 @@ class CalendarDisplayScreenTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    lateinit var settingsRepository: FakeSettingsManager
-    lateinit var calendarRepository: FakeCalendarRepository
+    private lateinit var settingsRepository: FakeSettingsManager
+    private lateinit var calendarRepository: FakeCalendarRepository
 
     @Before
     fun before() {
