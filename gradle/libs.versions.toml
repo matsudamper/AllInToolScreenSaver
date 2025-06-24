@@ -17,6 +17,7 @@ ktlintGradle = "12.3.0"
 ktlint = "1.6.0"
 protobufKotlinLite = "3.21.12"
 detekt = "1.23.8"
+koin = "4.0.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

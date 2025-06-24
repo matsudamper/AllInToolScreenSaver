@@ -75,6 +75,8 @@ dependencies {
 
     implementation(libs.coilCompose)
     implementation(libs.protobufKotlinLite)
+    implementation(libs.koinAndroid)
+    implementation(libs.koinAndroidxCompose)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidxJunit)

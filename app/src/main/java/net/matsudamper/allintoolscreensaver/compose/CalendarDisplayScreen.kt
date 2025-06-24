@@ -29,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,29 +36,23 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import java.time.Instant
 import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.CalendarEvent
-import net.matsudamper.allintoolscreensaver.CalendarManager
-import net.matsudamper.allintoolscreensaver.SettingsManager
-import java.time.Instant
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun CalendarDisplayScreen(
+    viewModel: CalendarDisplayScreenViewModel = koinViewModel(),
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
-    val settingsRepository = remember { SettingsManager(context) }
-    val calendarRepository = remember { CalendarManager(context) }
-    val viewModel = viewModel(initializer = { CalendarDisplayScreenViewModel(settingsRepository, calendarRepository) })
 
     val uiState by viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
