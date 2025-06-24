@@ -16,6 +16,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -163,21 +166,47 @@ class DigitalClockScreenViewModel(
             }
         }
 
-        val directoryUri = settingsManager.getImageDirectoryUri() ?: return updateLoadingFalse()
-        val uris = imageManager.getImageUrisFromDirectory(directoryUri)
-
-        if (viewModelStateFlow.value.images == uris) return updateLoadingFalse()
         // 1000枚以上の場合は負荷を軽減する為に更新頻度を設定
-        if (uris.size > 1000 && viewModelStateFlow.value.imagesLastUpdate.plusMillis(1.hours.inWholeMilliseconds).isAfter(Instant.now())) return
+        if (viewModelStateFlow.value.images.size > 1000 && viewModelStateFlow.value.imagesLastUpdate.plusMillis(1.hours.inWholeMilliseconds).isAfter(Instant.now())) return
 
-        viewModelStateFlow.update { viewModelState ->
-            viewModelState.copy(
-                images = uris,
-                imagesShuffledIndex = uris.indices.shuffled(),
-                currentShuffledIndex = 0,
-                imagesLastUpdate = Instant.now(),
-                isLoading = false,
-            )
+        val directoryUri = settingsManager.getImageDirectoryUri() ?: return updateLoadingFalse()
+
+        if (viewModelStateFlow.value.images.isEmpty()) {
+            val uris = imageManager.getImageUrisFromDirectory(directoryUri)
+            val firstSize = 5
+            val firstList = uris.take(firstSize).toList()
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    images = firstList,
+                    imagesShuffledIndex = firstList.indices.shuffled(),
+                    currentShuffledIndex = 0,
+                    imagesLastUpdate = Instant.now(),
+                    isLoading = false,
+                )
+            }
+
+            val secondList = uris.drop(firstSize).toList()
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    images = firstList + secondList,
+                    imagesShuffledIndex = firstList.indices.shuffled() + secondList.indices.shuffled(),
+                    imagesLastUpdate = Instant.now(),
+                    isLoading = false,
+                )
+            }
+        } else {
+            val uris = imageManager.getImageUrisFromDirectory(directoryUri).toList()
+            if (viewModelStateFlow.value.images == uris) return updateLoadingFalse()
+
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    images = uris,
+                    imagesShuffledIndex = uris.indices.shuffled(),
+                    currentShuffledIndex = 0,
+                    imagesLastUpdate = Instant.now(),
+                    isLoading = false,
+                )
+            }
         }
     }
 

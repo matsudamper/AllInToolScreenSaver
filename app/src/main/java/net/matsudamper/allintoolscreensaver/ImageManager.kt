@@ -4,30 +4,32 @@ import android.content.Context
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 
 class ImageManager(private val context: Context) {
 
-    suspend fun getImageUrisFromDirectory(directoryUri: Uri): List<Uri> {
-        return withContext(Dispatchers.IO) {
+    fun getImageUrisFromDirectory(directoryUri: Uri): Flow<Uri> {
+        return flow {
             val directory = DocumentFile.fromTreeUri(context, directoryUri)
-            if (directory?.exists() != true || !directory.isDirectory) {
-                return@withContext listOf()
+            if (directory?.exists() == true && directory.isDirectory) {
+                collectImages(folder = directory)
             }
-
-            mutableListOf<Uri>().collectImages(folder = directory)
-        }
+        }.flowOn(Dispatchers.IO)
     }
 
-    private fun MutableList<Uri>.collectImages(folder: DocumentFile): MutableList<Uri> {
+    private suspend fun FlowCollector<Uri>.collectImages(
+        folder: DocumentFile,
+    ) {
         folder.listFiles().forEach { file ->
             if (file.isDirectory) {
                 collectImages(file)
             } else if (file.isFile && isImageFile(file)) {
-                add(file.uri)
+                emit(file.uri)
             }
         }
-        return this
     }
 
     private fun isImageFile(file: DocumentFile): Boolean {
