@@ -87,8 +87,8 @@ class CalendarDisplayScreenTest {
         val bitmap = composeTestRule.onRoot()
             .captureToImage()
             .asAndroidBitmap()
-
-        TestStorage().openOutputFile("$filename.png").use { outputStream ->
+        
+        PlatformTestStorageRegistry.getInstance().openOutputFile("$filename.png").use { outputStream ->
             bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, outputStream)
         }
     }
