@@ -112,18 +112,22 @@ class DigitalClockScreenViewModel(
         val prevIndex = if (currentIndex > 0) currentIndex - 1 else shuffledIndices.size - 1
         val nextIndex = if (currentIndex < shuffledIndices.size - 1) currentIndex + 1 else 0
 
+        fun getImageUri(index: Int): Uri? {
+            return images.getOrNull(shuffledIndices.getOrNull(index) ?: 0)
+        }
+
         return listOf(
             PagerItem(
-                id = "left_${shuffledIndices.getOrNull(prevIndex) ?: 0}",
-                imageUri = images.getOrNull(shuffledIndices.getOrNull(prevIndex) ?: 0),
+                id = getImageUri(prevIndex).toString(),
+                imageUri = getImageUri(prevIndex),
             ),
             PagerItem(
-                id = "center_${shuffledIndices.getOrNull(currentIndex) ?: 0}",
-                imageUri = images.getOrNull(shuffledIndices.getOrNull(currentIndex) ?: 0),
+                id = getImageUri(currentIndex).toString(),
+                imageUri = getImageUri(currentIndex),
             ),
             PagerItem(
-                id = "right_${shuffledIndices.getOrNull(nextIndex) ?: 0}",
-                imageUri = images.getOrNull(shuffledIndices.getOrNull(nextIndex) ?: 0),
+                id = getImageUri(nextIndex).toString(),
+                imageUri = getImageUri(nextIndex),
             ),
         )
     }
