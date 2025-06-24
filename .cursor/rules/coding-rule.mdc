@@ -144,6 +144,11 @@ public/internal/privateの順番に並べてください。
 ./gradlew assembleDebug detektDebug
 ```
 
+ビルドが通ったらUIテストは以下のコマンドで実行してください。
+```sh
+./gradlew pixel9api35DebugAndroidTest
+```
+
 ビルドができたらFormatしてください
 ```sh
 ./gradlew ktlintFormat
