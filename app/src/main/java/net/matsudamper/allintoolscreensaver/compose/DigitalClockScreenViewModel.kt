@@ -173,7 +173,7 @@ class DigitalClockScreenViewModel(
 
         if (viewModelStateFlow.value.images.isEmpty()) {
             val uris = imageManager.getImageUrisFromDirectory(directoryUri)
-            val firstSize = 2
+            val firstSize = 10
             val firstList = uris.take(firstSize).toList()
             val firstImagesShuffledIndex = firstList.indices.shuffled()
             viewModelStateFlow.update { viewModelState ->
@@ -197,7 +197,6 @@ class DigitalClockScreenViewModel(
             }
         } else {
             val uris = imageManager.getImageUrisFromDirectory(directoryUri).toList()
-            if (viewModelStateFlow.value.images == uris) return updateLoadingFalse()
 
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
