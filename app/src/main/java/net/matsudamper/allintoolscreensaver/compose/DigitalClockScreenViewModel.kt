@@ -175,10 +175,11 @@ class DigitalClockScreenViewModel(
             val uris = imageManager.getImageUrisFromDirectory(directoryUri)
             val firstSize = 5
             val firstList = uris.take(firstSize).toList()
+            val firstImagesShuffledIndex = firstList.indices.shuffled()
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     images = firstList,
-                    imagesShuffledIndex = firstList.indices.shuffled(),
+                    imagesShuffledIndex = firstImagesShuffledIndex,
                     currentShuffledIndex = 0,
                     imagesLastUpdate = Instant.now(),
                     isLoading = false,
@@ -189,7 +190,7 @@ class DigitalClockScreenViewModel(
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     images = firstList + secondList,
-                    imagesShuffledIndex = firstList.indices.shuffled() + secondList.indices.shuffled(),
+                    imagesShuffledIndex = firstImagesShuffledIndex + secondList.indices.shuffled(),
                     imagesLastUpdate = Instant.now(),
                     isLoading = false,
                 )
