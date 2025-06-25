@@ -9,6 +9,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -19,6 +20,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import coil.compose.AsyncImage
 
 @Composable
@@ -44,8 +46,8 @@ fun SlideShowScreen(
         initialPage = 1,
         pageCount = { 3 },
     )
+    val coroutineScope = rememberCoroutineScope()
     val latestOnPageChange by rememberUpdatedState(onPageChange)
-
     LaunchedEffect(pagerState) {
         snapshotFlow {
             pagerState.currentPage to pagerState.isScrollInProgress
@@ -57,15 +59,21 @@ fun SlideShowScreen(
             }
         }
     }
-    LaunchedEffect(imageSwitchIntervalSeconds) {
+    LaunchedEffect(
+        imageSwitchIntervalSeconds,
+        // スクロールしたらintervalをリセットする為にcurrentPageを設定
+        pagerState.currentPage,
+    ) {
         if (imageSwitchIntervalSeconds == null) return@LaunchedEffect
-        
+
         while (isActive) {
             delay(imageSwitchIntervalSeconds.seconds)
             val currentPage = pagerState.currentPage
             if (currentPage == 1) {
-                pagerState.animateScrollToPage(2)
                 latestOnPageChange(2)
+                coroutineScope.launch {
+                    pagerState.animateScrollToPage(2)
+                }
             } else {
                 latestOnPageChange(currentPage)
             }
