@@ -1,28 +1,33 @@
 package net.matsudamper.allintoolscreensaver.compose.calendar
 
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.coerceAtMost
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.viewmodel.CalendarDisplayScreenViewModel
@@ -33,9 +38,9 @@ fun CalendarDisplayScreen(
     modifier: Modifier = Modifier,
     viewModel: CalendarDisplayScreenViewModel = koinViewModel(),
 ) {
-
     val uiState by viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+    var hourHeight by remember { mutableStateOf(400.dp) }
 
     LaunchedEffect(Unit) {
         uiState.listener.onStart()
@@ -43,19 +48,7 @@ fun CalendarDisplayScreen(
 
     Box(
         modifier = modifier
-            .fillMaxSize()
-            .pointerInput(Unit) {
-                detectTransformGestures(
-                    onGesture = { _, _, zoom, _ ->
-                        uiState.listener.onInteraction()
-                        if (zoom > 1f) {
-                            uiState.listener.onZoomIn()
-                        } else if (zoom < 1f) {
-                            uiState.listener.onZoomOut()
-                        }
-                    },
-                )
-            },
+            .fillMaxSize(),
     ) {
         val calendarState = rememberCalendarState()
         CalendarLayout(
@@ -63,27 +56,38 @@ fun CalendarDisplayScreen(
             state = calendarState,
         )
 
-        ZoomControls(
-            onZoomIn = { uiState.listener.onZoomIn() },
-            onZoomOut = { uiState.listener.onZoomOut() },
-            modifier = Modifier.align(Alignment.BottomStart),
-        )
-
-        ScrollControls(
-            onScrollUp = {
-                uiState.listener.onInteraction()
-                coroutineScope.launch {
-                    calendarState.addAnimateScrollToHours(-3)
-                }
-            },
-            onScrollDown = {
-                uiState.listener.onInteraction()
-                coroutineScope.launch {
-                    calendarState.addAnimateScrollToHours(3)
-                }
-            },
-            modifier = Modifier.align(Alignment.BottomEnd),
-        )
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(12.dp),
+        ) {
+            ZoomControls(
+                onZoomIn = {
+                    calendarState.zoomIn()
+                    uiState.listener.onInteraction()
+                },
+                onZoomOut = {
+                    calendarState.zoomOut()
+                    uiState.listener.onInteraction()
+                },
+                modifier = Modifier.align(Alignment.Bottom),
+            )
+            Spacer(modifier = Modifier.width(18.dp))
+            ScrollControls(
+                onScrollUp = {
+                    uiState.listener.onInteraction()
+                    coroutineScope.launch {
+                        calendarState.addAnimateScrollToHours(-3)
+                    }
+                },
+                onScrollDown = {
+                    uiState.listener.onInteraction()
+                    coroutineScope.launch {
+                        calendarState.addAnimateScrollToHours(3)
+                    }
+                },
+            )
+        }
     }
 }
 
@@ -93,30 +97,32 @@ private fun ZoomControls(
     onZoomOut: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier.padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         FloatingActionButton(
-            onClick = onZoomIn,
             modifier = Modifier
-                .size(40.dp)
-                .testTag(CalendarDisplayScreenTestTag.ZoomInButton.testTag()),
-            containerColor = Color.Black.copy(alpha = 0.7f),
-            contentColor = Color.White,
+                .testTag(CalendarDisplayScreenTestTag.ZoomOutButton.testTag()),
+            onClick = onZoomOut,
         ) {
-            Text("＋")
+            Text(
+                text = "－",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.ExtraBold,
+            )
         }
 
         FloatingActionButton(
-            onClick = onZoomOut,
             modifier = Modifier
-                .size(40.dp)
-                .testTag(CalendarDisplayScreenTestTag.ZoomOutButton.testTag()),
-            containerColor = Color.Black.copy(alpha = 0.7f),
-            contentColor = Color.White,
+                .testTag(CalendarDisplayScreenTestTag.ZoomInButton.testTag()),
+            onClick = onZoomIn,
         ) {
-            Text("－")
+            Text(
+                text = "＋",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.ExtraBold,
+            )
         }
     }
 }
@@ -128,30 +134,23 @@ private fun ScrollControls(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier.padding(16.dp),
+        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         FloatingActionButton(
-            onClick = onScrollUp,
             modifier = Modifier
-                .size(40.dp)
                 .testTag(CalendarDisplayScreenTestTag.ScrollUpButton.testTag()),
-            containerColor = Color.Black.copy(alpha = 0.7f),
-            contentColor = Color.White,
+            onClick = onScrollUp,
         ) {
             Icon(Icons.Default.KeyboardArrowUp, contentDescription = "上にスクロール")
         }
 
         FloatingActionButton(
-            onClick = onScrollDown,
             modifier = Modifier
-                .size(40.dp)
                 .testTag(CalendarDisplayScreenTestTag.ScrollDownButton.testTag()),
-            containerColor = Color.Black.copy(alpha = 0.7f),
-            contentColor = Color.White,
+            onClick = onScrollDown,
         ) {
             Icon(Icons.Default.KeyboardArrowDown, contentDescription = "下にスクロール")
         }
     }
 }
-

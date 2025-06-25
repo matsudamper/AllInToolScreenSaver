@@ -16,8 +16,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -26,6 +28,9 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.coerceAtLeast
+import androidx.compose.ui.unit.coerceAtMost
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import java.time.Clock
@@ -66,35 +71,49 @@ data class CalendarLayoutUiState(
     }
 }
 
-private val HourSize = 100.dp
-private val HourSplitCount = 4
+private const val HourSplitCount = 4
 private val CurrentTimeDividerSize = 4.dp
 
+@Stable
 class CalendarState internal constructor(
     internal val scrollState: ScrollState,
     private val density: Density,
+    hourSize: Dp,
 ) {
+    var hourSize: Dp by mutableStateOf(hourSize)
+
+    fun zoomIn() {
+        hourSize = (hourSize + 10.dp)
+            .coerceAtMost(200.dp)
+    }
+
+    fun zoomOut() {
+        hourSize = (hourSize - 10.dp)
+            .coerceAtLeast(10.dp)
+    }
+
     suspend fun scrollToHours(hours: Int) {
         val targetIndex = hours * HourSplitCount
-        val targetOffset = (targetIndex * HourSize.value).toInt()
+        val targetOffset = (targetIndex * hourSize.value).toInt()
         scrollState.scrollTo(targetOffset)
     }
 
     suspend fun addAnimateScrollToHours(hours: Int) {
         with(density) {
-            scrollState.animateScrollTo(scrollState.value + (hours * HourSize).roundToPx())
+            scrollState.animateScrollTo(scrollState.value + (hours * hourSize).roundToPx())
         }
     }
 }
 
 @Composable
-fun rememberCalendarState(): CalendarState {
+fun rememberCalendarState(initialHourSize: Dp = 100.dp): CalendarState {
     val scrollState = rememberScrollState()
     val density = LocalDensity.current
     return remember(scrollState, density) {
         CalendarState(
             scrollState = scrollState,
             density = density,
+            hourSize = initialHourSize,
         )
     }
 }
@@ -106,6 +125,7 @@ internal fun CalendarLayout(
     state: CalendarState = rememberCalendarState(),
     clock: Clock = remember { Clock.systemDefaultZone() },
 ) {
+    val hourSize = state.hourSize
     val calcTimeEvents = remember(uiState.events) {
         val baseList = buildList {
             uiState.events.map { event ->
@@ -185,7 +205,7 @@ internal fun CalendarLayout(
                             description = event.uiState.description,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(event.heightCount * HourSize / HourSplitCount),
+                                .height(event.heightCount * hourSize / HourSplitCount),
                             color = event.uiState.color,
                         )
                     }
@@ -221,19 +241,19 @@ internal fun CalendarLayout(
                             maxWidth = constraints.maxWidth - hourMaxWidth,
                         ),
                     )
-                    val currentTimeY = ((currentDayOfMinutes / 60f) * HourSize).roundToPx()
+                    val currentTimeY = ((currentDayOfMinutes / 60f) * hourSize).roundToPx()
 
-                    layout(constraints.maxWidth, (HourSize * 24).roundToPx()) {
+                    layout(constraints.maxWidth, (hourSize * 24).roundToPx()) {
                         run {
                             hourPlaceableList.forEachIndexed { index, placeable ->
-                                placeable.place(0, HourSize.roundToPx() * index)
+                                placeable.place(0, hourSize.roundToPx() * index)
                             }
                         }
                         run {
                             hourDividerPlaceableList.forEachIndexed { index, placeable ->
                                 placeable.place(
                                     x = hourMaxWidth,
-                                    y = (HourSize * index).roundToPx() + (hourAverageHeightPx / 2),
+                                    y = (hourSize * index).roundToPx() + (hourAverageHeightPx / 2),
                                 )
                             }
                         }
@@ -243,7 +263,7 @@ internal fun CalendarLayout(
                                 val eventWidth = (constraints.maxWidth - hourMaxWidth) / event.rowSplitSize
                                 placeable.place(
                                     x = hourMaxWidth + (eventWidth * event.rowIndex),
-                                    y = (HourSize * event.startIndex / HourSplitCount).roundToPx() + (hourAverageHeightPx / 2),
+                                    y = (hourSize * event.startIndex / HourSplitCount).roundToPx() + (hourAverageHeightPx / 2),
                                 )
                             }
                         }
