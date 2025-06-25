@@ -210,7 +210,7 @@ private fun ScrollControls(
 
 @Composable
 private fun TimeSlotLayout(
-    timeSlot: TimeSlot,
+    timeSlot: CalendarDisplayScreenUiState.TimeSlot,
     events: List<CalendarEvent>,
     currentTime: Instant,
     scale: Float,

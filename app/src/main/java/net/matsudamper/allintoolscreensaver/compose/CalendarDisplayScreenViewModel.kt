@@ -112,8 +112,8 @@ class CalendarDisplayScreenViewModel(
         }
     }
 
-    private fun generateMinuteTimeSlots(): List<TimeSlot> {
-        val timeSlots = mutableListOf<TimeSlot>()
+    private fun generateMinuteTimeSlots(): List<CalendarDisplayScreenUiState.TimeSlot> {
+        val timeSlots = mutableListOf<CalendarDisplayScreenUiState.TimeSlot>()
         val today = LocalDate.now()
         val startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toInstant()
 
@@ -125,7 +125,7 @@ class CalendarDisplayScreenViewModel(
             val minute = totalMinutes % 60
             val hourText = String.format(Locale.US, "%02d:%02d", hour, minute)
 
-            timeSlots.add(TimeSlot(slotStart, slotEnd, hourText))
+            timeSlots.add(CalendarDisplayScreenUiState.TimeSlot(slotStart, slotEnd, hourText))
         }
 
         return timeSlots

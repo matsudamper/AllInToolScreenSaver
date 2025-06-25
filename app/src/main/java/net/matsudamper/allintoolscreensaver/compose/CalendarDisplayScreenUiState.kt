@@ -19,10 +19,10 @@ data class CalendarDisplayScreenUiState(
         fun onZoomOut()
         fun onInteraction()
     }
-}
 
-data class TimeSlot(
-    val startTime: Instant,
-    val endTime: Instant,
-    val hourText: String,
-)
+    data class TimeSlot(
+        val startTime: Instant,
+        val endTime: Instant,
+        val hourText: String,
+    )
+}
