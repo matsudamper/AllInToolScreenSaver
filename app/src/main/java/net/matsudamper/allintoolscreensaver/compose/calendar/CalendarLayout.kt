@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,6 +32,9 @@ import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -38,6 +43,7 @@ import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.coerceAtMost
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import androidx.core.text.HtmlCompat
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -195,21 +201,18 @@ internal fun CalendarLayout(
     Surface(modifier = modifier) {
         Column {
             for (event in uiState.allDayEvents) {
-                Card(
+                val annotatedDescription = remember(event.description) {
+                    event.description?.let { htmlToAnnotatedString(it) }
+                }
+
+                TimeCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp),
-                    shape = RoundedCornerShape(2.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = event.color,
-                    ),
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .padding(8.dp),
-                        text = event.title,
-                    )
-                }
+                    title = event.title,
+                    description = annotatedDescription?.text,
+                    color = event.color,
+                )
             }
             HorizontalDivider()
             Layout(
@@ -359,11 +362,31 @@ private fun TimeCard(
         Column(
             modifier = Modifier.padding(4.dp),
         ) {
-            Text(text = title)
+            BasicText(
+                text = title,
+                autoSize = TextAutoSize.StepBased(
+                    maxFontSize = MaterialTheme.typography.labelMedium.fontSize,
+                ),
+            )
             if (description != null) {
-                Text(text = description)
+                BasicText(
+                    text = remember(description) {
+                        htmlToAnnotatedString(description)
+                    },
+                    autoSize = TextAutoSize.StepBased(
+                        maxFontSize = MaterialTheme.typography.labelSmall.fontSize,
+                    ),
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         }
+    }
+}
+
+private fun htmlToAnnotatedString(html: String): AnnotatedString {
+    return buildAnnotatedString {
+        val htmlCompat = HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_COMPACT)
+        append(htmlCompat.toString())
     }
 }
 
