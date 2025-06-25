@@ -21,19 +21,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        startKoin {
-            modules(
-                module {
-                    single<Application> { application }
-                    single<Context> { application }
-                    single<SettingsRepository> { SettingsManager(get()) }
-                    single<CalendarRepository> { CalendarManager(get()) }
-                    viewModel {
-                        CalendarDisplayScreenViewModel(get(), get())
-                    }
-                },
-            )
-        }
         setContent {
             AllInToolScreenSaverTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->

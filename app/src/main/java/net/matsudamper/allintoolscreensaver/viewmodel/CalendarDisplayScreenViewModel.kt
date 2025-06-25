@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
 import java.util.Locale
 import kotlin.math.max
@@ -19,6 +20,8 @@ import net.matsudamper.allintoolscreensaver.CalendarEvent
 import net.matsudamper.allintoolscreensaver.CalendarRepository
 import net.matsudamper.allintoolscreensaver.SettingsRepository
 import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreenUiState
+import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarLayoutUiState
+import androidx.compose.ui.graphics.Color
 
 class CalendarDisplayScreenViewModel(
     private val settingsRepository: SettingsRepository,
@@ -58,8 +61,10 @@ class CalendarDisplayScreenViewModel(
 
     val uiState: StateFlow<CalendarDisplayScreenUiState> = MutableStateFlow(
         CalendarDisplayScreenUiState(
-            events = listOf(),
-            timeSlots = generateMinuteTimeSlots(),
+            calendarUiState = CalendarLayoutUiState(
+                events = listOf(),
+                allDayEvents = listOf(),
+            ),
             currentTime = Instant.now(),
             scale = 1f,
             isLoading = true,
@@ -79,7 +84,26 @@ class CalendarDisplayScreenViewModel(
             viewModelStateFlow.collect { viewModelState ->
                 uiStateFlow.update { uiState ->
                     uiState.copy(
-                        events = viewModelState.events,
+                        calendarUiState = CalendarLayoutUiState(
+                            events = viewModelState.events.filterIsInstance<CalendarEvent.Time>()
+                                .map { event ->
+                                    CalendarLayoutUiState.Event.Time(
+                                        startTime = LocalTime.ofInstant(event.startTime, ZoneId.systemDefault()),
+                                        endTime = LocalTime.ofInstant(event.endTime, ZoneId.systemDefault()),
+                                        title = event.title,
+                                        description = event.description,
+                                        color = Color(event.color),
+                                    )
+                                },
+                            allDayEvents = viewModelState.events.filterIsInstance<CalendarEvent.AllDay>()
+                                .map { event ->
+                                    CalendarLayoutUiState.Event.AllDay(
+                                        title = event.title,
+                                        description = event.description,
+                                        color = Color(event.color),
+                                    )
+                                },
+                        ),
                         scale = viewModelState.scale,
                         isLoading = viewModelState.isLoading,
                     )
@@ -96,9 +120,11 @@ class CalendarDisplayScreenViewModel(
         val selectedCalendarIds = settingsRepository.getSelectedCalendarIds()
 
         if (selectedCalendarIds.isNotEmpty()) {
-            val (startTime, endTime) = calendarRepository.getTodayRange()
-            val events = calendarRepository.getEventsForTimeRange(selectedCalendarIds, startTime, endTime)
+            val today = LocalDate.now()
+            val startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toInstant()
+            val endOfDay = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()
 
+            val events = calendarRepository.getEventsForTimeRange(selectedCalendarIds, startOfDay, endOfDay)
             viewModelStateFlow.update { state ->
                 state.copy(
                     events = events,
@@ -110,25 +136,6 @@ class CalendarDisplayScreenViewModel(
                 state.copy(isLoading = false)
             }
         }
-    }
-
-    private fun generateMinuteTimeSlots(): List<CalendarDisplayScreenUiState.TimeSlot> {
-        val timeSlots = mutableListOf<CalendarDisplayScreenUiState.TimeSlot>()
-        val today = LocalDate.now()
-        val startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toInstant()
-
-        for (totalMinutes in 0 until 1440) {
-            val slotStart = startOfDay.plusSeconds(totalMinutes * 60L)
-            val slotEnd = slotStart.plusSeconds(60)
-
-            val hour = totalMinutes / 60
-            val minute = totalMinutes % 60
-            val hourText = String.format(Locale.US, "%02d:%02d", hour, minute)
-
-            timeSlots.add(CalendarDisplayScreenUiState.TimeSlot(slotStart, slotEnd, hourText))
-        }
-
-        return timeSlots
     }
 
     private data class ViewModelState(

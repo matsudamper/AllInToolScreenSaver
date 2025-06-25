@@ -15,15 +15,28 @@ data class CalendarInfo(
     val color: Int,
 )
 
-data class CalendarEvent(
-    val id: Long,
-    val title: String,
-    val description: String?,
-    val startTime: Instant,
-    val endTime: Instant,
-    val allDay: Boolean,
-    val calendarId: Long,
-)
+sealed interface CalendarEvent {
+    val id: Long
+    val title: String
+    val description: String?
+    val color: Int
+
+    data class Time(
+        override val id: Long,
+        override val title: String,
+        override val description: String?,
+        override val color: Int,
+        val startTime: Instant,
+        val endTime: Instant,
+    ) : CalendarEvent
+
+    data class AllDay(
+        override val id: Long,
+        override val title: String,
+        override val description: String?,
+        override val color: Int,
+    ) : CalendarEvent
+}
 
 interface CalendarRepository {
     suspend fun getAvailableCalendars(): List<CalendarInfo>
@@ -32,7 +45,6 @@ interface CalendarRepository {
         startTime: Instant,
         endTime: Instant,
     ): List<CalendarEvent>
-    fun getTodayRange(): Pair<Instant, Instant>
 }
 
 class CalendarManager(private val context: Context) : CalendarRepository {
@@ -87,11 +99,12 @@ class CalendarManager(private val context: Context) : CalendarRepository {
                 CalendarContract.Events.DTEND,
                 CalendarContract.Events.ALL_DAY,
                 CalendarContract.Events.CALENDAR_ID,
+                CalendarContract.Events.CALENDAR_COLOR,
             )
 
             val selection = "${CalendarContract.Events.CALENDAR_ID} IN (${calendarIds.joinToString(",")}) AND " +
-                "${CalendarContract.Events.DTSTART} <= ? AND " +
-                "${CalendarContract.Events.DTEND} >= ?"
+                    "${CalendarContract.Events.DTSTART} <= ? AND " +
+                    "${CalendarContract.Events.DTEND} >= ?"
 
             val selectionArgs = arrayOf(endTime.toEpochMilli().toString(), startTime.toEpochMilli().toString())
 
@@ -111,21 +124,31 @@ class CalendarManager(private val context: Context) : CalendarRepository {
                     val eventStartTime = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events.DTSTART))
                     val eventEndTime = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events.DTEND))
                     val allDay = c.getInt(c.getColumnIndexOrThrow(CalendarContract.Events.ALL_DAY)) == 1
+                    val color = c.getInt(c.getColumnIndexOrThrow(CalendarContract.Events.CALENDAR_COLOR))
                     val calendarId = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events.CALENDAR_ID))
-
-                    events.add(CalendarEvent(id, title, description, Instant.ofEpochMilli(eventStartTime), Instant.ofEpochMilli(eventEndTime), allDay, calendarId))
+                    events.add(
+                        if (allDay) {
+                            CalendarEvent.AllDay(
+                                id = id,
+                                title = title,
+                                description = description,
+                                color = color,
+                            )
+                        } else {
+                            CalendarEvent.Time(
+                                id = id,
+                                title = title,
+                                description = description,
+                                startTime = Instant.ofEpochMilli(eventStartTime),
+                                endTime = Instant.ofEpochMilli(eventEndTime),
+                                color = color,
+                            )
+                        }
+                    )
                 }
             }
 
             events
         }
-    }
-
-    override fun getTodayRange(): Pair<Instant, Instant> {
-        val today = LocalDate.now()
-        val startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toInstant()
-        val endOfDay = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()
-        
-        return Pair(startOfDay, endOfDay)
     }
 }

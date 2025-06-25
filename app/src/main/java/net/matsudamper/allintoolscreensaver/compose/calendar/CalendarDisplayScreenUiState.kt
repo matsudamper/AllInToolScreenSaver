@@ -5,8 +5,7 @@ import net.matsudamper.allintoolscreensaver.CalendarEvent
 import java.time.Instant
 
 data class CalendarDisplayScreenUiState(
-    val events: List<CalendarEvent>,
-    val timeSlots: List<TimeSlot>,
+    val calendarUiState: CalendarLayoutUiState,
     val currentTime: Instant,
     val scale: Float,
     val isLoading: Boolean,
@@ -19,10 +18,4 @@ data class CalendarDisplayScreenUiState(
         fun onZoomOut()
         fun onInteraction()
     }
-
-    data class TimeSlot(
-        val startTime: Instant,
-        val endTime: Instant,
-        val hourText: String,
-    )
 }

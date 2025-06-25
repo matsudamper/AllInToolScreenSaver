@@ -51,24 +51,23 @@ class AlertManager(context: Context) {
     }
 
     private suspend fun checkCalendarAlerts(currentTime: Instant) {
-        val selectedCalendarIds = settingsManager.getSelectedCalendarIds()
-        if (selectedCalendarIds.isEmpty()) return
-
-        // 現在時刻から5分後までのイベントを取得
-        val endTime = currentTime.plusSeconds(5 * 60)
-        val events = calendarManager.getEventsForTimeRange(selectedCalendarIds, currentTime, endTime)
-
-        for (event in events) {
-            // イベント開始時刻の前後1分以内かつ、まだトリガーされていないイベントをチェック
-            val timeDiff = Duration.between(event.startTime, currentTime).abs()
-            if (timeDiff <= Duration.ofMinutes(1) && !alreadyTriggeredEvents.contains(event.id)) {
-                triggerAlert(event)
-                alreadyTriggeredEvents.add(event.id)
-            }
-        }
-
-        // 古いトリガー済みイベントIDをクリーンアップ（1時間以上前のものを削除）
-        cleanupOldTriggeredEvents()
+        // TODO
+//        val selectedCalendarIds = settingsManager.getSelectedCalendarIds()
+//        if (selectedCalendarIds.isEmpty()) return
+//
+//        val endTime = currentTime.plusSeconds(5 * 60)
+//        val events = calendarManager.getEventsForTimeRange(selectedCalendarIds, currentTime, endTime)
+//
+//        for (event in events) {
+//            val timeDiff = Duration.between(event.startTime, currentTime).abs()
+//            if (timeDiff <= Duration.ofMinutes(1) && !alreadyTriggeredEvents.contains(event.id)) {
+//                triggerAlert(event)
+//                alreadyTriggeredEvents.add(event.id)
+//            }
+//        }
+//
+//        // 古いトリガー済みイベントIDをクリーンアップ（1時間以上前のものを削除）
+//        cleanupOldTriggeredEvents()
     }
 
     private fun cleanupOldTriggeredEvents() {

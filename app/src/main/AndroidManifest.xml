@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.READ_CALENDAR" />
 
     <application
+        android:name=".MyApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -32,10 +33,10 @@
 
         <service
             android:name=".ClockDreamService"
-            android:exported="true"
             android:enabled="true"
-            android:permission="android.permission.BIND_DREAM_SERVICE"
-            android:label="All in Tool Screen Saver">
+            android:exported="true"
+            android:label="All in Tool Screen Saver"
+            android:permission="android.permission.BIND_DREAM_SERVICE">
             <intent-filter android:priority="100">
                 <action android:name="android.service.dreams.DreamService" />
                 <category android:name="android.intent.category.DEFAULT" />

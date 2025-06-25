@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -25,21 +24,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import kotlin.math.max
-import kotlin.math.min
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.viewmodel.CalendarDisplayScreenViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun CalendarDisplayScreen(
-    viewModel: CalendarDisplayScreenViewModel = koinViewModel(),
     modifier: Modifier = Modifier,
+    viewModel: CalendarDisplayScreenViewModel = koinViewModel(),
 ) {
 
     val uiState by viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
-    val listState = rememberLazyListState()
 
     LaunchedEffect(Unit) {
         uiState.listener.onStart()
@@ -61,9 +57,10 @@ fun CalendarDisplayScreen(
                 )
             },
     ) {
+        val calendarState = rememberCalendarState()
         CalendarLayout(
-            uiState = uiState,
-            listState = listState,
+            uiState = uiState.calendarUiState,
+            state = calendarState,
         )
 
         ZoomControls(
@@ -76,17 +73,13 @@ fun CalendarDisplayScreen(
             onScrollUp = {
                 uiState.listener.onInteraction()
                 coroutineScope.launch {
-                    val currentIndex = listState.firstVisibleItemIndex
-                    val targetIndex = max(0, currentIndex - 60)
-                    listState.animateScrollToItem(targetIndex)
+                    calendarState.addAnimateScrollToHours(-3)
                 }
             },
             onScrollDown = {
                 uiState.listener.onInteraction()
                 coroutineScope.launch {
-                    val currentIndex = listState.firstVisibleItemIndex
-                    val targetIndex = min(uiState.timeSlots.size - 1, currentIndex + 60)
-                    listState.animateScrollToItem(targetIndex)
+                    calendarState.addAnimateScrollToHours(3)
                 }
             },
             modifier = Modifier.align(Alignment.BottomEnd),
