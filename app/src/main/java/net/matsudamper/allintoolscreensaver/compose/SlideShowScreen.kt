@@ -70,16 +70,16 @@ fun SlideShowScreen(
     HorizontalPager(
         state = pagerState,
         modifier = modifier.fillMaxSize(),
-        key = { index -> pagerItems.getOrNull(index)?.id ?: "empty_$index" },
+        key = { index -> pagerItems[index].id },
     ) { page ->
-        val item = pagerItems.getOrNull(page)
+        val item = pagerItems[page]
 
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
             when {
-                item?.imageUri == null -> {
+                item.imageUri == null -> {
                     CircularProgressIndicator(
                         modifier = Modifier.size(48.dp),
                     )
