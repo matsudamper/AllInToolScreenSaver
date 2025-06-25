@@ -114,15 +114,14 @@ class CalendarState internal constructor(
     }
 
     suspend fun scrollToHours(hours: Int) {
-        val targetIndex = hours * HourSplitCount
-        val targetOffset = (targetIndex * hourSize.value).toInt()
-        scrollState.scrollTo(targetOffset)
+        val offset = with(density) { (hours * hourSize).roundToPx() }
+        scrollState.animateScrollTo(offset)
+        scrollState.scrollTo(offset)
     }
 
     suspend fun animateScrollToHours(hours: Int) {
-        val targetIndex = hours * HourSplitCount
-        val targetOffset = (targetIndex * hourSize.value).toInt()
-        scrollState.animateScrollTo(targetOffset)
+        val offset = with(density) { (hours * hourSize).roundToPx() }
+        scrollState.animateScrollTo(offset)
     }
 
     suspend fun addAnimateScrollToHours(hours: Int) {
