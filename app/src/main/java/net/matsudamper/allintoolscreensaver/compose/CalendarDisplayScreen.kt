@@ -158,7 +158,7 @@ private fun ZoomControls(
             containerColor = Color.Black.copy(alpha = 0.7f),
             contentColor = Color.White,
         ) {
-            Icon(Icons.Default.Add, contentDescription = "拡大")
+            Text("＋")
         }
 
         FloatingActionButton(
@@ -169,7 +169,7 @@ private fun ZoomControls(
             containerColor = Color.Black.copy(alpha = 0.7f),
             contentColor = Color.White,
         ) {
-            Icon(Icons.Default.Close, contentDescription = "縮小")
+            Text("－")
         }
     }
 }
