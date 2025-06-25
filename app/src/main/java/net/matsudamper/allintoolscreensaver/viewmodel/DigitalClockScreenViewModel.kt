@@ -1,6 +1,7 @@
 package net.matsudamper.allintoolscreensaver.viewmodel
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import java.text.SimpleDateFormat
@@ -10,7 +11,6 @@ import java.util.Locale
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,21 +35,11 @@ class DigitalClockScreenViewModel(
 
     private val listener = object : DigitalClockScreenUiState.Listener {
         override suspend fun onStart() {
-            coroutineScope {
-                launch {
-                    updateImages()
-                }
-                launch {
-                    while (isActive) {
-                        val intervalSeconds = settingsManager.getImageSwitchIntervalSeconds()
-                        delay(intervalSeconds.seconds)
-                        moveToNextImage()
-                    }
-                }
-            }
+            updateImages()
         }
 
         override fun onPageChanged(newPage: Int) {
+            Log.d("LOG", "newPage: $newPage")
             when (newPage) {
                 0 -> moveToPreviousImage()
                 2 -> moveToNextImage()
@@ -66,6 +56,7 @@ class DigitalClockScreenViewModel(
             imageUri = null,
             isLoading = true,
             pagerItems = listOf(),
+            imageSwitchIntervalSeconds = null,
             listener = listener,
         ),
     ).also { uiStateFlow ->
@@ -92,6 +83,16 @@ class DigitalClockScreenViewModel(
                         ),
                         isLoading = viewModelState.isLoading,
                         pagerItems = createPagerItems(viewModelState),
+                        imageSwitchIntervalSeconds = viewModelState.imageSwitchIntervalSeconds,
+                    )
+                }
+            }
+        }
+        viewModelScope.launch {
+            settingsManager.getImageSwitchIntervalSecondsFlow().collectLatest { intervalSeconds ->
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        imageSwitchIntervalSeconds = intervalSeconds,
                     )
                 }
             }
@@ -227,6 +228,7 @@ class DigitalClockScreenViewModel(
         val currentIndex: Int = 0,
         val imagesLastUpdate: Instant = Instant.MIN,
         val isLoading: Boolean = true,
+        val imageSwitchIntervalSeconds: Int? = null,
     ) {
         fun getPagerImage(index: Int): Uri {
             return images[imagesShuffledIndex[index]]

@@ -175,6 +175,7 @@ fun ScreenSaverScreen(
                         pageChanged.trySend(Unit)
                         uiStateState.value.listener.onPageChanged(newPage)
                     },
+                    imageSwitchIntervalSeconds = uiStateState.value.imageSwitchIntervalSeconds,
                 )
                 Box(
                     modifier = Modifier

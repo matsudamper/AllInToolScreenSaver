@@ -12,6 +12,7 @@ data class DigitalClockScreenUiState(
     val imageUri: Uri?,
     val isLoading: Boolean,
     val pagerItems: List<PagerItem>,
+    val imageSwitchIntervalSeconds: Int?,
     val listener: Listener,
 ) {
     @Immutable

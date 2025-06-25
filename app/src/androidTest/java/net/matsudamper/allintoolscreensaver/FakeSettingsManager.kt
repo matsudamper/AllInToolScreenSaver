@@ -7,8 +7,8 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class FakeSettingsManager : SettingsRepository {
     private val _selectedCalendarIds = MutableStateFlow<List<Long>>(listOf())
+    private val _imageSwitchIntervalSeconds = MutableStateFlow<Int>(30)
     private var _imageDirectoryUri: Uri? = null
-    private var _imageSwitchIntervalSeconds: Int = 30
 
     override val settingsFlow: Flow<Settings> = MutableStateFlow(Settings.getDefaultInstance())
 
@@ -37,10 +37,14 @@ class FakeSettingsManager : SettingsRepository {
     }
 
     override suspend fun saveImageSwitchIntervalSeconds(seconds: Int) {
-        _imageSwitchIntervalSeconds = seconds
+        _imageSwitchIntervalSeconds.value = seconds
     }
 
     override suspend fun getImageSwitchIntervalSeconds(): Int {
-        return _imageSwitchIntervalSeconds
+        return _imageSwitchIntervalSeconds.value
+    }
+
+    override fun getImageSwitchIntervalSecondsFlow(): Flow<Int> {
+        return _imageSwitchIntervalSeconds.asStateFlow()
     }
 }
