@@ -28,6 +28,16 @@ jobs:
       run: ./gradlew assembleDebug
     - name: Detekt
       run: ./gradlew detektDebug
+    - name: Android Lint
+      run: ./gradlew lint
+    - name: Upload lint reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: lint-reports
+        path: |
+          app/build/reports/lint-results*
+          app/build/outputs/lint-results*
 
   android-test:
     runs-on: ubuntu-latest
