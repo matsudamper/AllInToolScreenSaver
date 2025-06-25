@@ -1,11 +1,15 @@
 package net.matsudamper.allintoolscreensaver
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.test.*
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onRoot
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.io.PlatformTestStorageRegistry
 import java.time.LocalDateTime
@@ -149,7 +153,7 @@ class CalendarDisplayScreenTest {
             .asAndroidBitmap()
 
         PlatformTestStorageRegistry.getInstance().openOutputFile("$filename.png").use { outputStream ->
-            bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, outputStream)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
         }
     }
 }
