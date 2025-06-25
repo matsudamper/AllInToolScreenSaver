@@ -140,7 +140,7 @@ public/internal/privateの順番に並べてください。
 
 コードを編集した後、コミットする前は必ず以下を実行してエラーを確認してください。一回の命令で5回失敗したら失敗した経緯ややったことのまとめを提出して
 ```sh
-./gradlew assembleDebug detektDebug
+./gradlew assembleDebug detektDebug lintDebug
 ```
 
 ビルドが通ったらUIテストは以下のコマンドで実行してください。
