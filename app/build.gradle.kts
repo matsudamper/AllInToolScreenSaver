@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace = "net.matsudamper.allintoolscreensaver"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "net.matsudamper.allintoolscreensaver"
         minSdk = 35
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
