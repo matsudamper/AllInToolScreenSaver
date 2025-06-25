@@ -4,7 +4,6 @@ import androidx.compose.runtime.Immutable
 
 data class CalendarDisplayScreenUiState(
     val calendarUiState: CalendarLayoutUiState,
-    val isLoading: Boolean,
     val listener: Listener,
 ) {
     @Immutable

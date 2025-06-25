@@ -42,7 +42,6 @@ class CalendarDisplayScreenViewModel(
                 events = listOf(),
                 allDayEvents = listOf(),
             ),
-            isLoading = true,
             listener = listener,
         ),
     ).also { uiStateFlow ->
@@ -70,7 +69,6 @@ class CalendarDisplayScreenViewModel(
                                     )
                                 },
                         ),
-                        isLoading = viewModelState.isLoading,
                     )
                 }
             }
@@ -78,10 +76,6 @@ class CalendarDisplayScreenViewModel(
     }.asStateFlow()
 
     private suspend fun loadEvents() {
-        viewModelStateFlow.update { state ->
-            state.copy(isLoading = true)
-        }
-
         val selectedCalendarIds = settingsRepository.getSelectedCalendarIds()
 
         if (selectedCalendarIds.isNotEmpty()) {
@@ -93,20 +87,13 @@ class CalendarDisplayScreenViewModel(
             viewModelStateFlow.update { state ->
                 state.copy(
                     events = events,
-                    isLoading = false,
                 )
-            }
-        } else {
-            viewModelStateFlow.update { state ->
-                state.copy(isLoading = false)
             }
         }
     }
 
     private data class ViewModelState(
         val events: List<CalendarEvent> = listOf(),
-        val scale: Float = 1f,
-        val isLoading: Boolean = true,
         val lastInteractionTime: Instant = Instant.now(),
     )
 }
