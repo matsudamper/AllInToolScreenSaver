@@ -290,7 +290,6 @@ private data class CalendarMeasurePolicy(
                 maxWidth = constraints.maxWidth - hourMaxWidth,
             ),
         )
-        val currentTimeY = ((currentDayOfMinutes / 60f) * hourSize).roundToPx()
 
         return layout(constraints.maxWidth, (hourSize * 24).roundToPx()) {
             hourPlaceableList.forEachIndexed { index, placeable ->
@@ -312,7 +311,11 @@ private data class CalendarMeasurePolicy(
             }
             currentTimeDividerPlaceable.place(
                 x = hourMaxWidth,
-                y = currentTimeY,
+                y = run {
+                    val paddingTop = (hourAverageHeightPx / 2) - (currentTimeDividerPlaceable.height / 2)
+
+                    ((currentDayOfMinutes / 60f) * hourSize).roundToPx() + paddingTop
+                },
             )
         }
     }
