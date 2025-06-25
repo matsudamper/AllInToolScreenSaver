@@ -2,27 +2,29 @@ package net.matsudamper.allintoolscreensaver
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.services.storage.TestStorage
-import net.matsudamper.allintoolscreensaver.compose.CalendarDisplayScreen
-import net.matsudamper.allintoolscreensaver.compose.CalendarDisplayScreenTestTag
-import net.matsudamper.allintoolscreensaver.compose.CalendarDisplayScreenViewModel
+import androidx.test.platform.io.PlatformTestStorageRegistry
+import java.time.LocalDateTime
+import java.time.ZoneId
+import kotlinx.coroutines.test.runTest
+import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreen
+import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreenTestTag
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.core.module.dsl.viewModel
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
+import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
-@Suppress("TestFunctionName", "NonAsciiCharacters")
+@Suppress("RemoveRedundantBackticks", "NonAsciiCharacters")
 class CalendarDisplayScreenTest {
 
     @get:Rule
@@ -33,53 +35,110 @@ class CalendarDisplayScreenTest {
 
     @Before
     fun before() {
+        stopKoin() // 既にKoinが起動していれば停止
         settingsRepository = FakeSettingsManager()
         calendarRepository = FakeCalendarRepository()
-    }
-
-    @Test(timeout = 30000)
-    fun カレンダーの予定が正常に表示される() {
-        val viewModel = CalendarDisplayScreenViewModel(
-            settingsRepository = settingsRepository,
-            calendarRepository = calendarRepository,
-        )
-        // TODO calendarRepository.add
-        composeTestRule.setContent {
-            CalendarDisplayScreen(
-                viewModel = viewModel,
-                modifier = Modifier.fillMaxSize(),
-            )
-        }
-        // TODO
-    }
-
-    @Test(timeout = 30000)
-    fun ズームボタンが正常に動作する() {
-        val viewModel = CalendarDisplayScreenViewModel(
-            settingsRepository = settingsRepository,
-            calendarRepository = calendarRepository,
-        )
-        // TODO calendarRepository.add
-        composeTestRule.setContent {
-            CalendarDisplayScreen(
-                viewModel = viewModel,
-                modifier = Modifier.fillMaxSize(),
+        
+        startKoin {
+            modules(
+                module {
+                    single<SettingsRepository> { settingsRepository }
+                    single<CalendarRepository> { calendarRepository }
+                    single { 
+                        net.matsudamper.allintoolscreensaver.viewmodel.CalendarDisplayScreenViewModel(
+                            settingsRepository = get(),
+                            calendarRepository = get()
+                        )
+                    }
+                }
             )
         }
     }
 
-    @Test(timeout = 30000)
-    fun スクロールボタンが正常に動作する() {
-        val viewModel = CalendarDisplayScreenViewModel(
-            settingsRepository = settingsRepository,
-            calendarRepository = calendarRepository,
+    @After
+    fun after() {
+        stopKoin()
+    }
+
+    @Test(timeout = 10_000L)
+    fun `カレンダーの表示が重ならないか確認する`() = runAndCaptureScreen {
+        // カレンダーを設定
+        val calendarId = 1L
+        settingsRepository.setSelectedCalendarIds(listOf(calendarId))
+        
+        // 重複する時間のイベントを作成
+        val now = LocalDateTime.now()
+        val startTime = now.withHour(10).withMinute(0).withSecond(0).withNano(0)
+        val endTime = now.withHour(11).withMinute(0).withSecond(0).withNano(0)
+        
+        val event1 = CalendarEvent.Time(
+            id = 1L,
+            title = "会議A",
+            description = "重要な会議",
+            color = Color.Red.hashCode(),
+            startTime = startTime.atZone(ZoneId.systemDefault()).toInstant(),
+            endTime = endTime.atZone(ZoneId.systemDefault()).toInstant(),
         )
-        // TODO calendarRepository.add
+        
+        val event2 = CalendarEvent.Time(
+            id = 2L,
+            title = "会議B",
+            description = "別の会議",
+            color = Color.Blue.hashCode(),
+            startTime = startTime.plusMinutes(30).atZone(ZoneId.systemDefault()).toInstant(),
+            endTime = endTime.plusMinutes(30).atZone(ZoneId.systemDefault()).toInstant(),
+        )
+        
+        calendarRepository.addEvent(event1)
+        calendarRepository.addEvent(event2)
+        
+        // カレンダー表示画面を表示
         composeTestRule.setContent {
             CalendarDisplayScreen(
-                viewModel = viewModel,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize()
             )
+        }
+        
+        // イベントが表示されるまで待機
+        composeTestRule.waitForIdle()
+        
+        // waitUntilExactlyOneを使用してイベントの表示を待機
+        val event1Node = composeTestRule.waitUntilExactlyOne(
+            matcher = hasText("会議A"),
+            timeout = 10.seconds
+        )
+        
+        val event2Node = composeTestRule.waitUntilExactlyOne(
+            matcher = hasText("会議B"),
+            timeout = 10.seconds
+        )
+        
+        // イベントが異なる位置に表示されていることを確認（重複していない）
+        val event1Bounds = event1Node.getBoundsInRoot()
+        val event2Bounds = event2Node.getBoundsInRoot()
+        
+        // イベントが重複していないことを確認（Y座標またはX座標が異なる）
+        val isOverlapping = !(event1Bounds.bottom <= event2Bounds.top || 
+                             event2Bounds.bottom <= event1Bounds.top ||
+                             event1Bounds.right <= event2Bounds.left ||
+                             event2Bounds.right <= event1Bounds.left)
+        
+        assert(!isOverlapping) {
+            "イベントが重複して表示されています。会議A: $event1Bounds, 会議B: $event2Bounds"
+        }
+    }
+
+    private fun runAndCaptureScreen(
+        filename: String = checkNotNull(object : Any() {}.javaClass.enclosingMethod).name,
+        block: suspend () -> Unit,
+    ) {
+        runTest {
+            val result = runCatching { block() }
+
+            composeTestRule.waitForIdle()
+            captureScreen(filename)
+
+            result.getOrThrow()
         }
     }
 
@@ -87,7 +146,7 @@ class CalendarDisplayScreenTest {
         val bitmap = composeTestRule.onRoot()
             .captureToImage()
             .asAndroidBitmap()
-        
+
         PlatformTestStorageRegistry.getInstance().openOutputFile("$filename.png").use { outputStream ->
             bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, outputStream)
         }

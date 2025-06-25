@@ -26,17 +26,17 @@ class FakeCalendarRepository : CalendarRepository {
         endTime: Instant,
     ): List<CalendarEvent> {
         return fakeEvents.filter { event ->
-            calendarIds.contains(event.calendarId) &&
-                event.startTime.isBefore(endTime) &&
-                event.endTime.isAfter(startTime)
+            when (event) {
+                is CalendarEvent.Time -> {
+                    // テスト用：時間範囲のチェックのみ行い、calendarIdは無視
+                    event.startTime.isBefore(endTime) &&
+                        event.endTime.isAfter(startTime)
+                }
+                is CalendarEvent.AllDay -> {
+                    // テスト用：終日イベントは常に含める
+                    true
+                }
+            }
         }
-    }
-
-    override fun getTodayRange(): Pair<Instant, Instant> {
-        val today = LocalDate.now()
-        val startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toInstant()
-        val endOfDay = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()
-        
-        return Pair(startOfDay, endOfDay)
     }
 }
