@@ -149,7 +149,7 @@ fun ScreenSaverScreen(
                                 hsvArray[2]
                             }
                         }
-                        val isWhiteCount = vList.count { it > 0.99f }
+                        val isWhiteCount = vList.count { it > 0.95f }
 
                         val whitePar = isWhiteCount / vList.size.toFloat()
                         isWhite = whitePar > 0.3f
