@@ -133,7 +133,7 @@ MutableListやMutableMapはなるべく使わず、buildList等を使うこと�
 変数/関数の順番に並べてください。
 public/internal/privateの順番に並べてください。
 
-## 変更にあたって
+# 変更にあたって
 指示していない勝手な変更をするな。必要だと思うなら確認をまず取れ。
 
 # Compose
