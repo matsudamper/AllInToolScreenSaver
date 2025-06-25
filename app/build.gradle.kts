@@ -102,6 +102,7 @@ dependencies {
     implementation(libs.protobufKotlinLite)
     implementation(libs.koinAndroid)
     implementation(libs.koinAndroidxCompose)
+    implementation(libs.haze)
 
     androidTestImplementation(libs.coroutinesTest)
 

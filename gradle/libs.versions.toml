@@ -20,6 +20,7 @@ detekt = "1.23.8"
 coroutinesTest = "1.10.2"
 mockk = "1.13.8"
 koin = "4.1.0"
+haze = "1.6.4"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -49,6 +50,7 @@ androidxUiTestManifest = { group = "androidx.compose.ui", name = "ui-test-manife
 androidxUiTestJunit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidxMaterial3 = { group = "androidx.compose.material3", name = "material3" }
 ktlint = { module = "com.pinterest:ktlint", version.ref = "ktlint" }
+haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
 protobufKotlinLite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobufKotlinLite" }
 coroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 koinAndroid = { module = "io.insert-koin:koin-android", version.ref = "koin" }
