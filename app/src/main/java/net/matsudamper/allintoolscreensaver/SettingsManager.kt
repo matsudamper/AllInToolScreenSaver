@@ -21,6 +21,8 @@ interface SettingsRepository {
     suspend fun saveSelectedCalendarIds(calendarIds: List<Long>)
     suspend fun getSelectedCalendarIds(): List<Long>
     fun getSelectedCalendarIdsFlow(): Flow<List<Long>>
+    suspend fun saveImageSwitchIntervalSeconds(seconds: Int)
+    suspend fun getImageSwitchIntervalSeconds(): Int
 }
 
 object SettingsSerializer : Serializer<Settings> {
@@ -80,5 +82,22 @@ class SettingsManager(private val context: Context) : SettingsRepository {
 
     override fun getSelectedCalendarIdsFlow(): Flow<List<Long>> = dataStore.data.map { settings ->
         settings.selectedCalendarIdsList
+    }
+
+    override suspend fun saveImageSwitchIntervalSeconds(seconds: Int) {
+        dataStore.updateData { currentSettings ->
+            currentSettings.toBuilder()
+                .setImageSwitchIntervalSeconds(seconds)
+                .build()
+        }
+    }
+
+    override suspend fun getImageSwitchIntervalSeconds(): Int {
+        val settings = dataStore.data.first()
+        return if (settings.imageSwitchIntervalSeconds == 0) {
+            30
+        } else {
+            settings.imageSwitchIntervalSeconds
+        }
     }
 }

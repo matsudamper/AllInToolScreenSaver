@@ -41,7 +41,8 @@ class DigitalClockScreenViewModel(
                 }
                 launch {
                     while (isActive) {
-                        delay(30.seconds)
+                        val intervalSeconds = settingsManager.getImageSwitchIntervalSeconds()
+                        delay(intervalSeconds.seconds)
                         moveToNextImage()
                     }
                 }

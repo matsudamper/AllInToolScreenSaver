@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -30,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -59,6 +61,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
     var availableCalendars by remember { mutableStateOf<List<CalendarInfo>>(listOf()) }
     var selectedCalendarIds by remember { mutableStateOf<List<Long>>(listOf()) }
     var hasCalendarPermission by remember { mutableStateOf(false) }
+    var imageSwitchIntervalSeconds by remember { mutableIntStateOf(30) }
 
     val directoryPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree(),
@@ -93,6 +96,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         }
 
         selectedCalendarIds = settingsManager.getSelectedCalendarIds()
+        imageSwitchIntervalSeconds = settingsManager.getImageSwitchIntervalSeconds()
 
         // カレンダー権限チェック
         hasCalendarPermission = ContextCompat.checkSelfPermission(
@@ -172,6 +176,25 @@ fun MainScreen(modifier: Modifier = Modifier) {
         }
 
         item {
+            Text(
+                text = "画像切り替え時間:",
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
+
+        item {
+            ImageSwitchIntervalSelector(
+                currentInterval = imageSwitchIntervalSeconds,
+                onIntervalSelect = { seconds ->
+                    imageSwitchIntervalSeconds = seconds
+                    activity.lifecycleScope.launch {
+                        settingsManager.saveImageSwitchIntervalSeconds(seconds)
+                    }
+                },
+            )
+        }
+
+        item {
             if (!hasCalendarPermission) {
                 Button(
                     onClick = {
@@ -244,6 +267,54 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+        }
+    }
+}
+
+@Composable
+private fun ImageSwitchIntervalSelector(
+    currentInterval: Int,
+    onIntervalSelect: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        ),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                listOf(5, 15, 30, 60).forEach { seconds ->
+                    Button(
+                        onClick = {
+                            onIntervalSelect(seconds)
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (currentInterval == seconds) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.surface
+                            },
+                        ),
+                    ) {
+                        Text(
+                            text = when (seconds) {
+                                5 -> "5秒"
+                                15 -> "15秒"
+                                30 -> "30秒"
+                                60 -> "1分"
+                                else -> "${seconds}秒"
+                            },
+                        )
+                    }
+                }
+            }
         }
     }
 }
