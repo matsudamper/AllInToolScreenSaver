@@ -97,7 +97,6 @@ dependencies {
     implementation(libs.androidxDocumentfile)
     implementation(libs.androidxLifecycleViewmodelCompose)
     implementation(libs.androidxDatastore)
-    implementation(libs.androidxConstraintlayoutCompose)
 
     implementation(libs.coilCompose)
     implementation(libs.protobufKotlinLite)

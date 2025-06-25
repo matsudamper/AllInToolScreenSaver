@@ -20,7 +20,6 @@ detekt = "1.23.8"
 coroutinesTest = "1.10.2"
 mockk = "1.13.8"
 koin = "4.1.0"
-constraintlayoutCompose = "1.1.1"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -49,7 +48,6 @@ androidxUiToolingPreview = { group = "androidx.compose.ui", name = "ui-tooling-p
 androidxUiTestManifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidxUiTestJunit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidxMaterial3 = { group = "androidx.compose.material3", name = "material3" }
-androidxConstraintlayoutCompose = { group = "androidx.constraintlayout", name = "constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 ktlint = { module = "com.pinterest:ktlint", version.ref = "ktlint" }
 protobufKotlinLite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobufKotlinLite" }
 coroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesTest" }
