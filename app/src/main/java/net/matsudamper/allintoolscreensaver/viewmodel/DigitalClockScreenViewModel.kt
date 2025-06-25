@@ -222,7 +222,7 @@ class DigitalClockScreenViewModel(
     }
 
     private fun getCurrentDate(): String {
-        val formatter = SimpleDateFormat("yyyy年MM月dd日 (E)", Locale.JAPANESE)
+        val formatter = SimpleDateFormat("yyyy年MM月dd日(E)", Locale.JAPANESE)
         return formatter.format(Date())
     }
 

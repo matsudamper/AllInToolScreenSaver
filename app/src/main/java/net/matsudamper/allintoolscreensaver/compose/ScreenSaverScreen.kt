@@ -271,13 +271,13 @@ private fun Clock(
             fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.Bold,
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = date,
             color = Color.White,
-            fontSize = 18.sp,
+            fontSize = 20.sp,
             fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Normal,
+            fontWeight = FontWeight.Bold,
         )
     }
 }
