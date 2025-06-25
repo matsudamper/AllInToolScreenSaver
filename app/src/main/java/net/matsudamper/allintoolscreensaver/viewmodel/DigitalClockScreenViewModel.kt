@@ -88,7 +88,7 @@ class DigitalClockScreenViewModel(
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         imageUri = viewModelState.images.getOrNull(
-                            viewModelState.imagesShuffledIndex.getOrNull(viewModelState.currentShuffledIndex) ?: 0,
+                            viewModelState.imagesShuffledIndex.getOrNull(viewModelState.currentIndex) ?: 0,
                         ),
                         isLoading = viewModelState.isLoading,
                         pagerItems = createPagerItems(viewModelState),
@@ -107,40 +107,35 @@ class DigitalClockScreenViewModel(
             )
         }
 
-        val currentIndex = viewModelState.currentShuffledIndex
+        val currentIndex = viewModelState.currentIndex
         val shuffledIndices = viewModelState.imagesShuffledIndex
-        val images = viewModelState.images
 
         val prevIndex = if (currentIndex > 0) currentIndex - 1 else shuffledIndices.size - 1
         val nextIndex = if (currentIndex < shuffledIndices.size - 1) currentIndex + 1 else 0
 
-        fun getImageUri(index: Int): Uri? {
-            return images.getOrNull(shuffledIndices.getOrNull(index) ?: 0)
-        }
-
         return listOf(
             PagerItem(
-                id = getImageUri(prevIndex).toString(),
-                imageUri = getImageUri(prevIndex),
+                id = viewModelState.getPagerImage(prevIndex).toString(),
+                imageUri = viewModelState.getPagerImage(prevIndex),
             ),
             PagerItem(
-                id = getImageUri(currentIndex).toString(),
-                imageUri = getImageUri(currentIndex),
+                id = viewModelState.getPagerImage(currentIndex).toString(),
+                imageUri = viewModelState.getPagerImage(currentIndex),
             ),
             PagerItem(
-                id = getImageUri(nextIndex).toString(),
-                imageUri = getImageUri(nextIndex),
+                id = viewModelState.getPagerImage(nextIndex).toString(),
+                imageUri = viewModelState.getPagerImage(nextIndex),
             ),
         )
     }
 
     private fun moveToNextImage() {
         viewModelStateFlow.update { viewModelState ->
-            val nextShuffledIndex = viewModelState.currentShuffledIndex + 1
+            val nextShuffledIndex = viewModelState.currentIndex + 1
             val nextImageIndex = viewModelState.imagesShuffledIndex.getOrNull(nextShuffledIndex)
 
             viewModelState.copy(
-                currentShuffledIndex = if (nextImageIndex == null) {
+                currentIndex = if (nextImageIndex == null) {
                     0
                 } else {
                     nextShuffledIndex
@@ -151,14 +146,14 @@ class DigitalClockScreenViewModel(
 
     private fun moveToPreviousImage() {
         viewModelStateFlow.update { viewModelState ->
-            val prevShuffledIndex = if (viewModelState.currentShuffledIndex > 0) {
-                viewModelState.currentShuffledIndex - 1
+            val prevShuffledIndex = if (viewModelState.currentIndex > 0) {
+                viewModelState.currentIndex - 1
             } else {
                 viewModelState.imagesShuffledIndex.size - 1
             }
 
             viewModelState.copy(
-                currentShuffledIndex = prevShuffledIndex,
+                currentIndex = prevShuffledIndex,
             )
         }
     }
@@ -186,7 +181,7 @@ class DigitalClockScreenViewModel(
                 viewModelState.copy(
                     images = firstList,
                     imagesShuffledIndex = firstImagesShuffledIndex,
-                    currentShuffledIndex = 0,
+                    currentIndex = 0,
                     imagesLastUpdate = Instant.now(),
                     isLoading = false,
                 )
@@ -208,7 +203,7 @@ class DigitalClockScreenViewModel(
                 viewModelState.copy(
                     images = uris,
                     imagesShuffledIndex = uris.indices.shuffled(),
-                    currentShuffledIndex = 0,
+                    currentIndex = 0,
                     imagesLastUpdate = Instant.now(),
                     isLoading = false,
                 )
@@ -229,8 +224,12 @@ class DigitalClockScreenViewModel(
     data class ViewModelState(
         val images: List<Uri> = listOf(),
         val imagesShuffledIndex: List<Int> = listOf(),
-        val currentShuffledIndex: Int = 0,
+        val currentIndex: Int = 0,
         val imagesLastUpdate: Instant = Instant.MIN,
         val isLoading: Boolean = true,
-    )
+    ) {
+        fun getPagerImage(index: Int): Uri {
+            return images[imagesShuffledIndex[index]]
+        }
+    }
 }
