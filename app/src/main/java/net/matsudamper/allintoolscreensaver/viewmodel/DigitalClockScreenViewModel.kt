@@ -50,9 +50,8 @@ class DigitalClockScreenViewModel(
 
         override fun onPageChanged(newPage: Int) {
             when (newPage) {
-                0 -> moveToPreviousImage() // 左スワイプで前の画像へ
-                2 -> moveToNextImage() // 右スワイプで次の画像へ
-                // 1 (中央) は何もしない
+                0 -> moveToPreviousImage()
+                2 -> moveToNextImage()
             }
         }
     }
