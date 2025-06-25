@@ -1,7 +1,6 @@
 package net.matsudamper.allintoolscreensaver.compose.calendar
 
 import androidx.compose.runtime.Immutable
-import java.time.Instant
 
 data class CalendarDisplayScreenUiState(
     val calendarUiState: CalendarLayoutUiState,
