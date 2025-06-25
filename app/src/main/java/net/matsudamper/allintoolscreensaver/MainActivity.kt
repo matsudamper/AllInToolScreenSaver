@@ -10,8 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
-import net.matsudamper.allintoolscreensaver.compose.CalendarDisplayScreenViewModel
+import net.matsudamper.allintoolscreensaver.viewmodel.CalendarDisplayScreenViewModel
 import net.matsudamper.allintoolscreensaver.compose.MainScreen
 import net.matsudamper.allintoolscreensaver.theme.AllInToolScreenSaverTheme
 import org.koin.core.context.startKoin

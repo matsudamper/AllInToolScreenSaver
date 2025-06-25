@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.compose
+package net.matsudamper.allintoolscreensaver.compose.calendar
 
 sealed interface CalendarDisplayScreenTestTag {
     object ZoomInButton : CalendarDisplayScreenTestTag

@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.compose
+package net.matsudamper.allintoolscreensaver.viewmodel
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
@@ -24,6 +24,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.ImageManager
 import net.matsudamper.allintoolscreensaver.SettingsManager
+import net.matsudamper.allintoolscreensaver.compose.DigitalClockScreenUiState
+import net.matsudamper.allintoolscreensaver.compose.PagerItem
 
 class DigitalClockScreenViewModel(
     private val settingsManager: SettingsManager,

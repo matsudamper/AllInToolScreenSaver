@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.compose
+package net.matsudamper.allintoolscreensaver.compose.calendar
 
 import androidx.compose.runtime.Immutable
 import net.matsudamper.allintoolscreensaver.CalendarEvent

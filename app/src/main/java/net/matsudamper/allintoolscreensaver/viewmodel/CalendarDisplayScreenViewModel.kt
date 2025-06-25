@@ -1,11 +1,10 @@
-package net.matsudamper.allintoolscreensaver.compose
+package net.matsudamper.allintoolscreensaver.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
@@ -19,6 +18,7 @@ import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.CalendarEvent
 import net.matsudamper.allintoolscreensaver.CalendarRepository
 import net.matsudamper.allintoolscreensaver.SettingsRepository
+import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreenUiState
 
 class CalendarDisplayScreenViewModel(
     private val settingsRepository: SettingsRepository,
