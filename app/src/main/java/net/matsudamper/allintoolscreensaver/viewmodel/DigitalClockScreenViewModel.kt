@@ -196,7 +196,7 @@ class DigitalClockScreenViewModel(
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     images = firstList + secondList,
-                    imagesShuffledIndex = firstImagesShuffledIndex + secondList.indices.shuffled(),
+                    imagesShuffledIndex = firstImagesShuffledIndex + secondList.indices.shuffled().map { firstImagesShuffledIndex.size + it },
                     imagesLastUpdate = Instant.now(),
                     isLoading = false,
                 )
