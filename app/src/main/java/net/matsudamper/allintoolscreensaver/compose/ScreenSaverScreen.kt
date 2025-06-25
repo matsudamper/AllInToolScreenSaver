@@ -1,6 +1,7 @@
 package net.matsudamper.allintoolscreensaver.compose
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +39,7 @@ import net.matsudamper.allintoolscreensaver.CalendarEvent
 import net.matsudamper.allintoolscreensaver.ImageManager
 import net.matsudamper.allintoolscreensaver.SettingsManager
 import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreen
+import net.matsudamper.allintoolscreensaver.compose.component.LocalDreamDialogContentHolder
 import net.matsudamper.allintoolscreensaver.viewmodel.DigitalClockScreenViewModel
 
 @Composable
@@ -145,6 +147,24 @@ fun ScreenSaverScreen(
 //                alertManager = alertManager,
 //            )
 //        }
+
+        for (dialogItem in LocalDreamDialogContentHolder.current) {
+            Box(
+                modifier = Modifier
+                    .clickable(
+                        interactionSource = null,
+                        indication = null,
+                        onClick = {
+                            dialogItem.dismissRequest()
+                        },
+                    )
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.7f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                dialogItem.content()
+            }
+        }
     }
 }
 
