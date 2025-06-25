@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -25,8 +26,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.coerceAtLeast
@@ -126,7 +132,7 @@ internal fun CalendarLayout(
     clock: Clock = remember { Clock.systemDefaultZone() },
 ) {
     val hourSize = state.hourSize
-    val calcTimeEvents = remember(uiState.events) {
+    val calcTimeEvents by remember(uiState.events) {
         val baseList = buildList {
             uiState.events.map { event ->
                 val eventSize = run {
@@ -149,7 +155,7 @@ internal fun CalendarLayout(
                 )
             }
         }
-        assignEventRows(baseList)
+        mutableStateOf(assignEventRows(baseList))
     }
     LaunchedEffect(Unit) {
         state.scrollToHours(LocalTime.now(clock).hour - 1)
@@ -210,68 +216,12 @@ internal fun CalendarLayout(
                         )
                     }
                 },
-                measurePolicy = { measurables, constraints ->
-                    val hourPlaceableList = (0 until 24).map { index ->
-                        measurables[hourIndex(index)].measure(constraints)
-                    }
-                    val hourMaxWidth = hourPlaceableList.maxOf { it.width }
-                    val hourAverageHeightPx = hourPlaceableList.sumOf { it.height } / 24
-
-                    val hourDividerPlaceableList = (0 until 24).map { index ->
-                        measurables[hourDividerIndex(index)].measure(
-                            constraints.copy(
-                                minWidth = constraints.maxWidth - hourMaxWidth,
-                                maxWidth = constraints.maxWidth - hourMaxWidth,
-                            ),
-                        )
-                    }
-
-                    val eventPlaceableList = calcTimeEvents.map { event ->
-                        measurables[eventItemIndex(calcTimeEvents.indexOf(event))].measure(
-                            constraints.copy(
-                                minWidth = (constraints.maxWidth - hourMaxWidth) / event.rowSplitSize,
-                                maxWidth = (constraints.maxWidth - hourMaxWidth) / event.rowSplitSize,
-                            ),
-                        )
-                    }
-
-                    val currentTimeDividerPlaceable = measurables[currentTimeIndex()].measure(
-                        constraints.copy(
-                            minWidth = constraints.maxWidth - hourMaxWidth,
-                            maxWidth = constraints.maxWidth - hourMaxWidth,
-                        ),
+                measurePolicy = remember(hourSize, currentDayOfMinutes, calcTimeEvents) {
+                    CalendarMeasurePolicy(
+                        hourSize = hourSize,
+                        currentDayOfMinutes = currentDayOfMinutes,
+                        calcTimeEvents = calcTimeEvents,
                     )
-                    val currentTimeY = ((currentDayOfMinutes / 60f) * hourSize).roundToPx()
-
-                    layout(constraints.maxWidth, (hourSize * 24).roundToPx()) {
-                        run {
-                            hourPlaceableList.forEachIndexed { index, placeable ->
-                                placeable.place(0, hourSize.roundToPx() * index)
-                            }
-                        }
-                        run {
-                            hourDividerPlaceableList.forEachIndexed { index, placeable ->
-                                placeable.place(
-                                    x = hourMaxWidth,
-                                    y = (hourSize * index).roundToPx() + (hourAverageHeightPx / 2),
-                                )
-                            }
-                        }
-                        run {
-                            eventPlaceableList.forEachIndexed { index, placeable ->
-                                val event = calcTimeEvents[index]
-                                val eventWidth = (constraints.maxWidth - hourMaxWidth) / event.rowSplitSize
-                                placeable.place(
-                                    x = hourMaxWidth + (eventWidth * event.rowIndex),
-                                    y = (hourSize * event.startIndex / HourSplitCount).roundToPx() + (hourAverageHeightPx / 2),
-                                )
-                            }
-                        }
-                        currentTimeDividerPlaceable.place(
-                            x = hourMaxWidth,
-                            y = currentTimeY,
-                        )
-                    }
                 },
             )
         }
@@ -304,6 +254,70 @@ data class CalcTimeEvent(
     val rowSplitSize: Int,
     val rowIndex: Int,
 )
+
+private data class CalendarMeasurePolicy(
+    val hourSize: Dp,
+    val currentDayOfMinutes: Int,
+    val calcTimeEvents: List<CalcTimeEvent>,
+) : MeasurePolicy {
+    override fun MeasureScope.measure(measurables: List<Measurable>, constraints: Constraints): MeasureResult {
+        val hourPlaceableList = (0 until 24).map { index ->
+            measurables[hourIndex(index)].measure(constraints)
+        }
+        val hourMaxWidth = hourPlaceableList.maxOf { it.width }
+        val hourAverageHeightPx = hourPlaceableList.sumOf { it.height } / 24
+
+        val hourDividerPlaceableList = (0 until 24).map { index ->
+            measurables[hourDividerIndex(index)].measure(
+                constraints.copy(
+                    minWidth = constraints.maxWidth - hourMaxWidth,
+                    maxWidth = constraints.maxWidth - hourMaxWidth,
+                ),
+            )
+        }
+
+        val eventPlaceableList = calcTimeEvents.map { event ->
+            measurables[eventItemIndex(calcTimeEvents.indexOf(event))].measure(
+                constraints.copy(
+                    minWidth = (constraints.maxWidth - hourMaxWidth) / event.rowSplitSize,
+                    maxWidth = (constraints.maxWidth - hourMaxWidth) / event.rowSplitSize,
+                ),
+            )
+        }
+
+        val currentTimeDividerPlaceable = measurables[currentTimeIndex()].measure(
+            constraints.copy(
+                minWidth = constraints.maxWidth - hourMaxWidth,
+                maxWidth = constraints.maxWidth - hourMaxWidth,
+            ),
+        )
+        val currentTimeY = ((currentDayOfMinutes / 60f) * hourSize).roundToPx()
+
+        return layout(constraints.maxWidth, (hourSize * 24).roundToPx()) {
+            hourPlaceableList.forEachIndexed { index, placeable ->
+                placeable.place(0, hourSize.roundToPx() * index)
+            }
+            hourDividerPlaceableList.forEachIndexed { index, placeable ->
+                placeable.place(
+                    x = hourMaxWidth,
+                    y = (hourSize * index).roundToPx() + (hourAverageHeightPx / 2),
+                )
+            }
+            eventPlaceableList.forEachIndexed { index, placeable ->
+                val event = calcTimeEvents[index]
+                val eventWidth = (constraints.maxWidth - hourMaxWidth) / event.rowSplitSize
+                placeable.place(
+                    x = hourMaxWidth + (eventWidth * event.rowIndex),
+                    y = (hourSize * event.startIndex / HourSplitCount).roundToPx() + (hourAverageHeightPx / 2),
+                )
+            }
+            currentTimeDividerPlaceable.place(
+                x = hourMaxWidth,
+                y = currentTimeY,
+            )
+        }
+    }
+}
 
 @Composable
 private fun TimeCard(
