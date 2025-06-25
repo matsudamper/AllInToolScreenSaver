@@ -47,6 +47,7 @@ import java.time.ZoneOffset
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
+import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
