@@ -4,5 +4,10 @@
   "prConcurrentLimit": 20,
   "extends": [":dependencyDashboard"],
   "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "autoApprove": true
+    }
   ],
 }
