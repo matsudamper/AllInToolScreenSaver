@@ -39,6 +39,11 @@ android {
         compose = true
     }
 
+    lint {
+        abortOnError = true
+        warningsAsErrors = true
+    }
+
     packaging {
         resources {
             excludes += "META-INF/LICENSE.md"
