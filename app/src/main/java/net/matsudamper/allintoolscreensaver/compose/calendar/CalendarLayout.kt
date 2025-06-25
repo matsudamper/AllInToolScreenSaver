@@ -167,7 +167,7 @@ internal fun CalendarLayout(
             currentDayOfMinutes = now.hour * 60 + now.minute
 
             delay(60.seconds - now.second.seconds)
-            delay(1.seconds.inWholeNanoseconds - now.nano)
+            delay((1.seconds.inWholeNanoseconds - now.nano).nanoseconds)
         }
     }
 
