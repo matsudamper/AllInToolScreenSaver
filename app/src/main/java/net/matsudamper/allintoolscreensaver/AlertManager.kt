@@ -5,7 +5,9 @@ import android.media.AudioManager
 import android.media.ToneGenerator
 import kotlinx.coroutines.Job
 
-class AlertManager(context: Context) {
+class AlertManager(
+    @Suppress("UNUSED_PARAMETER") context: Context
+) {
 //    private val settingsManager = SettingsManager(context)
 //    private val calendarManager = CalendarManager(context)
     private var alertJob: Job? = null

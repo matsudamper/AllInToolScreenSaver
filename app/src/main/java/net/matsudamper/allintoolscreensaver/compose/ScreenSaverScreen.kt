@@ -134,17 +134,17 @@ fun ScreenSaverScreen(
         }
 
         // アラートダイアログ
-        val currentAlert = currentAlertState.value
-        if (showAlertDialog && currentAlert != null) {
-            ClockAlertDialog(
-                alertTime = currentAlert,
-                onDismiss = {
-                    showAlertDialog = false
-                    currentAlertState.value = null
-                },
-                alertManager = alertManager,
-            )
-        }
+//        val currentAlert = currentAlertState.value
+//        if (showAlertDialog && currentAlert != null) {
+//            ClockAlertDialog(
+//                alertTime = currentAlert,
+//                onDismiss = {
+//                    showAlertDialog = false
+//                    currentAlertState.value = null
+//                },
+//                alertManager = alertManager,
+//            )
+//        }
     }
 }
 

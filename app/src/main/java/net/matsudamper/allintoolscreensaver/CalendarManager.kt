@@ -123,7 +123,6 @@ class CalendarManager(private val context: Context) : CalendarRepository {
                     val eventEndTime = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events.DTEND))
                     val allDay = c.getInt(c.getColumnIndexOrThrow(CalendarContract.Events.ALL_DAY)) == 1
                     val color = c.getInt(c.getColumnIndexOrThrow(CalendarContract.Events.CALENDAR_COLOR))
-                    val calendarId = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events.CALENDAR_ID))
                     events.add(
                         if (allDay) {
                             CalendarEvent.AllDay(
