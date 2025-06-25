@@ -1,13 +1,5 @@
 package net.matsudamper.allintoolscreensaver.compose
 
-import android.Manifest
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.provider.Settings
-import android.util.Log
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,90 +21,27 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.CalendarInfo
-import net.matsudamper.allintoolscreensaver.CalendarManager
-import net.matsudamper.allintoolscreensaver.SettingsManager
+import net.matsudamper.allintoolscreensaver.compose.component.SuspendLifecycleStartEffect
 import net.matsudamper.allintoolscreensaver.theme.AllInToolScreenSaverTheme
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val activity = context as ComponentActivity
-    val settingsManager = remember { SettingsManager(context) }
-    val calendarManager = remember { CalendarManager(context) }
-
-    var selectedDirectoryPath by remember { mutableStateOf<String?>(null) }
-    var availableCalendars by remember { mutableStateOf<List<CalendarInfo>>(listOf()) }
-    var selectedCalendarIds by remember { mutableStateOf<List<Long>>(listOf()) }
-    var hasCalendarPermission by remember { mutableStateOf(false) }
-    var imageSwitchIntervalSeconds by remember { mutableIntStateOf(30) }
-
-    val directoryPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocumentTree(),
-    ) { uri ->
-        if (uri != null) {
-            context.contentResolver.takePersistableUriPermission(
-                uri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
-            )
-            activity.lifecycleScope.launch {
-                settingsManager.saveImageDirectoryUri(uri)
-                selectedDirectoryPath = uri.toString()
-                Log.d("MainActivity", "Selected directory: $uri")
-            }
-        }
-    }
-
-    val calendarPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-    ) { isGranted ->
-        hasCalendarPermission = isGranted
-        if (isGranted) {
-            // 権限が許可されたらカレンダーを読み込む
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        // 初期設定の読み込み
-        val currentDirectoryUri = settingsManager.getImageDirectoryUri()
-        if (currentDirectoryUri != null) {
-            selectedDirectoryPath = currentDirectoryUri.toString()
-        }
-
-        selectedCalendarIds = settingsManager.getSelectedCalendarIds()
-        imageSwitchIntervalSeconds = settingsManager.getImageSwitchIntervalSeconds()
-
-        // カレンダー権限チェック
-        hasCalendarPermission = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.READ_CALENDAR,
-        ) == PackageManager.PERMISSION_GRANTED
-
-        if (hasCalendarPermission) {
-            availableCalendars = calendarManager.getAvailableCalendars()
-        }
-    }
-
-    LaunchedEffect(hasCalendarPermission) {
-        if (hasCalendarPermission) {
-            availableCalendars = calendarManager.getAvailableCalendars()
-        }
+fun MainScreen(
+    uiState: MainActivityUiState,
+    onDirectoryPickerLaunch: () -> Unit,
+    onCalendarPermissionLaunch: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    SuspendLifecycleStartEffect(Unit) {
+        uiState.listener.onStart()
     }
 
     LazyColumn(
@@ -141,14 +70,14 @@ fun MainScreen(modifier: Modifier = Modifier) {
         item {
             Button(
                 onClick = {
-                    directoryPickerLauncher.launch(null)
+                    onDirectoryPickerLaunch()
                 },
             ) {
                 Text("画像フォルダを選択")
             }
         }
 
-        if (selectedDirectoryPath != null) {
+        if (uiState.selectedDirectoryPath != null) {
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -166,7 +95,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = selectedDirectoryPath.orEmpty(),
+                            text = uiState.selectedDirectoryPath,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -184,21 +113,18 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
         item {
             ImageSwitchIntervalSelector(
-                currentInterval = imageSwitchIntervalSeconds,
+                currentInterval = uiState.imageSwitchIntervalSeconds,
                 onIntervalSelect = { seconds ->
-                    imageSwitchIntervalSeconds = seconds
-                    activity.lifecycleScope.launch {
-                        settingsManager.saveImageSwitchIntervalSeconds(seconds)
-                    }
+                    uiState.listener.onImageSwitchIntervalChanged(seconds)
                 },
             )
         }
 
         item {
-            if (!hasCalendarPermission) {
+            if (!uiState.hasCalendarPermission) {
                 Button(
                     onClick = {
-                        calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR)
+                        onCalendarPermissionLaunch()
                     },
                 ) {
                     Text("カレンダーアクセス許可")
@@ -211,22 +137,13 @@ fun MainScreen(modifier: Modifier = Modifier) {
             }
         }
 
-        if (hasCalendarPermission && availableCalendars.isNotEmpty()) {
-            items(availableCalendars) { calendar ->
+        if (uiState.hasCalendarPermission && uiState.availableCalendars.isNotEmpty()) {
+            items(uiState.availableCalendars) { calendar ->
                 CalendarItem(
                     calendar = calendar,
-                    isSelected = selectedCalendarIds.contains(calendar.id),
+                    isSelected = uiState.selectedCalendarIds.contains(calendar.id),
                     onSelectionChange = { isSelected ->
-                        val newIds = if (isSelected) {
-                            selectedCalendarIds + calendar.id
-                        } else {
-                            selectedCalendarIds - calendar.id
-                        }
-                        selectedCalendarIds = newIds
-
-                        activity.lifecycleScope.launch {
-                            settingsManager.saveSelectedCalendarIds(newIds)
-                        }
+                        uiState.listener.onCalendarSelectionChanged(calendar.id, isSelected)
                     },
                 )
             }
@@ -235,9 +152,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         item {
             Button(
                 onClick = {
-                    Log.d("MainActivity", "Opening dream settings")
-                    val intent = Intent(Settings.ACTION_DREAM_SETTINGS)
-                    context.startActivity(intent)
+                    uiState.listener.onOpenDreamSettings()
                 },
             ) {
                 Text("スクリーンセーバー設定を開く")
@@ -382,6 +297,24 @@ private fun CalendarItem(
 @Composable
 private fun MainScreenPreview() {
     AllInToolScreenSaverTheme {
-        MainScreen()
+        MainScreen(
+            uiState = MainActivityUiState(
+                selectedDirectoryPath = null,
+                availableCalendars = listOf(),
+                selectedCalendarIds = listOf(),
+                hasCalendarPermission = false,
+                imageSwitchIntervalSeconds = 30,
+                listener = object : MainActivityUiState.Listener {
+                    override suspend fun onStart() {}
+                    override fun onDirectorySelected(uri: android.net.Uri) = Unit
+                    override fun onCalendarPermissionRequested() = Unit
+                    override fun onCalendarSelectionChanged(calendarId: Long, isSelected: Boolean) = Unit
+                    override fun onImageSwitchIntervalChanged(seconds: Int) = Unit
+                    override fun onOpenDreamSettings() = Unit
+                },
+            ),
+            onDirectoryPickerLaunch = { },
+            onCalendarPermissionLaunch = { },
+        )
     }
 }

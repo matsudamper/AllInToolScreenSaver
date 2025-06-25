@@ -1,24 +1,95 @@
 package net.matsudamper.allintoolscreensaver
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import net.matsudamper.allintoolscreensaver.compose.MainScreen
 import net.matsudamper.allintoolscreensaver.theme.AllInToolScreenSaverTheme
+import net.matsudamper.allintoolscreensaver.viewmodel.MainActivityViewModel
+import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
+    private val settingsManager: SettingsRepository by inject()
+    private val calendarManager: CalendarRepository by inject()
+
+    private val activityListener = object : MainActivityViewModel.ActivityListener {
+        override fun onDirectorySelected(uri: Uri) {
+            contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+            )
+        }
+
+        override fun onOpenDreamSettings() {
+            val intent = Intent(Settings.ACTION_DREAM_SETTINGS)
+            startActivity(intent)
+        }
+
+        override fun checkCalendarPermission(): Boolean {
+            return ContextCompat.checkSelfPermission(
+                this@MainActivity,
+                Manifest.permission.READ_CALENDAR,
+            ) == PackageManager.PERMISSION_GRANTED
+        }
+
+        override suspend fun loadAvailableCalendars(): List<CalendarInfo> {
+            return calendarManager.getAvailableCalendars()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             AllInToolScreenSaverTheme {
+                val viewModel: MainActivityViewModel = viewModel {
+                    MainActivityViewModel(
+                        settingsRepository = settingsManager,
+                        activityListener = activityListener,
+                    )
+                }
+
+                val uiState by viewModel.uiState.collectAsState()
+
+                val directoryPickerLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.OpenDocumentTree(),
+                ) { uri ->
+                    if (uri != null) {
+                        uiState.listener.onDirectorySelected(uri)
+                    }
+                }
+
+                val calendarPermissionLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission(),
+                ) { isGranted ->
+                    viewModel.updateCalendarPermission(isGranted)
+                }
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MainScreen(modifier = Modifier.padding(innerPadding))
+                    MainScreen(
+                        uiState = uiState,
+                        onDirectoryPickerLaunch = { directoryPickerLauncher.launch(null) },
+                        onCalendarPermissionLaunch = {
+                            calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR)
+                        },
+                        modifier = Modifier.padding(innerPadding),
+                    )
                 }
             }
         }
