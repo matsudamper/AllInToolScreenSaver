@@ -7,10 +7,14 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
+import kotlin.time.Duration.Companion.minutes
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.CalendarEvent
 import net.matsudamper.allintoolscreensaver.CalendarRepository
@@ -26,7 +30,7 @@ class CalendarDisplayScreenViewModel(
 
     private val listener = object : CalendarDisplayScreenUiState.Listener {
         override suspend fun onStart() {
-            loadEvents()
+            collectEvents()
         }
 
         override fun onInteraction() {
@@ -75,19 +79,24 @@ class CalendarDisplayScreenViewModel(
         }
     }.asStateFlow()
 
-    private suspend fun loadEvents() {
-        val selectedCalendarIds = settingsRepository.getSelectedCalendarIds()
+    private suspend fun collectEvents() {
+        coroutineScope {
+            while (isActive) {
+                val selectedCalendarIds = settingsRepository.getSelectedCalendarIds()
 
-        if (selectedCalendarIds.isNotEmpty()) {
-            val today = LocalDate.now()
-            val startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toInstant()
-            val endOfDay = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()
+                if (selectedCalendarIds.isNotEmpty()) {
+                    val today = LocalDate.now()
+                    val startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toInstant()
+                    val endOfDay = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()
 
-            val events = calendarRepository.getEventsForTimeRange(selectedCalendarIds, startOfDay, endOfDay)
-            viewModelStateFlow.update { state ->
-                state.copy(
-                    events = events,
-                )
+                    val events = calendarRepository.getEventsForTimeRange(selectedCalendarIds, startOfDay, endOfDay)
+                    viewModelStateFlow.update { state ->
+                        state.copy(
+                            events = events,
+                        )
+                    }
+                }
+                delay(1.minutes)
             }
         }
     }
