@@ -10,4 +10,4 @@ sealed interface CalendarDisplayScreenTestTag {
     fun testTag(): String {
         return this::class.simpleName.orEmpty()
     }
-} 
+}

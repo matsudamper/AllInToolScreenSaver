@@ -331,7 +331,7 @@ private fun assignEventRows(events: List<CalcTimeEvent>): List<CalcTimeEvent> {
         .sortedWith(
             compareBy(
                 { it.value.base.startIndex }, // 開始時刻
-                { it.index },                  // 元リストの順番
+                { it.index }, // 元リストの順番
             ),
         )
         .map { it.value }
@@ -356,7 +356,6 @@ private fun assignEventRows(events: List<CalcTimeEvent>): List<CalcTimeEvent> {
         )
     }
 }
-
 
 @Composable
 @Preview(showBackground = true)

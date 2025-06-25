@@ -1,8 +1,6 @@
 package net.matsudamper.allintoolscreensaver
 
 import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
 
 class FakeCalendarRepository : CalendarRepository {
     private val fakeCalendars = mutableListOf<CalendarInfo>()

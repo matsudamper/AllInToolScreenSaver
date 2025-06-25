@@ -3,7 +3,6 @@ package net.matsudamper.allintoolscreensaver
 import android.content.Context
 import android.media.AudioManager
 import android.media.ToneGenerator
-import java.time.Duration
 import java.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

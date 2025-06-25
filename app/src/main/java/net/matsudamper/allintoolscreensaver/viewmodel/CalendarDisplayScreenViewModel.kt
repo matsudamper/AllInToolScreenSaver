@@ -1,14 +1,12 @@
 package net.matsudamper.allintoolscreensaver.viewmodel
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
-import java.util.Locale
-import kotlin.math.max
-import kotlin.math.min
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +19,6 @@ import net.matsudamper.allintoolscreensaver.CalendarRepository
 import net.matsudamper.allintoolscreensaver.SettingsRepository
 import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreenUiState
 import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarLayoutUiState
-import androidx.compose.ui.graphics.Color
 
 class CalendarDisplayScreenViewModel(
     private val settingsRepository: SettingsRepository,
@@ -32,24 +29,6 @@ class CalendarDisplayScreenViewModel(
     private val listener = object : CalendarDisplayScreenUiState.Listener {
         override suspend fun onStart() {
             loadEvents()
-        }
-
-        override fun onZoomIn() {
-            viewModelStateFlow.update { state ->
-                state.copy(
-                    scale = min(3f, state.scale * 1.2f),
-                    lastInteractionTime = Instant.now(),
-                )
-            }
-        }
-
-        override fun onZoomOut() {
-            viewModelStateFlow.update { state ->
-                state.copy(
-                    scale = max(0.5f, state.scale / 1.2f),
-                    lastInteractionTime = Instant.now(),
-                )
-            }
         }
 
         override fun onInteraction() {
@@ -66,7 +45,6 @@ class CalendarDisplayScreenViewModel(
                 allDayEvents = listOf(),
             ),
             currentTime = Instant.now(),
-            scale = 1f,
             isLoading = true,
             listener = listener,
         ),
@@ -104,7 +82,6 @@ class CalendarDisplayScreenViewModel(
                                     )
                                 },
                         ),
-                        scale = viewModelState.scale,
                         isLoading = viewModelState.isLoading,
                     )
                 }

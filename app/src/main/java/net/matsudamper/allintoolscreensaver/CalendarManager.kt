@@ -3,8 +3,6 @@ package net.matsudamper.allintoolscreensaver
 import android.content.Context
 import android.provider.CalendarContract
 import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -103,8 +101,8 @@ class CalendarManager(private val context: Context) : CalendarRepository {
             )
 
             val selection = "${CalendarContract.Events.CALENDAR_ID} IN (${calendarIds.joinToString(",")}) AND " +
-                    "${CalendarContract.Events.DTSTART} <= ? AND " +
-                    "${CalendarContract.Events.DTEND} >= ?"
+                "${CalendarContract.Events.DTSTART} <= ? AND " +
+                "${CalendarContract.Events.DTEND} >= ?"
 
             val selectionArgs = arrayOf(endTime.toEpochMilli().toString(), startTime.toEpochMilli().toString())
 
@@ -143,7 +141,7 @@ class CalendarManager(private val context: Context) : CalendarRepository {
                                 endTime = Instant.ofEpochMilli(eventEndTime),
                                 color = color,
                             )
-                        }
+                        },
                     )
                 }
             }
