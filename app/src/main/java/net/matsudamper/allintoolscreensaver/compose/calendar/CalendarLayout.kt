@@ -47,6 +47,7 @@ import java.time.ZoneOffset
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
+import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
@@ -86,6 +87,7 @@ class CalendarState internal constructor(
     private val density: Density,
     hourSize: Dp,
 ) {
+
     var hourSize: Dp by mutableStateOf(hourSize)
 
     fun zoomIn() {
@@ -98,10 +100,29 @@ class CalendarState internal constructor(
             .coerceAtLeast(10.dp)
     }
 
+    fun isCurrentTimeDisplayed(): Boolean {
+        val hourHeightPx = with(density) { hourSize.roundToPx() }
+        val now = LocalTime.now()
+        val currentTimeValue = (now.hour / (now.minute / 60f) * hourHeightPx).roundToInt()
+        val startValue = scrollState.value + hourHeightPx
+        val endValue = scrollState.maxValue - hourHeightPx
+        return if (startValue > endValue) {
+            currentTimeValue in (scrollState.value)..(scrollState.maxValue)
+        } else {
+            currentTimeValue in (scrollState.value + hourHeightPx)..(scrollState.maxValue - hourHeightPx)
+        }
+    }
+
     suspend fun scrollToHours(hours: Int) {
         val targetIndex = hours * HourSplitCount
         val targetOffset = (targetIndex * hourSize.value).toInt()
         scrollState.scrollTo(targetOffset)
+    }
+
+    suspend fun animateScrollToHours(hours: Int) {
+        val targetIndex = hours * HourSplitCount
+        val targetOffset = (targetIndex * hourSize.value).toInt()
+        scrollState.animateScrollTo(targetOffset)
     }
 
     suspend fun addAnimateScrollToHours(hours: Int) {

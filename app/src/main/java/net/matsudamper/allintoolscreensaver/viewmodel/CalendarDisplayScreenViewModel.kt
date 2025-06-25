@@ -8,11 +8,15 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import kotlin.time.Duration.Companion.minutes
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -39,7 +43,7 @@ class CalendarDisplayScreenViewModel(
             }
         }
     }
-
+    private val operationFlow = Channel<(CalendarDisplayScreenUiState.Operation) -> Unit>(Channel.UNLIMITED)
     val uiState: StateFlow<CalendarDisplayScreenUiState> = MutableStateFlow(
         CalendarDisplayScreenUiState(
             calendarUiState = CalendarLayoutUiState(
@@ -47,6 +51,7 @@ class CalendarDisplayScreenViewModel(
                 allDayEvents = listOf(),
             ),
             listener = listener,
+            operationFlow = operationFlow,
         ),
     ).also { uiStateFlow ->
         viewModelScope.launch {
@@ -76,6 +81,16 @@ class CalendarDisplayScreenViewModel(
                     )
                 }
             }
+        }
+        viewModelScope.launch {
+            viewModelStateFlow.map { it.lastInteractionTime }
+                .distinctUntilChanged()
+                .collectLatest { _ ->
+                    delay(1.minutes)
+                    operationFlow.send {
+                        it.moveCurrentTime()
+                    }
+                }
         }
     }.asStateFlow()
 

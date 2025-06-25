@@ -19,13 +19,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleStartEffect
+import java.time.Clock
+import java.time.LocalTime
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.viewmodel.CalendarDisplayScreenViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -34,19 +41,41 @@ import org.koin.androidx.compose.koinViewModel
 fun CalendarDisplayScreen(
     modifier: Modifier = Modifier,
     viewModel: CalendarDisplayScreenViewModel = koinViewModel(),
+    clock: Clock = remember { Clock.systemDefaultZone() },
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+    val calendarState = rememberCalendarState()
+
+    LifecycleStartEffect(Unit) {
+        val scope = CoroutineScope(Job())
+        scope.launch { uiState.listener.onStart() }
+        onStopOrDispose { scope.cancel() }
+    }
 
     LaunchedEffect(Unit) {
-        uiState.listener.onStart()
+        uiState.operationFlow.receiveAsFlow().collect {
+            it(
+                object : CalendarDisplayScreenUiState.Operation {
+                    override fun moveCurrentTime() {
+                        if (calendarState.isCurrentTimeDisplayed().not()) {
+                            coroutineScope.launch {
+                                val now = LocalTime.now(clock)
+                                calendarState.animateScrollToHours(
+                                    (now.hour - 1).coerceAtLeast(0),
+                                )
+                            }
+                        }
+                    }
+                },
+            )
+        }
     }
 
     Box(
         modifier = modifier
             .fillMaxSize(),
     ) {
-        val calendarState = rememberCalendarState()
         CalendarLayout(
             uiState = uiState.calendarUiState,
             state = calendarState,
