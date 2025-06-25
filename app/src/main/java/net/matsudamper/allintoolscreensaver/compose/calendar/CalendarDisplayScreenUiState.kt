@@ -5,7 +5,6 @@ import java.time.Instant
 
 data class CalendarDisplayScreenUiState(
     val calendarUiState: CalendarLayoutUiState,
-    val currentTime: Instant,
     val isLoading: Boolean,
     val listener: Listener,
 ) {

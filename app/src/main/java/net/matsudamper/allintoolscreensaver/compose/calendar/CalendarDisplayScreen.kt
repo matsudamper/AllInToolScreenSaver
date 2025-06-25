@@ -39,7 +39,6 @@ fun CalendarDisplayScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
-    var hourHeight by remember { mutableStateOf(400.dp) }
 
     LaunchedEffect(Unit) {
         uiState.listener.onStart()

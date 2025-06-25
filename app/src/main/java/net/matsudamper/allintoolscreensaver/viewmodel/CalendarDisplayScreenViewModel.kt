@@ -7,12 +7,10 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.CalendarEvent
 import net.matsudamper.allintoolscreensaver.CalendarRepository
@@ -44,20 +42,10 @@ class CalendarDisplayScreenViewModel(
                 events = listOf(),
                 allDayEvents = listOf(),
             ),
-            currentTime = Instant.now(),
             isLoading = true,
             listener = listener,
         ),
     ).also { uiStateFlow ->
-        viewModelScope.launch {
-            while (isActive) {
-                uiStateFlow.update { uiState ->
-                    uiState.copy(currentTime = Instant.now())
-                }
-                delay(60000)
-            }
-        }
-
         viewModelScope.launch {
             viewModelStateFlow.collect { viewModelState ->
                 uiStateFlow.update { uiState ->
