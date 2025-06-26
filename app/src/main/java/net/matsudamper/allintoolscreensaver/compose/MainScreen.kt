@@ -13,8 +13,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -26,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import net.matsudamper.allintoolscreensaver.compose.component.SuspendLifecycleStartEffect
 import net.matsudamper.allintoolscreensaver.theme.AllInToolScreenSaverTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     uiState: MainActivityUiState,
@@ -37,123 +41,131 @@ fun MainScreen(
         uiState.listener.onStart()
     }
 
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        item {
-            Text(
-                text = "オールインワンツールスクリーンセーバー",
-                style = MaterialTheme.typography.headlineMedium,
-                textAlign = TextAlign.Center,
-            )
-        }
-
-        item {
-            Text(
-                text = "このアプリはデジタル時計、画像表示、カレンダー機能を持つスクリーンセーバーです。",
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center,
-            )
-        }
-
-        item {
-            Button(
-                onClick = {
-                    onDirectoryPickerLaunch()
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "オールインワンツールスクリーンセーバー",
+                        style = MaterialTheme.typography.headlineMedium,
+                        textAlign = TextAlign.Center,
+                    )
                 },
-            ) {
-                Text("画像フォルダを選択")
-            }
-        }
-
-        if (uiState.selectedDirectoryPath != null) {
+            )
+        },
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = paddingValues,
+        ) {
             item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    ),
+                Text(
+                    text = "このアプリはデジタル時計、画像表示、カレンダー機能を持つスクリーンセーバーです。",
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                )
+            }
+
+            item {
+                Button(
+                    onClick = {
+                        onDirectoryPickerLaunch()
+                    },
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
+                    Text("画像フォルダを選択")
+                }
+            }
+
+            if (uiState.selectedDirectoryPath != null) {
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        ),
                     ) {
-                        Text(
-                            text = "選択されたフォルダ:",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = uiState.selectedDirectoryPath,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                        ) {
+                            Text(
+                                text = "選択されたフォルダ:",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = uiState.selectedDirectoryPath,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        item {
-            Text(
-                text = "画像切り替え時間:",
-                style = MaterialTheme.typography.titleMedium,
-            )
-        }
-
-        item {
-            ImageSwitchIntervalSelector(
-                currentInterval = uiState.imageSwitchIntervalSeconds,
-                onIntervalSelect = { seconds ->
-                    uiState.listener.onImageSwitchIntervalChanged(seconds)
-                },
-            )
-        }
-
-        item {
-            Button(
-                onClick = onNavigateToCalendarSelection,
-            ) {
-                Text("カレンダー選択画面へ")
+            item {
+                Text(
+                    text = "画像切り替え時間:",
+                    style = MaterialTheme.typography.titleMedium,
+                )
             }
-        }
 
-        item {
-            Button(
-                onClick = {
-                    uiState.listener.onOpenDreamSettings()
-                },
-            ) {
-                Text("スクリーンセーバー設定を開く")
+            item {
+                ImageSwitchIntervalSelector(
+                    currentInterval = uiState.imageSwitchIntervalSeconds,
+                    onIntervalSelect = { seconds ->
+                        uiState.listener.onImageSwitchIntervalChanged(seconds)
+                    },
+                )
             }
-        }
 
-        item {
-            Text(
-                text = "設定画面で「オールインワンツールスクリーンセーバー」を選択してください。",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+            item {
+                Button(
+                    onClick = onNavigateToCalendarSelection,
+                ) {
+                    Text("カレンダー選択画面へ")
+                }
+            }
 
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "アラート機能について:",
-                style = MaterialTheme.typography.titleMedium,
-            )
-        }
+            item {
+                Button(
+                    onClick = {
+                        uiState.listener.onOpenDreamSettings()
+                    },
+                ) {
+                    Text("スクリーンセーバー設定を開く")
+                }
+            }
 
-        item {
-            Text(
-                text = "選択されたカレンダーの予定開始時刻に自動でアラートが鳴ります。",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            item {
+                Text(
+                    text = "設定画面で「オールインワンツールスクリーンセーバー」を選択してください。",
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "アラート機能について:",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+            }
+
+            item {
+                Text(
+                    text = "選択されたカレンダーの予定開始時刻に自動でアラートが鳴ります。",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }
@@ -220,7 +232,10 @@ private fun MainScreenPreview() {
                 hasCalendarPermission = false,
                 imageSwitchIntervalSeconds = 30,
                 listener = object : MainActivityUiState.Listener {
-                    override suspend fun onStart() { /* Preview - no-op */ }
+                    override suspend fun onStart() {
+                        /* Preview - no-op */
+                    }
+
                     override fun onDirectorySelected(uri: android.net.Uri) = Unit
                     override fun onCalendarPermissionRequested() = Unit
                     override fun onCalendarSelectionChanged(calendarId: Long, isSelected: Boolean) = Unit

@@ -2,7 +2,6 @@ package net.matsudamper.allintoolscreensaver.compose.component
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.currentCompositeKeyHash
 import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf

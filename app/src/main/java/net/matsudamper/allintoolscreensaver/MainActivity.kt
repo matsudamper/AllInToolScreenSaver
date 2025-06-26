@@ -11,16 +11,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
@@ -30,6 +28,7 @@ import kotlinx.serialization.Serializable
 import net.matsudamper.allintoolscreensaver.compose.CalendarSelectionScreen
 import net.matsudamper.allintoolscreensaver.compose.CalendarSelectionScreenUiState
 import net.matsudamper.allintoolscreensaver.compose.MainScreen
+import net.matsudamper.allintoolscreensaver.navigation.CustomTwoPaneSceneStrategy
 import net.matsudamper.allintoolscreensaver.theme.AllInToolScreenSaverTheme
 import net.matsudamper.allintoolscreensaver.viewmodel.MainActivityViewModel
 import org.koin.android.ext.android.inject
@@ -110,11 +109,20 @@ class MainActivity : ComponentActivity() {
             viewModel.updateCalendarPermission(isGranted)
         }
 
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        Box(
+            modifier = Modifier.fillMaxSize(),
+        ) {
             NavDisplay(
                 backStack = backStack,
-                modifier = Modifier.padding(innerPadding),
-                onBack = { backStack.removeLastOrNull() },
+                modifier = Modifier.fillMaxSize(),
+                onBack = { count ->
+                    repeat(count) {
+                        if (backStack.isNotEmpty()) {
+                            backStack.removeLastOrNull()
+                        }
+                    }
+                },
+                sceneStrategy = CustomTwoPaneSceneStrategy(),
                 entryProvider = entryProvider {
                     entry<Main> {
                         MainScreen(
@@ -126,7 +134,9 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier,
                         )
                     }
-                    entry<CalendarSelection> {
+                    entry<CalendarSelection>(
+                        metadata = CustomTwoPaneSceneStrategy.extendPane(),
+                    ) {
                         CalendarSelectionScreen(
                             uiState = CalendarSelectionScreenUiState(
                                 availableCalendars = uiState.availableCalendars,
