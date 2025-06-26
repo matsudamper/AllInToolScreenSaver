@@ -10,9 +10,11 @@ data class MainActivityUiState(
     val availableCalendars: List<CalendarInfo>,
     val selectedCalendarIds: List<Long>,
     val hasCalendarPermission: Boolean,
+    val selectedCalendar: String,
     val imageSwitchIntervalSeconds: Int,
     val listener: Listener,
 ) {
+
     @Immutable
     interface Listener {
         suspend fun onStart()

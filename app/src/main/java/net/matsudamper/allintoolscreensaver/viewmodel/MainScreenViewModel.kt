@@ -95,6 +95,7 @@ class MainScreenViewModel(
             selectedCalendarIds = listOf(),
             hasCalendarPermission = false,
             imageSwitchIntervalSeconds = 30,
+            selectedCalendar = "",
             listener = listener,
         ),
     ).also { uiStateFlow ->
@@ -114,6 +115,12 @@ class MainScreenViewModel(
                     } else {
                         settings.imageSwitchIntervalSeconds
                     },
+                    selectedCalendar = settings.selectedCalendarIdsList
+                        .mapNotNull { calendarId ->
+                            viewModelState.availableCalendars.find { it.id == calendarId }
+                                ?.displayName
+                        }
+                        .joinToString(", "),
                     listener = listener,
                 )
             }.collectLatest { newUiState ->

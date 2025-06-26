@@ -2,15 +2,22 @@ package net.matsudamper.allintoolscreensaver.compose
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -36,6 +43,11 @@ import net.matsudamper.allintoolscreensaver.theme.AllInToolScreenSaverTheme
 import net.matsudamper.allintoolscreensaver.viewmodel.MainScreenViewModel
 import net.matsudamper.allintoolscreensaver.viewmodel.MainScreenViewModelListenerImpl
 import org.koin.core.context.GlobalContext
+
+private val SectionHorizontalPadding = 12.dp
+
+private val SectionLargeRadiusSize = 16.dp
+private val SectionSmallRadiusSize = 8.dp
 
 @Composable
 fun MainScreen(
@@ -97,7 +109,7 @@ private fun MainScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "オールインワンツールスクリーンセーバー",
+                        text = "All in One Tool Screen Saver",
                         style = MaterialTheme.typography.headlineMedium,
                         textAlign = TextAlign.Center,
                     )
@@ -114,116 +126,235 @@ private fun MainScreen(
             contentPadding = paddingValues,
         ) {
             item {
-                Text(
-                    text = "このアプリはデジタル時計、画像表示、カレンダー機能を持つスクリーンセーバーです。",
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center,
-                )
-            }
-
-            item {
-                Button(
-                    onClick = {
+                ScreenSaverSection(
+                    selectionPath = uiState.selectedDirectoryPath.orEmpty(),
+                    onClickSelection = {
                         directoryPickerLauncher.launch(null)
                     },
-                ) {
-                    Text("画像フォルダを選択")
-                }
-            }
-
-            if (uiState.selectedDirectoryPath != null) {
-                item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        ),
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                        ) {
-                            Text(
-                                text = "選択されたフォルダ:",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = uiState.selectedDirectoryPath.orEmpty(),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
-            }
-
-            item {
-                Text(
-                    text = "画像切り替え時間:",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
-
-            item {
-                ImageSwitchIntervalSelector(
-                    currentInterval = uiState.imageSwitchIntervalSeconds,
-                    onIntervalSelect = { seconds ->
+                    imageSwitchIntervalSeconds = uiState.imageSwitchIntervalSeconds,
+                    onImageSwitchIntervalChanged = { seconds ->
                         uiState.listener.onImageSwitchIntervalChanged(seconds)
                     },
                 )
             }
 
             item {
-                Button(
-                    onClick = {
+                CalendarSection(
+                    modifier = Modifier.fillMaxWidth(),
+                    selectedCalendar = uiState.selectedCalendar,
+                    onCalendarSelected = {
                         if (uiState.hasCalendarPermission) {
                             uiState.listener.onNavigateToCalendarSelection()
                         } else {
                             calendarPermissionLauncher.launch(android.Manifest.permission.READ_CALENDAR)
                         }
                     },
-                ) {
-                    Text("カレンダー選択画面へ")
-                }
-            }
-
-            item {
-                Button(
-                    onClick = {
-                        uiState.listener.onOpenDreamSettings()
-                    },
-                ) {
-                    Text("スクリーンセーバー設定を開く")
-                }
-            }
-
-            item {
-                Text(
-                    text = "設定画面で「オールインワンツールスクリーンセーバー」を選択してください。",
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
 
             item {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "アラート機能について:",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
-
-            item {
-                Text(
-                    text = "選択されたカレンダーの予定開始時刻に自動でアラートが鳴ります。",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                Section(
+                    modifier = modifier,
+                    title = null,
+                    contents = listOf(
+                        { contentPadding ->
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .padding(contentPadding),
+                                contentAlignment = Alignment.CenterStart,
+                            ) {
+                                Text(
+                                    textAlign = TextAlign.Center,
+                                    text = "端末のスクリーンセーバー設定を開く",
+                                    style = MaterialTheme.typography.titleMedium,
+                                )
+                            }
+                        },
+                    ),
                 )
             }
         }
     }
+}
+
+@Composable
+private fun Section(
+    title: String?,
+    contents: List<@Composable (PaddingValues) -> Unit>,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        if (title != null) {
+            Text(
+                modifier = Modifier.padding(
+                    horizontal = 6.dp,
+                ),
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+        }
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            for (index in contents.indices) {
+                val content = contents[index]
+                val shape = if (contents.size == 1) {
+                    RoundedCornerShape(
+                        topStart = SectionLargeRadiusSize,
+                        topEnd = SectionLargeRadiusSize,
+                        bottomStart = SectionLargeRadiusSize,
+                        bottomEnd = SectionLargeRadiusSize,
+                    )
+                } else {
+                    when (index) {
+                        0 -> RoundedCornerShape(
+                            topStart = SectionLargeRadiusSize,
+                            topEnd = SectionLargeRadiusSize,
+                            bottomStart = SectionSmallRadiusSize,
+                            bottomEnd = SectionSmallRadiusSize,
+                        )
+
+                        contents.lastIndex -> RoundedCornerShape(
+                            topStart = SectionSmallRadiusSize,
+                            topEnd = SectionSmallRadiusSize,
+                            bottomStart = SectionLargeRadiusSize,
+                            bottomEnd = SectionLargeRadiusSize,
+                        )
+
+                        else -> RoundedCornerShape(
+                            topStart = SectionSmallRadiusSize,
+                            topEnd = SectionSmallRadiusSize,
+                            bottomStart = SectionSmallRadiusSize,
+                            bottomEnd = SectionSmallRadiusSize,
+                        )
+                    }
+                }
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 70.dp)
+                        .height(IntrinsicSize.Min),
+                    shape = shape,
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    ),
+                ) {
+                    content(
+                        PaddingValues(
+                            vertical = 12.dp,
+                            horizontal = SectionHorizontalPadding,
+                        ),
+                    )
+                }
+                if (index != contents.lastIndex) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ScreenSaverSection(
+    selectionPath: String,
+    imageSwitchIntervalSeconds: Int,
+    onClickSelection: () -> Unit,
+    onImageSwitchIntervalChanged: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Section(
+        modifier = modifier,
+        title = "スクリーンセーバー",
+        contents = listOf(
+            { paddingValues ->
+                Column(
+                    modifier = Modifier
+                        .clickable(
+                            onClick = onClickSelection,
+                            indication = null,
+                            interactionSource = null,
+                        )
+                        .padding(paddingValues),
+                ) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "表示フォルダ",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = selectionPath,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            },
+            { paddingValues ->
+                Column(
+                    modifier = Modifier.padding(paddingValues),
+                ) {
+                    Text(
+                        text = "画像切り替え時間",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    ImageSwitchIntervalSelector(
+                        currentInterval = imageSwitchIntervalSeconds,
+                        onIntervalSelect = { seconds ->
+                            onImageSwitchIntervalChanged(seconds)
+                        },
+                    )
+                }
+            },
+        ),
+    )
+}
+
+@Composable
+private fun CalendarSection(
+    modifier: Modifier = Modifier,
+    onCalendarSelected: () -> Unit,
+    selectedCalendar: String,
+) {
+    Section(
+        modifier = modifier,
+        title = "カレンダー",
+        contents = listOf(
+            { paddingValues ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onCalendarSelected()
+                        }
+                        .padding(paddingValues),
+                ) {
+                    Text(
+                        text = "カレンダーを選択",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = selectedCalendar,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            },
+            { paddingValues ->
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(paddingValues),
+                    text = "アラート機能",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+            },
+        ),
+    )
 }
 
 @Composable
@@ -232,42 +363,39 @@ private fun ImageSwitchIntervalSelector(
     onIntervalSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        ),
+    Column(
+        modifier = modifier,
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-            ) {
-                listOf(5, 15, 30, 60).forEach { seconds ->
-                    Button(
-                        onClick = {
-                            onIntervalSelect(seconds)
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (currentInterval == seconds) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.surface
-                            },
-                        ),
-                    ) {
-                        Text(
-                            text = when (seconds) {
-                                5 -> "5秒"
-                                15 -> "15秒"
-                                30 -> "30秒"
-                                60 -> "1分"
-                                else -> "${seconds}秒"
-                            },
+            listOf(5, 15, 30, 60).forEach { seconds ->
+                Button(
+                    onClick = {
+                        onIntervalSelect(seconds)
+                    },
+                    colors = if (currentInterval == seconds) {
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
                         )
-                    }
+                    } else {
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        )
+                    },
+                ) {
+                    Text(
+                        text = when (seconds) {
+                            5 -> "5秒"
+                            15 -> "15秒"
+                            30 -> "30秒"
+                            60 -> "1分"
+                            else -> "${seconds}秒"
+                        },
+                    )
                 }
             }
         }
@@ -285,6 +413,7 @@ private fun MainScreenPreview() {
                 selectedCalendarIds = listOf(),
                 hasCalendarPermission = false,
                 imageSwitchIntervalSeconds = 30,
+                selectedCalendar = "未選択",
                 listener = object : MainActivityUiState.Listener {
                     override suspend fun onStart() = Unit
                     override fun onDirectorySelected(uri: android.net.Uri) = Unit
