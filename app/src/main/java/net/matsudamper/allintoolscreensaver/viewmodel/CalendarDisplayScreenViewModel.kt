@@ -76,7 +76,7 @@ class CalendarDisplayScreenViewModel(
                                         startTime = LocalTime.ofInstant(event.startTime, ZoneId.systemDefault()),
                                         endTime = LocalTime.ofInstant(event.endTime, ZoneId.systemDefault()),
                                         title = event.title,
-                                        description = event.description,
+                                        description = createDisplayTime(event.startTime, event.endTime),
                                         color = Color(event.color),
                                     )
                                 },
@@ -105,6 +105,12 @@ class CalendarDisplayScreenViewModel(
                 }
         }
     }.asStateFlow()
+
+    private fun createDisplayTime(start: Instant, end: Instant): String {
+        val startTime = LocalTime.ofInstant(start, ZoneId.systemDefault())
+        val endTime = LocalTime.ofInstant(end, ZoneId.systemDefault())
+        return "${startTime.hour}:${startTime.minute} - ${endTime.hour}:${endTime.minute}"
+    }
 
     private fun startAlertMonitoring() {
         alertManager.onAlertTriggered = { event ->
