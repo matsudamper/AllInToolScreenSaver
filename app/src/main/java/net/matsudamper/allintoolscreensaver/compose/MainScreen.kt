@@ -160,7 +160,10 @@ private fun MainScreen(
                         { contentPadding ->
                             Box(
                                 modifier = Modifier
-                                    .fillMaxHeight()
+                                    .fillMaxSize()
+                                    .clickable {
+                                        uiState.listener.onOpenDreamSettings()
+                                    }
                                     .padding(contentPadding),
                                 contentAlignment = Alignment.CenterStart,
                             ) {
