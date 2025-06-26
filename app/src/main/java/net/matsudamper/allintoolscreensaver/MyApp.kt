@@ -20,7 +20,7 @@ class MyApp : Application() {
                     single<CalendarRepository> { CalendarManager(get()) }
                     single { AlertManager(get()) }
                     viewModel {
-                        CalendarDisplayScreenViewModel(get(), get())
+                        CalendarDisplayScreenViewModel(get(), get(), get())
                     }
                 },
             )

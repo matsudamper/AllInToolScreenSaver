@@ -1,13 +1,22 @@
 package net.matsudamper.allintoolscreensaver.viewmodel
 
+import android.app.Application
+import android.database.ContentObserver
+import android.net.Uri
+import android.os.Handler
+import android.os.Looper
+import android.provider.CalendarContract
+import android.util.Log
 import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import kotlin.time.Duration.Companion.minutes
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -18,7 +27,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.AlertManager
 import net.matsudamper.allintoolscreensaver.CalendarEvent
@@ -29,16 +37,27 @@ import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarLayoutUiSta
 import org.koin.java.KoinJavaComponent.inject
 
 class CalendarDisplayScreenViewModel(
+    application: Application,
     private val settingsRepository: SettingsRepository,
     private val calendarRepository: CalendarRepository,
-) : ViewModel() {
+) : AndroidViewModel(application) {
+    private val context get() = application.applicationContext
+
     private val alertManager: AlertManager by inject(AlertManager::class.java)
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val listener = object : CalendarDisplayScreenUiState.Listener {
         override suspend fun onStart() {
-            startAlertMonitoring()
-            collectEvents()
+            coroutineScope {
+                launch {
+                    startAlertMonitoring()
+                }
+                launch {
+                    fetchEvent()
+                }
+                launch { observeCalendarChanges() }
+            }
+
         }
 
         override fun onInteraction() {
@@ -121,24 +140,42 @@ class CalendarDisplayScreenViewModel(
         alertManager.startAlertMonitoring()
     }
 
-    private suspend fun collectEvents() {
+    private fun fetchEvent() {
+        viewModelScope.launch {
+            val selectedCalendarIds = settingsRepository.getSelectedCalendarIds()
+
+            if (selectedCalendarIds.isNotEmpty()) {
+                val today = LocalDate.now()
+                val startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toInstant()
+                val endOfDay = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()
+
+                val events = calendarRepository.getEventsForTimeRange(selectedCalendarIds, startOfDay, endOfDay)
+                viewModelStateFlow.update { state ->
+                    state.copy(
+                        events = events,
+                    )
+                }
+            }
+        }
+    }
+
+    private suspend fun observeCalendarChanges() {
         coroutineScope {
-            while (isActive) {
-                val selectedCalendarIds = settingsRepository.getSelectedCalendarIds()
-
-                if (selectedCalendarIds.isNotEmpty()) {
-                    val today = LocalDate.now()
-                    val startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toInstant()
-                    val endOfDay = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()
-
-                    val events = calendarRepository.getEventsForTimeRange(selectedCalendarIds, startOfDay, endOfDay)
-                    viewModelStateFlow.update { state ->
-                        state.copy(
-                            events = events,
-                        )
+            launch {
+                val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
+                    override fun onChange(selfChange: Boolean, uri: Uri?, flags: Int) {
+                        fetchEvent()
                     }
                 }
-                delay(1.minutes)
+                context.contentResolver.registerContentObserver(
+                    CalendarContract.Calendars.CONTENT_URI,
+                    true,
+                    observer,
+                )
+                runCatching {
+                    awaitCancellation()
+                }
+                context.contentResolver.unregisterContentObserver(observer)
             }
         }
     }
