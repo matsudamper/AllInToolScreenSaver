@@ -34,6 +34,15 @@ class CalendarSelectionScreenViewModel(
                         it.onCalendarPermissionLaunch()
                     }
                 }
+                launch {
+                    settingsRepository.getSelectedCalendarIdsFlow().collectLatest { idList ->
+                        viewModelStateFlow.update { currentState ->
+                            currentState.copy(
+                                selectedCalendarIds = idList.toSet(),
+                            )
+                        }
+                    }
+                }
             }
         }
 
