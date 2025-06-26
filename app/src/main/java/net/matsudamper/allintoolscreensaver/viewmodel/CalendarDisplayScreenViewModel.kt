@@ -126,7 +126,8 @@ class CalendarDisplayScreenViewModel(
     private fun createDisplayTime(start: Instant, end: Instant): String {
         val startTime = LocalTime.ofInstant(start, ZoneId.systemDefault())
         val endTime = LocalTime.ofInstant(end, ZoneId.systemDefault())
-        return "${startTime.hour}:${startTime.minute} - ${endTime.hour}:${endTime.minute}"
+        fun Int.padding(): String = toString().padStart(2, '0')
+        return "${startTime.hour.padding()}:${startTime.minute.padding()} - ${endTime.hour.padding()}:${endTime.minute.padding()}"
     }
 
     private fun startAlertMonitoring() {
