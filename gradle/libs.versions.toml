@@ -21,6 +21,9 @@ coroutinesTest = "1.10.2"
 mockk = "1.13.8"
 koin = "4.1.0"
 haze = "1.6.4"
+nav3Core = "1.0.0-alpha04"
+lifecycleViewmodelNav3 = "1.0.0-alpha02"
+kotlinxSerializationCore = "1.8.1"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -56,3 +59,8 @@ coroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", ver
 koinAndroid = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koinAndroidxCompose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
 koinTest = { module = "io.insert-koin:koin-test", version.ref = "koin" }
+# Navigation 3 libraries
+androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
+androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
+androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }

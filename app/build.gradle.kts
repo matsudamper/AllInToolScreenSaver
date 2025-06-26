@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.protobuf") version "0.9.5"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.2.0"
 }
 
 android {
@@ -103,6 +104,12 @@ dependencies {
     implementation(libs.koinAndroid)
     implementation(libs.koinAndroidxCompose)
     implementation(libs.haze)
+
+    // Navigation 3 libraries
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+    implementation(libs.kotlinx.serialization.core)
 
     androidTestImplementation(libs.coroutinesTest)
 

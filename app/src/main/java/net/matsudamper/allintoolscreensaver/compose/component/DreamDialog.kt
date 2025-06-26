@@ -3,6 +3,7 @@ package net.matsudamper.allintoolscreensaver.compose.component
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.currentCompositeKeyHash
+import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
 
@@ -17,7 +18,8 @@ fun DreamDialog(
     content: @Composable () -> Unit,
 ) {
     val dreamDialogContentHolder = LocalDreamDialogContentHolder.current
-    val keyHash = currentCompositeKeyHash
+
+    val keyHash = currentCompositeKeyHashCode
     val updatedContent = rememberUpdatedState(content)
     val updatedDismissRequest = rememberUpdatedState(dismissRequest)
 
@@ -36,7 +38,7 @@ fun DreamDialog(
 }
 
 data class DialogInfo(
-    val key: Int,
+    val key: Long,
     val content: @Composable () -> Unit,
     val dismissRequest: () -> Unit,
 )
