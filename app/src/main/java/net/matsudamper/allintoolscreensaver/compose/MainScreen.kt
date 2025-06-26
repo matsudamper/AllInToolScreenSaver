@@ -21,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -28,17 +29,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation3.runtime.NavBackStack
 import net.matsudamper.allintoolscreensaver.compose.component.SuspendLifecycleStartEffect
 import net.matsudamper.allintoolscreensaver.theme.AllInToolScreenSaverTheme
-import net.matsudamper.allintoolscreensaver.viewmodel.MainActivityViewModel
-import org.koin.androidx.compose.koinViewModel
+import net.matsudamper.allintoolscreensaver.viewmodel.MainScreenViewModel
+import net.matsudamper.allintoolscreensaver.viewmodel.MainScreenViewModelListenerImpl
+import org.koin.core.context.GlobalContext
 
 @Composable
 fun MainScreen(
+    backStack: NavBackStack,
     modifier: Modifier = Modifier,
-    viewModel: MainActivityViewModel = koinViewModel(),
+    viewModel: MainScreenViewModel = viewModel {
+        val koin = GlobalContext.get()
+        MainScreenViewModel(
+            settingsRepository = koin.get(),
+        )
+    },
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(viewModel.eventHandler) {
+        val koin = GlobalContext.get()
+        viewModel.eventHandler.collect(
+            MainScreenViewModelListenerImpl(
+                application = koin.get(),
+                calendarManager = koin.get(),
+                backStack = backStack,
+            ),
+        )
+    }
 
     MainScreen(
         uiState = uiState,
@@ -265,14 +286,14 @@ private fun MainScreenPreview() {
                 hasCalendarPermission = false,
                 imageSwitchIntervalSeconds = 30,
                 listener = object : MainActivityUiState.Listener {
-                    override suspend fun onStart() {}
+                    override suspend fun onStart() = Unit
                     override fun onDirectorySelected(uri: android.net.Uri) = Unit
                     override fun onCalendarPermissionRequested() = Unit
                     override fun onCalendarSelectionChanged(calendarId: Long, isSelected: Boolean) = Unit
                     override fun onImageSwitchIntervalChanged(seconds: Int) = Unit
                     override fun onOpenDreamSettings() = Unit
                     override fun onNavigateToCalendarSelection() = Unit
-                    override fun updateCalendarPermission(isGranted: Boolean) {}
+                    override fun updateCalendarPermission(isGranted: Boolean) = Unit
                 },
             ),
         )

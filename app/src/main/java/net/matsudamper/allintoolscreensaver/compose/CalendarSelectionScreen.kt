@@ -1,5 +1,7 @@
 package net.matsudamper.allintoolscreensaver.compose
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +18,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,30 +31,63 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import net.matsudamper.allintoolscreensaver.CalendarInfo
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation3.runtime.NavBackStack
+import net.matsudamper.allintoolscreensaver.compose.component.SuspendLifecycleStartEffect
+import net.matsudamper.allintoolscreensaver.viewmodel.CalendarSelectionScreenViewModel
+import net.matsudamper.allintoolscreensaver.viewmodel.CalendarSelectionScreenViewModelEvent
+import org.koin.core.context.GlobalContext
 
-data class CalendarSelectionScreenUiState(
-    val availableCalendars: List<CalendarInfo>,
-    val selectedCalendarIds: List<Long>,
-    val hasCalendarPermission: Boolean,
+@Composable
+fun CalendarSelectionScreen(
+    backStack: NavBackStack,
+    modifier: Modifier = Modifier,
+    viewModel: CalendarSelectionScreenViewModel = viewModel {
+        val koin = GlobalContext.get()
+        CalendarSelectionScreenViewModel(
+            calendarRepository = koin.get(),
+            settingsRepository = koin.get(),
+        )
+    },
 ) {
-    interface Listener {
-        fun onCalendarSelect(calendarId: Long, isSelected: Boolean)
-        fun onCalendarPermissionLaunch()
-        fun onBack()
+    val uiState by viewModel.uiState.collectAsState()
+
+    val calendarPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { isGranted ->
+        uiState.listener.updateCalendarPermission(isGranted)
     }
+
+    LaunchedEffect(viewModel.eventHandler) {
+        viewModel.eventHandler.collect(
+            CalendarSelectionScreenViewModelEvent(
+                calendarPermissionLauncher = calendarPermissionLauncher,
+                onBackRequested = { backStack.removeLastOrNull() },
+            ),
+        )
+    }
+    SuspendLifecycleStartEffect(uiState.listener) {
+        uiState.listener.onStart()
+    }
+
+    CalendarSelectionScreen(
+        uiState = uiState,
+        modifier = modifier,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CalendarSelectionScreen(
+private fun CalendarSelectionScreen(
     uiState: CalendarSelectionScreenUiState,
-    listener: CalendarSelectionScreenUiState.Listener,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -70,7 +104,7 @@ fun CalendarSelectionScreen(
                         contentAlignment = Alignment.Center,
                     ) {
                         IconButton(
-                            onClick = listener::onBack,
+                            onClick = uiState.listener::onBack,
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -88,13 +122,11 @@ fun CalendarSelectionScreen(
         if (!uiState.hasCalendarPermission) {
             CalendarPermissionRequestContent(
                 modifier = Modifier.padding(paddingValues),
-                onCalendarPermissionLaunch = listener::onCalendarPermissionLaunch,
+                onCalendarPermissionLaunch = uiState.listener::onCalendarPermissionLaunch,
             )
         } else {
             CalendarListContent(
-                availableCalendars = uiState.availableCalendars,
-                selectedCalendarIds = uiState.selectedCalendarIds,
-                onCalendarSelect = listener::onCalendarSelect,
+                calendars = uiState.availableCalendars,
                 contentPadding = paddingValues,
             )
         }
@@ -129,9 +161,7 @@ private fun CalendarPermissionRequestContent(
 
 @Composable
 private fun CalendarListContent(
-    availableCalendars: List<CalendarInfo>,
-    selectedCalendarIds: List<Long>,
-    onCalendarSelect: (calendarId: Long, isSelected: Boolean) -> Unit,
+    calendars: List<CalendarSelectionScreenUiState.Calendar>,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
@@ -142,14 +172,10 @@ private fun CalendarListContent(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = contentPadding,
     ) {
-        if (availableCalendars.isNotEmpty()) {
-            items(availableCalendars) { calendar ->
+        if (calendars.isNotEmpty()) {
+            items(calendars) { calendar ->
                 CalendarItem(
                     calendar = calendar,
-                    isSelected = selectedCalendarIds.contains(calendar.id),
-                    onSelect = { isSelected ->
-                        onCalendarSelect(calendar.id, isSelected)
-                    },
                 )
             }
         } else {
@@ -167,15 +193,13 @@ private fun CalendarListContent(
 
 @Composable
 private fun CalendarItem(
-    calendar: CalendarInfo,
-    isSelected: Boolean,
-    onSelect: (Boolean) -> Unit,
+    calendar: CalendarSelectionScreenUiState.Calendar,
     modifier: Modifier = Modifier,
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) {
+            containerColor = if (calendar.isSelected) {
                 MaterialTheme.colorScheme.primaryContainer
             } else {
                 MaterialTheme.colorScheme.surface
@@ -189,8 +213,10 @@ private fun CalendarItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Checkbox(
-                checked = isSelected,
-                onCheckedChange = onSelect,
+                checked = calendar.isSelected,
+                onCheckedChange = {
+                    calendar.listener.onSelectionChanged(it)
+                },
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(

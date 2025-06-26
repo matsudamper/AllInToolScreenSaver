@@ -14,20 +14,15 @@ import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.CalendarInfo
 import net.matsudamper.allintoolscreensaver.SettingsRepository
 import net.matsudamper.allintoolscreensaver.compose.MainActivityUiState
+import net.matsudamper.allintoolscreensaver.lib.EventSender
 
-class MainActivityViewModel(
+class MainScreenViewModel(
     private val settingsRepository: SettingsRepository,
-    private val activityListener: ActivityListener,
 ) : ViewModel() {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
-    interface ActivityListener {
-        fun onDirectorySelected(uri: Uri)
-        fun onOpenDreamSettings()
-        fun checkCalendarPermission(): Boolean
-        suspend fun loadAvailableCalendars(): List<CalendarInfo>
-        fun onNavigateToCalendarSelection()
-    }
+    private val eventSender = EventSender<Listener>()
+    val eventHandler = eventSender.asHandler()
 
     private val listener = object : MainActivityUiState.Listener {
         override suspend fun onStart() {
@@ -40,7 +35,11 @@ class MainActivityViewModel(
         }
 
         override fun onDirectorySelected(uri: Uri) {
-            activityListener.onDirectorySelected(uri)
+            viewModelScope.launch {
+                eventSender.send {
+                    it.onDirectorySelected(uri)
+                }
+            }
             viewModelScope.launch {
                 settingsRepository.saveImageDirectoryUri(uri)
             }
@@ -69,11 +68,23 @@ class MainActivityViewModel(
         }
 
         override fun onOpenDreamSettings() {
-            activityListener.onOpenDreamSettings()
+            viewModelScope.launch {
+                eventSender.send {
+                    it.onOpenDreamSettings()
+                }
+            }
         }
 
         override fun onNavigateToCalendarSelection() {
-            activityListener.onNavigateToCalendarSelection()
+            viewModelScope.launch {
+                eventSender.send {
+                    it.onNavigateToCalendarSelection()
+                }
+            }
+        }
+
+        override fun updateCalendarPermission(isGranted: Boolean) {
+            this@MainScreenViewModel.updateCalendarPermission(isGranted)
         }
     }
 
@@ -111,24 +122,21 @@ class MainActivityViewModel(
         }
     }.asStateFlow()
 
-    fun updateCalendarPermission(hasPermission: Boolean) {
-        viewModelStateFlow.update { state ->
-            state.copy(hasCalendarPermission = hasPermission)
-        }
-        if (hasPermission) {
-            loadAvailableCalendars()
-        }
-    }
-
     private fun checkCalendarPermission() {
-        val hasPermission = activityListener.checkCalendarPermission()
-        updateCalendarPermission(hasPermission)
+        viewModelScope.launch {
+            val hasPermission = eventSender.send {
+                it.checkCalendarPermission()
+            }
+            updateCalendarPermission(hasPermission)
+        }
     }
 
     private fun loadAvailableCalendars() {
         viewModelScope.launch {
             if (viewModelStateFlow.value.hasCalendarPermission) {
-                val calendars = activityListener.loadAvailableCalendars()
+                val calendars = eventSender.send {
+                    it.loadAvailableCalendars()
+                }
                 viewModelStateFlow.update { state ->
                     state.copy(availableCalendars = calendars)
                 }
@@ -136,8 +144,25 @@ class MainActivityViewModel(
         }
     }
 
+    private fun updateCalendarPermission(isGranted: Boolean) {
+        viewModelStateFlow.update { state ->
+            state.copy(hasCalendarPermission = isGranted)
+        }
+        if (isGranted) {
+            loadAvailableCalendars()
+        }
+    }
+
     private data class ViewModelState(
         val availableCalendars: List<CalendarInfo> = listOf(),
         val hasCalendarPermission: Boolean = false,
     )
+
+    interface Listener {
+        fun onDirectorySelected(uri: Uri)
+        fun onOpenDreamSettings()
+        fun checkCalendarPermission(): Boolean
+        suspend fun loadAvailableCalendars(): List<CalendarInfo>
+        fun onNavigateToCalendarSelection()
+    }
 }
