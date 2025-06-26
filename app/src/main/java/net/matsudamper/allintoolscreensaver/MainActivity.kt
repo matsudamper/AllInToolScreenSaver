@@ -22,6 +22,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entry
+import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import kotlinx.serialization.Serializable
@@ -113,40 +115,39 @@ class MainActivity : ComponentActivity() {
                 backStack = backStack,
                 modifier = Modifier.padding(innerPadding),
                 onBack = { backStack.removeLastOrNull() },
-                entryProvider = { key ->
-                    when (key) {
-                        is Main -> NavEntry(key) {
-                            MainScreen(
-                                uiState = uiState,
-                                onDirectoryPickerLaunch = { directoryPickerLauncher.launch(null) },
-                                onNavigateToCalendarSelection = {
-                                    backStack.add(CalendarSelection)
-                                },
-                                modifier = Modifier,
-                            )
-                        }
-                        is CalendarSelection -> NavEntry(key) {
-                            CalendarSelectionScreen(
-                                uiState = CalendarSelectionScreenUiState(
-                                    availableCalendars = uiState.availableCalendars,
-                                    selectedCalendarIds = uiState.selectedCalendarIds,
-                                    hasCalendarPermission = uiState.hasCalendarPermission,
-                                ),
-                                listener = object : CalendarSelectionScreenUiState.Listener {
-                                    override fun onCalendarSelect(calendarId: Long, isSelected: Boolean) {
-                                        uiState.listener.onCalendarSelectionChanged(calendarId, isSelected)
-                                    }
-                                    override fun onCalendarPermissionLaunch() {
-                                        calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR)
-                                    }
-                                    override fun onBack() {
-                                        backStack.removeLastOrNull()
-                                    }
-                                },
-                                modifier = Modifier,
-                            )
-                        }
-                        else -> error("Unknown route: $key")
+                entryProvider = entryProvider {
+                    entry<Main> {
+                        MainScreen(
+                            uiState = uiState,
+                            onDirectoryPickerLaunch = { directoryPickerLauncher.launch(null) },
+                            onNavigateToCalendarSelection = {
+                                backStack.add(CalendarSelection)
+                            },
+                            modifier = Modifier,
+                        )
+                    }
+                    entry<CalendarSelection> {
+                        CalendarSelectionScreen(
+                            uiState = CalendarSelectionScreenUiState(
+                                availableCalendars = uiState.availableCalendars,
+                                selectedCalendarIds = uiState.selectedCalendarIds,
+                                hasCalendarPermission = uiState.hasCalendarPermission,
+                            ),
+                            listener = object : CalendarSelectionScreenUiState.Listener {
+                                override fun onCalendarSelect(calendarId: Long, isSelected: Boolean) {
+                                    uiState.listener.onCalendarSelectionChanged(calendarId, isSelected)
+                                }
+
+                                override fun onCalendarPermissionLaunch() {
+                                    calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR)
+                                }
+
+                                override fun onBack() {
+                                    backStack.removeLastOrNull()
+                                }
+                            },
+                            modifier = Modifier,
+                        )
                     }
                 },
             )
