@@ -3,9 +3,9 @@ import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
 plugins {
-    alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.kotlin.android) apply false
-    alias(libs.plugins.kotlin.compose) apply false
+    alias(libs.plugins.androidApplication) apply false
+    alias(libs.plugins.kotlinAndroid) apply false
+    alias(libs.plugins.kotlinCompose) apply false
     alias(libs.plugins.ktlingGradle) apply false
     alias(libs.plugins.detekt) apply false
 }
@@ -22,7 +22,7 @@ allprojects {
         )
     }
     dependencies {
-        detektPlugins(rootProject.libs.kotlin.compiler.wrapper)
+        detektPlugins(rootProject.libs.kotlinCompilerWrapper)
         detektPlugins(rootProject.libs.detekt)
     }
 

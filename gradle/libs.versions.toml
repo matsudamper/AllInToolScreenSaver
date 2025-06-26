@@ -29,9 +29,9 @@ kotlinxSerializationCore = "1.8.1"
 material3Adaptive = "1.0.0-SNAPSHOT"
 
 [plugins]
-android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+androidApplication = { id = "com.android.application", version.ref = "agp" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlinCompose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ktlingGradle = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 
@@ -56,7 +56,7 @@ androidxUiTestManifest = { group = "androidx.compose.ui", name = "ui-test-manife
 androidxUiTestJunit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidxMaterial3 = { group = "androidx.compose.material3", name = "material3" }
 detekt = { module = "io.nlopez.compose.rules:detekt", version.ref = "detektVersion" }
-kotlin-compiler-wrapper = { module = "com.braisgabin.detekt:kotlin-compiler-wrapper", version.ref = "kotlinCompilerWrapper" }
+kotlinCompilerWrapper = { module = "com.braisgabin.detekt:kotlin-compiler-wrapper", version.ref = "kotlinCompilerWrapper" }
 ktlint = { module = "com.pinterest:ktlint", version.ref = "ktlint" }
 haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
 protobufKotlinLite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobufKotlinLite" }
@@ -64,9 +64,8 @@ coroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", ver
 koinAndroid = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koinAndroidxCompose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
 koinTest = { module = "io.insert-koin:koin-test", version.ref = "koin" }
-# Navigation 3 libraries
-androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
-androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
-androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
-kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }
-androidx-material3-adaptive-navigation3 = { module = "androidx.compose.material3.adaptive:adaptive-navigation3", version.ref = "material3Adaptive" }
+androidxNavigation3Runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
+androidxNavigation3Ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
+androidxLifecycleViewmodelNavigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
+kotlinxSerializationCore = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }
+androidxMaterial3AdaptiveNavigation3 = { module = "androidx.compose.material3.adaptive:adaptive-navigation3", version.ref = "material3Adaptive" }
