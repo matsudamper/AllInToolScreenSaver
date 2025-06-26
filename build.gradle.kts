@@ -22,8 +22,8 @@ allprojects {
         )
     }
     dependencies {
-        detektPlugins("com.braisgabin.detekt:kotlin-compiler-wrapper:0.0.4")
-        detektPlugins("io.nlopez.compose.rules:detekt:0.4.22")
+        detektPlugins(rootProject.libs.kotlin.compiler.wrapper)
+        detektPlugins(rootProject.libs.detekt)
     }
 
     configure<KtlintExtension> {
