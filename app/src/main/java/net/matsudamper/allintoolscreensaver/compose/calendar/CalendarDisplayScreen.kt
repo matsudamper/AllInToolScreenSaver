@@ -3,6 +3,7 @@ package net.matsudamper.allintoolscreensaver.compose.calendar
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -73,46 +75,49 @@ fun CalendarDisplayScreen(
         }
     }
 
-    Box(
+    Scaffold(
         modifier = modifier
             .fillMaxSize(),
-    ) {
-        CalendarLayout(
-            uiState = uiState.calendarUiState,
-            state = calendarState,
-        )
+    ) { paddingValues ->
+        Box {
+            CalendarLayout(
+                modifier = Modifier.padding(paddingValues),
+                uiState = uiState.calendarUiState,
+                state = calendarState,
+            )
 
-        Row(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(12.dp),
-        ) {
-            ZoomControls(
-                onZoomIn = {
-                    calendarState.zoomIn()
-                    uiState.listener.onInteraction()
-                },
-                onZoomOut = {
-                    calendarState.zoomOut()
-                    uiState.listener.onInteraction()
-                },
-                modifier = Modifier.align(Alignment.Bottom),
-            )
-            Spacer(modifier = Modifier.width(18.dp))
-            ScrollControls(
-                onScrollUp = {
-                    uiState.listener.onInteraction()
-                    coroutineScope.launch {
-                        calendarState.addAnimateScrollToHours(-3)
-                    }
-                },
-                onScrollDown = {
-                    uiState.listener.onInteraction()
-                    coroutineScope.launch {
-                        calendarState.addAnimateScrollToHours(3)
-                    }
-                },
-            )
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(12.dp),
+            ) {
+                ZoomControls(
+                    onZoomIn = {
+                        calendarState.zoomIn()
+                        uiState.listener.onInteraction()
+                    },
+                    onZoomOut = {
+                        calendarState.zoomOut()
+                        uiState.listener.onInteraction()
+                    },
+                    modifier = Modifier.align(Alignment.Bottom),
+                )
+                Spacer(modifier = Modifier.width(18.dp))
+                ScrollControls(
+                    onScrollUp = {
+                        uiState.listener.onInteraction()
+                        coroutineScope.launch {
+                            calendarState.addAnimateScrollToHours(-3)
+                        }
+                    },
+                    onScrollDown = {
+                        uiState.listener.onInteraction()
+                        coroutineScope.launch {
+                            calendarState.addAnimateScrollToHours(3)
+                        }
+                    },
+                )
+            }
         }
     }
 

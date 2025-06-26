@@ -34,6 +34,14 @@ class MainScreenViewModel(
             }
         }
 
+        override fun onNavigateToCalendarDisplay() {
+            viewModelScope.launch {
+                eventSender.send {
+                    it.onNavigateToCalendarDisplay()
+                }
+            }
+        }
+
         override fun onDirectorySelected(uri: Uri) {
             viewModelScope.launch {
                 eventSender.send {
@@ -171,5 +179,6 @@ class MainScreenViewModel(
         fun checkCalendarPermission(): Boolean
         suspend fun loadAvailableCalendars(): List<CalendarInfo>
         fun onNavigateToCalendarSelection()
+        fun onNavigateToCalendarDisplay()
     }
 }

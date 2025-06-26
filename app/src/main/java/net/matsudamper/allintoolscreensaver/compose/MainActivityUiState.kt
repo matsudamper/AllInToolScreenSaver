@@ -25,5 +25,6 @@ data class MainActivityUiState(
         fun onOpenDreamSettings()
         fun onNavigateToCalendarSelection()
         fun updateCalendarPermission(isGranted: Boolean)
+        fun onNavigateToCalendarDisplay()
     }
 }

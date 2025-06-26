@@ -141,6 +141,9 @@ private fun MainScreen(
                 CalendarSection(
                     modifier = Modifier.fillMaxWidth(),
                     selectedCalendar = uiState.selectedCalendar,
+                    onClickCalendar = {
+                        uiState.listener.onNavigateToCalendarDisplay()
+                    },
                     onCalendarSelect = {
                         if (uiState.hasCalendarPermission) {
                             uiState.listener.onNavigateToCalendarSelection()
@@ -319,6 +322,7 @@ private fun ScreenSaverSection(
 @Composable
 private fun CalendarSection(
     onCalendarSelect: () -> Unit,
+    onClickCalendar: () -> Unit,
     selectedCalendar: String,
     modifier: Modifier = Modifier,
 ) {
@@ -349,12 +353,24 @@ private fun CalendarSection(
             { paddingValues ->
                 Text(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxSize()
                         .padding(paddingValues),
                     text = "アラート機能",
                     style = MaterialTheme.typography.titleMedium,
                 )
             },
+            { paddingValues ->
+                Text(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable {
+                            onClickCalendar()
+                        }
+                        .padding(paddingValues),
+                    text = "プレビュー",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+            }
         ),
     )
 }
@@ -425,6 +441,7 @@ private fun MainScreenPreview() {
                     override fun onOpenDreamSettings() = Unit
                     override fun onNavigateToCalendarSelection() = Unit
                     override fun updateCalendarPermission(isGranted: Boolean) = Unit
+                    override fun onNavigateToCalendarDisplay() = Unit
                 },
             ),
         )

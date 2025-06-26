@@ -9,4 +9,7 @@ object NavKeys {
 
     @Serializable
     data object CalendarSelection : NavKey
+
+    @Serializable
+    data object CalendarDisplay : NavKey
 }

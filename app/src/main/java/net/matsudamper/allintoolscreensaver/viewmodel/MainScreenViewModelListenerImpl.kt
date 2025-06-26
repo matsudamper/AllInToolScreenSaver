@@ -45,4 +45,8 @@ class MainScreenViewModelListenerImpl(
     override fun onNavigateToCalendarSelection() {
         backStack.addLast(NavKeys.CalendarSelection)
     }
+
+    override fun onNavigateToCalendarDisplay() {
+        backStack.addLast(NavKeys.CalendarDisplay)
+    }
 }

@@ -14,6 +14,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import net.matsudamper.allintoolscreensaver.compose.CalendarSelectionScreen
 import net.matsudamper.allintoolscreensaver.compose.MainScreen
+import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreen
 import net.matsudamper.allintoolscreensaver.navigation.CustomTwoPaneSceneStrategy
 import net.matsudamper.allintoolscreensaver.theme.AllInToolScreenSaverTheme
 
@@ -58,6 +59,11 @@ class MainActivity : ComponentActivity() {
                         CalendarSelectionScreen(
                             backStack = backStack,
                         )
+                    }
+                    entry<NavKeys.CalendarDisplay>(
+                        metadata = CustomTwoPaneSceneStrategy.extendPane(),
+                    ) { entry ->
+                        CalendarDisplayScreen()
                     }
                 },
             )
