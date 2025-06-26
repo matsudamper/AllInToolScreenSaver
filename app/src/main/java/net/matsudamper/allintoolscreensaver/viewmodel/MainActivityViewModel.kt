@@ -26,6 +26,7 @@ class MainActivityViewModel(
         fun onOpenDreamSettings()
         fun checkCalendarPermission(): Boolean
         suspend fun loadAvailableCalendars(): List<CalendarInfo>
+        fun onNavigateToCalendarSelection()
     }
 
     private val listener = object : MainActivityUiState.Listener {
@@ -69,6 +70,10 @@ class MainActivityViewModel(
 
         override fun onOpenDreamSettings() {
             activityListener.onOpenDreamSettings()
+        }
+
+        override fun onNavigateToCalendarSelection() {
+            activityListener.onNavigateToCalendarSelection()
         }
     }
 

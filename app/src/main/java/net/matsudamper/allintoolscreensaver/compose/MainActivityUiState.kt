@@ -21,5 +21,6 @@ data class MainActivityUiState(
         fun onCalendarSelectionChanged(calendarId: Long, isSelected: Boolean)
         fun onImageSwitchIntervalChanged(seconds: Int)
         fun onOpenDreamSettings()
+        fun onNavigateToCalendarSelection()
     }
 }

@@ -121,31 +121,12 @@ fun MainScreen(
         }
 
         item {
-            if (!uiState.hasCalendarPermission) {
-                Button(
-                    onClick = {
-                        onCalendarPermissionLaunch()
-                    },
-                ) {
-                    Text("カレンダーアクセス許可")
-                }
-            } else {
-                Text(
-                    text = "カレンダー選択:",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
-        }
-
-        if (uiState.hasCalendarPermission && uiState.availableCalendars.isNotEmpty()) {
-            items(uiState.availableCalendars) { calendar ->
-                CalendarItem(
-                    calendar = calendar,
-                    isSelected = uiState.selectedCalendarIds.contains(calendar.id),
-                    onSelectionChange = { isSelected ->
-                        uiState.listener.onCalendarSelectionChanged(calendar.id, isSelected)
-                    },
-                )
+            Button(
+                onClick = {
+                    uiState.listener.onNavigateToCalendarSelection()
+                },
+            ) {
+                Text("カレンダー選択画面へ")
             }
         }
 
@@ -234,64 +215,7 @@ private fun ImageSwitchIntervalSelector(
     }
 }
 
-@Composable
-private fun CalendarItem(
-    calendar: CalendarInfo,
-    isSelected: Boolean,
-    onSelectionChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surface
-            },
-        ),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Checkbox(
-                checked = isSelected,
-                onCheckedChange = onSelectionChange,
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(
-                modifier = Modifier.weight(1f),
-            ) {
-                Text(
-                    text = calendar.displayName,
-                    style = MaterialTheme.typography.titleSmall,
-                )
-                Text(
-                    text = calendar.accountName,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .padding(2.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                // カレンダーカラーを表示
-                Card(
-                    modifier = Modifier.size(20.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(calendar.color),
-                    ),
-                ) {}
-            }
-        }
-    }
-}
+// Calendar item composable has been moved to CalendarSelectionScreen.kt
 
 @Preview(showBackground = true)
 @Composable
@@ -311,6 +235,7 @@ private fun MainScreenPreview() {
                     override fun onCalendarSelectionChanged(calendarId: Long, isSelected: Boolean) = Unit
                     override fun onImageSwitchIntervalChanged(seconds: Int) = Unit
                     override fun onOpenDreamSettings() = Unit
+                    override fun onNavigateToCalendarSelection() = Unit
                 },
             ),
             onDirectoryPickerLaunch = { },
