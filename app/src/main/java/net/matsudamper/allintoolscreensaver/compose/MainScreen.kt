@@ -1,5 +1,7 @@
 package net.matsudamper.allintoolscreensaver.compose
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,8 +21,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -28,15 +30,42 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.matsudamper.allintoolscreensaver.compose.component.SuspendLifecycleStartEffect
 import net.matsudamper.allintoolscreensaver.theme.AllInToolScreenSaverTheme
+import net.matsudamper.allintoolscreensaver.viewmodel.MainActivityViewModel
+import org.koin.androidx.compose.koinViewModel
+
+@Composable
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    viewModel: MainActivityViewModel = koinViewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    MainScreen(
+        uiState = uiState,
+        modifier = modifier,
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(
+private fun MainScreen(
     uiState: MainActivityUiState,
-    onDirectoryPickerLaunch: () -> Unit,
-    onNavigateToCalendarSelection: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val directoryPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree(),
+    ) { uri ->
+        if (uri != null) {
+            uiState.listener.onDirectorySelected(uri)
+        }
+    }
+
+    val calendarPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { isGranted ->
+        uiState.listener.updateCalendarPermission(isGranted)
+    }
+
     SuspendLifecycleStartEffect(Unit) {
         uiState.listener.onStart()
     }
@@ -74,7 +103,7 @@ fun MainScreen(
             item {
                 Button(
                     onClick = {
-                        onDirectoryPickerLaunch()
+                        directoryPickerLauncher.launch(null)
                     },
                 ) {
                     Text("画像フォルダを選択")
@@ -99,7 +128,7 @@ fun MainScreen(
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = uiState.selectedDirectoryPath,
+                                text = uiState.selectedDirectoryPath.orEmpty(),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -126,7 +155,13 @@ fun MainScreen(
 
             item {
                 Button(
-                    onClick = onNavigateToCalendarSelection,
+                    onClick = {
+                        if (uiState.hasCalendarPermission) {
+                            uiState.listener.onNavigateToCalendarSelection()
+                        } else {
+                            calendarPermissionLauncher.launch(android.Manifest.permission.READ_CALENDAR)
+                        }
+                    },
                 ) {
                     Text("カレンダー選択画面へ")
                 }
@@ -218,8 +253,6 @@ private fun ImageSwitchIntervalSelector(
     }
 }
 
-// Calendar item composable has been moved to CalendarSelectionScreen.kt
-
 @Preview(showBackground = true)
 @Composable
 private fun MainScreenPreview() {
@@ -232,20 +265,16 @@ private fun MainScreenPreview() {
                 hasCalendarPermission = false,
                 imageSwitchIntervalSeconds = 30,
                 listener = object : MainActivityUiState.Listener {
-                    override suspend fun onStart() {
-                        /* Preview - no-op */
-                    }
-
+                    override suspend fun onStart() {}
                     override fun onDirectorySelected(uri: android.net.Uri) = Unit
                     override fun onCalendarPermissionRequested() = Unit
                     override fun onCalendarSelectionChanged(calendarId: Long, isSelected: Boolean) = Unit
                     override fun onImageSwitchIntervalChanged(seconds: Int) = Unit
                     override fun onOpenDreamSettings() = Unit
                     override fun onNavigateToCalendarSelection() = Unit
+                    override fun updateCalendarPermission(isGranted: Boolean) {}
                 },
             ),
-            onDirectoryPickerLaunch = { /* Preview - no-op */ },
-            onNavigateToCalendarSelection = { /* Preview - no-op */ },
         )
     }
 }

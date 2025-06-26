@@ -22,5 +22,6 @@ data class MainActivityUiState(
         fun onImageSwitchIntervalChanged(seconds: Int)
         fun onOpenDreamSettings()
         fun onNavigateToCalendarSelection()
+        fun updateCalendarPermission(isGranted: Boolean)
     }
 }

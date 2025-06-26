@@ -84,31 +84,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun AppNavigation() {
-        val viewModel: MainActivityViewModel = viewModel {
-            MainActivityViewModel(
-                settingsRepository = settingsManager,
-                activityListener = activityListener,
-            )
-        }
-
-        val uiState by viewModel.uiState.collectAsState()
-
         val backStack = rememberNavBackStack(Main)
-
-        val directoryPickerLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.OpenDocumentTree(),
-        ) { uri ->
-            if (uri != null) {
-                uiState.listener.onDirectorySelected(uri)
-            }
-        }
-
-        val calendarPermissionLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestPermission(),
-        ) { isGranted ->
-            viewModel.updateCalendarPermission(isGranted)
-        }
-
         Box(
             modifier = Modifier.fillMaxSize(),
         ) {
@@ -125,14 +101,7 @@ class MainActivity : ComponentActivity() {
                 sceneStrategy = CustomTwoPaneSceneStrategy(),
                 entryProvider = entryProvider {
                     entry<Main> {
-                        MainScreen(
-                            uiState = uiState,
-                            onDirectoryPickerLaunch = { directoryPickerLauncher.launch(null) },
-                            onNavigateToCalendarSelection = {
-                                backStack.add(CalendarSelection)
-                            },
-                            modifier = Modifier,
-                        )
+                        MainScreen()
                     }
                     entry<CalendarSelection>(
                         metadata = CustomTwoPaneSceneStrategy.extendPane(),
