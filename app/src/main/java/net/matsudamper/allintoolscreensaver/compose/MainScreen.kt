@@ -131,7 +131,7 @@ private fun MainScreen(
                         directoryPickerLauncher.launch(null)
                     },
                     imageSwitchIntervalSeconds = uiState.imageSwitchIntervalSeconds,
-                    onImageSwitchIntervalChanged = { seconds ->
+                    onImageSwitchIntervalChange = { seconds ->
                         uiState.listener.onImageSwitchIntervalChanged(seconds)
                     },
                 )
@@ -141,7 +141,7 @@ private fun MainScreen(
                 CalendarSection(
                     modifier = Modifier.fillMaxWidth(),
                     selectedCalendar = uiState.selectedCalendar,
-                    onCalendarSelected = {
+                    onCalendarSelect = {
                         if (uiState.hasCalendarPermission) {
                             uiState.listener.onNavigateToCalendarSelection()
                         } else {
@@ -153,7 +153,7 @@ private fun MainScreen(
 
             item {
                 Section(
-                    modifier = modifier,
+                    modifier = Modifier.fillMaxWidth(),
                     title = null,
                     contents = listOf(
                         { contentPadding ->
@@ -264,7 +264,7 @@ private fun ScreenSaverSection(
     selectionPath: String,
     imageSwitchIntervalSeconds: Int,
     onClickSelection: () -> Unit,
-    onImageSwitchIntervalChanged: (Int) -> Unit,
+    onImageSwitchIntervalChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Section(
@@ -307,7 +307,7 @@ private fun ScreenSaverSection(
                     ImageSwitchIntervalSelector(
                         currentInterval = imageSwitchIntervalSeconds,
                         onIntervalSelect = { seconds ->
-                            onImageSwitchIntervalChanged(seconds)
+                            onImageSwitchIntervalChange(seconds)
                         },
                     )
                 }
@@ -318,9 +318,9 @@ private fun ScreenSaverSection(
 
 @Composable
 private fun CalendarSection(
-    modifier: Modifier = Modifier,
-    onCalendarSelected: () -> Unit,
+    onCalendarSelect: () -> Unit,
     selectedCalendar: String,
+    modifier: Modifier = Modifier,
 ) {
     Section(
         modifier = modifier,
@@ -331,7 +331,7 @@ private fun CalendarSection(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            onCalendarSelected()
+                            onCalendarSelect()
                         }
                         .padding(paddingValues),
                 ) {
