@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.CalendarContract
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.application
@@ -57,7 +56,6 @@ class CalendarDisplayScreenViewModel(
                 }
                 launch { observeCalendarChanges() }
             }
-
         }
 
         override fun onInteraction() {

@@ -370,7 +370,7 @@ private fun CalendarSection(
                     text = "プレビュー",
                     style = MaterialTheme.typography.titleMedium,
                 )
-            }
+            },
         ),
     )
 }
