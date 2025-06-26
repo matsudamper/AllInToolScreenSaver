@@ -25,7 +25,9 @@ class MainScreenViewModelListenerImpl(
     }
 
     override fun onOpenDreamSettings() {
-        val intent = Intent(Settings.ACTION_DREAM_SETTINGS)
+        val intent = Intent(Settings.ACTION_DREAM_SETTINGS).also { intent ->
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
         application.startActivity(intent)
     }
 
