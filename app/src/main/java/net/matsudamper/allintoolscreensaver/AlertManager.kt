@@ -1,6 +1,5 @@
 package net.matsudamper.allintoolscreensaver
 
-import android.content.Context
 import android.media.AudioManager
 import android.media.ToneGenerator
 import java.time.Instant

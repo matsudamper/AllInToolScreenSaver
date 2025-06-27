@@ -24,7 +24,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.ImageManager
 import net.matsudamper.allintoolscreensaver.SettingsRepository
-import net.matsudamper.allintoolscreensaver.SettingsRepositoryImpl
 import net.matsudamper.allintoolscreensaver.compose.DigitalClockScreenUiState
 import net.matsudamper.allintoolscreensaver.compose.PagerItem
 
