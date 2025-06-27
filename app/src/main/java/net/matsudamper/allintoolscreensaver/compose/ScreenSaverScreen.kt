@@ -59,10 +59,11 @@ import dev.chrisbanes.haze.rememberHazeState
 import net.matsudamper.allintoolscreensaver.AlertManager
 import net.matsudamper.allintoolscreensaver.CalendarEvent
 import net.matsudamper.allintoolscreensaver.ImageManager
-import net.matsudamper.allintoolscreensaver.SettingsRepositoryImpl
 import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreen
 import net.matsudamper.allintoolscreensaver.compose.component.LocalDreamDialogContentHolder
 import net.matsudamper.allintoolscreensaver.viewmodel.DigitalClockScreenViewModel
+import org.koin.compose.koinInject
+import org.koin.core.context.GlobalContext
 
 @Composable
 fun ScreenSaverScreen(
@@ -73,14 +74,15 @@ fun ScreenSaverScreen(
     val currentAlertState = remember { mutableStateOf<CalendarEvent?>(null) }
     val viewModel: DigitalClockScreenViewModel = viewModel(
         initializer = {
+            val koin = GlobalContext.get()
             DigitalClockScreenViewModel(
-                settingsRepositoryImpl = SettingsRepositoryImpl(context),
+                settingsRepositor = koin.get(),
                 imageManager = ImageManager(context),
             )
         },
     )
     val uiStateState = viewModel.uiState.collectAsState()
-    val alertManager = remember { AlertManager(context) }
+    val alertManager = koinInject<AlertManager>()
     val hazeState = rememberHazeState()
     LifecycleStartEffect(uiStateState.value.listener) {
         val scope = CoroutineScope(Job())

@@ -23,12 +23,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.ImageManager
+import net.matsudamper.allintoolscreensaver.SettingsRepository
 import net.matsudamper.allintoolscreensaver.SettingsRepositoryImpl
 import net.matsudamper.allintoolscreensaver.compose.DigitalClockScreenUiState
 import net.matsudamper.allintoolscreensaver.compose.PagerItem
 
 class DigitalClockScreenViewModel(
-    private val settingsRepositoryImpl: SettingsRepositoryImpl,
+    private val settingsRepositor: SettingsRepository,
     private val imageManager: ImageManager,
 ) : ViewModel() {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
@@ -89,7 +90,7 @@ class DigitalClockScreenViewModel(
             }
         }
         viewModelScope.launch {
-            settingsRepositoryImpl.getImageSwitchIntervalSecondsFlow().collectLatest { intervalSeconds ->
+            settingsRepositor.getImageSwitchIntervalSecondsFlow().collectLatest { intervalSeconds ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         imageSwitchIntervalSeconds = intervalSeconds,
@@ -171,7 +172,7 @@ class DigitalClockScreenViewModel(
         // 1000枚以上の場合は負荷を軽減する為に更新頻度を設定
         if (viewModelStateFlow.value.images.size > 1000 && viewModelStateFlow.value.imagesLastUpdate.plusMillis(1.hours.inWholeMilliseconds).isAfter(Instant.now())) return
 
-        val directoryUri = settingsRepositoryImpl.getImageDirectoryUri() ?: return updateLoadingFalse()
+        val directoryUri = settingsRepositor.getImageDirectoryUri() ?: return updateLoadingFalse()
 
         if (viewModelStateFlow.value.images.isEmpty()) {
             val uris = imageManager.getImageUrisFromDirectory(directoryUri)

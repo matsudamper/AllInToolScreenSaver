@@ -13,10 +13,9 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class AlertManager(
-    private val context: Context,
+    private val calendarRepository: CalendarRepository,
+    private val settingsRepository: SettingsRepository,
 ) {
-    private val calendarRepositoryImpl = CalendarRepositoryImpl(context)
-    private val settingsRepositoryImpl = SettingsRepositoryImpl(context)
     private var alertJob: Job? = null
     private var toneGenerator: ToneGenerator? = null
     private val alertScope = CoroutineScope(Dispatchers.Main)
@@ -47,14 +46,14 @@ class AlertManager(
     }
 
     private suspend fun checkUpcomingEvents() {
-        val selectedCalendarIds = settingsRepositoryImpl.getSelectedCalendarIds()
+        val selectedCalendarIds = settingsRepository.getSelectedCalendarIds()
 
         if (selectedCalendarIds.isEmpty()) return
 
         val now = Instant.now()
         val endTime = now.plusSeconds(60)
 
-        val events = calendarRepositoryImpl.getEventsForTimeRange(
+        val events = calendarRepository.getEventsForTimeRange(
             calendarIds = selectedCalendarIds,
             startTime = now.minusSeconds(60),
             endTime = endTime,

@@ -17,7 +17,7 @@ class MyApp : Application() {
                     single<Context> { this@MyApp }
                     single<SettingsRepository> { SettingsRepositoryImpl(get()) }
                     single<CalendarRepository> { CalendarRepositoryImpl(get()) }
-                    single { AlertManager(get()) }
+                    single { AlertManager(get(), get()) }
                     viewModel {
                         CalendarDisplayScreenViewModel(get(), get(), get())
                     }
