@@ -1,7 +1,6 @@
 package net.matsudamper.allintoolscreensaver.viewmodel
 
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import java.text.SimpleDateFormat
@@ -23,6 +22,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.ImageManager
+import net.matsudamper.allintoolscreensaver.InMemoryCache
 import net.matsudamper.allintoolscreensaver.SettingsRepository
 import net.matsudamper.allintoolscreensaver.compose.DigitalClockScreenUiState
 import net.matsudamper.allintoolscreensaver.compose.PagerItem
@@ -30,8 +30,24 @@ import net.matsudamper.allintoolscreensaver.compose.PagerItem
 class DigitalClockScreenViewModel(
     private val settingsRepositor: SettingsRepository,
     private val imageManager: ImageManager,
+    private val inMemoryCache: InMemoryCache,
 ) : ViewModel() {
-    private val viewModelStateFlow = MutableStateFlow(ViewModelState())
+    private val viewModelStateFlow = MutableStateFlow(
+        run {
+            val imageInfo = inMemoryCache.imageInfo
+            if (imageInfo != null) {
+                ViewModelState(
+                    images = imageInfo.imageUris,
+                    imagesShuffledIndex = imageInfo.imagesShuffledIndex,
+                    currentIndex = imageInfo.currentIndex,
+                    imagesLastUpdate = Instant.now(),
+                    isLoading = false,
+                )
+            } else {
+                ViewModelState()
+            }
+        },
+    )
 
     private val listener = object : DigitalClockScreenUiState.Listener {
         override suspend fun onStart() {
@@ -39,7 +55,6 @@ class DigitalClockScreenViewModel(
         }
 
         override fun onPageChanged(newPage: Int) {
-            Log.d("LOG", "newPage: $newPage")
             when (newPage) {
                 0 -> moveToPreviousImage()
                 2 -> moveToNextImage()
@@ -169,7 +184,13 @@ class DigitalClockScreenViewModel(
         }
 
         // 1000枚以上の場合は負荷を軽減する為に更新頻度を設定
-        if (viewModelStateFlow.value.images.size > 1000 && viewModelStateFlow.value.imagesLastUpdate.plusMillis(1.hours.inWholeMilliseconds).isAfter(Instant.now())) return
+        if (viewModelStateFlow.value.images.size > 1000 &&
+            viewModelStateFlow.value.imagesLastUpdate
+                .plusMillis(1.hours.inWholeMilliseconds)
+                .isAfter(Instant.now())
+        ) {
+            return
+        }
 
         val directoryUri = settingsRepositor.getImageDirectoryUri() ?: return updateLoadingFalse()
 
@@ -197,6 +218,12 @@ class DigitalClockScreenViewModel(
                     isLoading = false,
                 )
             }
+            val state = viewModelStateFlow.value
+            inMemoryCache.imageInfo = InMemoryCache.ImageInfo(
+                imageUris = state.images,
+                imagesShuffledIndex = state.imagesShuffledIndex,
+                currentIndex = state.currentIndex,
+            )
         } else {
             val uris = imageManager.getImageUrisFromDirectory(directoryUri).toList()
 

@@ -56,6 +56,7 @@ fun MainScreen(
         val koin = GlobalContext.get()
         MainScreenViewModel(
             settingsRepository = koin.get(),
+            inMemoryCache = koin.get(),
         )
     },
 ) {

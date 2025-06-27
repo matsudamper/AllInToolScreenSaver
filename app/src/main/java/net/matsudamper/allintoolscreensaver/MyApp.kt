@@ -13,11 +13,12 @@ class MyApp : Application() {
         startKoin {
             modules(
                 module {
-                    single<Application> { this@MyApp }
-                    single<Context> { this@MyApp }
+                    factory<Application> { this@MyApp }
+                    factory<Context> { this@MyApp }
                     single<SettingsRepository> { SettingsRepositoryImpl(get()) }
                     single<CalendarRepository> { CalendarRepositoryImpl(get()) }
-                    single { AlertManager(get(), get()) }
+                    single<AlertManager> { AlertManager(get(), get()) }
+                    single<InMemoryCache> { InMemoryCache() }
                     viewModel {
                         CalendarDisplayScreenViewModel(get(), get(), get())
                     }

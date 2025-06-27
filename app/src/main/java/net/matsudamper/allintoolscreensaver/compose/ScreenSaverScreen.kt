@@ -78,6 +78,7 @@ fun ScreenSaverScreen(
             DigitalClockScreenViewModel(
                 settingsRepositor = koin.get(),
                 imageManager = ImageManager(context),
+                inMemoryCache = koin.get(),
             )
         },
     )

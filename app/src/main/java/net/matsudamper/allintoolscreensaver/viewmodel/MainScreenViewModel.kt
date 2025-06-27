@@ -12,12 +12,14 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.CalendarInfo
+import net.matsudamper.allintoolscreensaver.InMemoryCache
 import net.matsudamper.allintoolscreensaver.SettingsRepository
 import net.matsudamper.allintoolscreensaver.compose.MainActivityUiState
 import net.matsudamper.allintoolscreensaver.lib.EventSender
 
 class MainScreenViewModel(
     private val settingsRepository: SettingsRepository,
+    private val inMemoryCache: InMemoryCache,
 ) : ViewModel() {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
@@ -43,6 +45,7 @@ class MainScreenViewModel(
         }
 
         override fun onDirectorySelected(uri: Uri) {
+            inMemoryCache.imageInfo = null
             viewModelScope.launch {
                 eventSender.send {
                     it.onDirectorySelected(uri)
