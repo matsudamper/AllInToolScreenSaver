@@ -240,7 +240,8 @@ internal fun CalendarLayout(
                             description = event.uiState.description,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(event.heightCount * hourSize / HourSplitCount),
+                                .height(event.heightCount * hourSize / HourSplitCount)
+                                .padding(1.dp),
                             color = event.uiState.color,
                         )
                     }
