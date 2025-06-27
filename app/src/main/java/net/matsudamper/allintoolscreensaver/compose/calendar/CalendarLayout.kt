@@ -1,5 +1,6 @@
 package net.matsudamper.allintoolscreensaver.compose.calendar
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,7 +26,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
@@ -86,6 +90,7 @@ data class CalendarLayoutUiState(
 
 private const val HourSplitCount = 4
 private val CurrentTimeDividerSize = 4.dp
+private val CurrentTimeMarkerRadius = 5.dp
 
 @Stable
 class CalendarState internal constructor(
@@ -224,9 +229,10 @@ internal fun CalendarLayout(
                     (0 until 24).map {
                         HorizontalDivider()
                     }
-                    HorizontalDivider(
+                    CurrentTimeIndicator(
                         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
-                        thickness = CurrentTimeDividerSize,
+                        lineThickness = CurrentTimeDividerSize,
+                        markerRadius = CurrentTimeMarkerRadius,
                     )
                     for (event in calcTimeEvents) {
                         TimeCard(
@@ -309,10 +315,14 @@ private data class CalendarMeasurePolicy(
         }
 
         val currentTimeDividerPlaceable = measurables[currentTimeIndex()].measure(
-            constraints.copy(
-                minWidth = constraints.maxWidth - hourMaxWidth,
-                maxWidth = constraints.maxWidth - hourMaxWidth,
-            ),
+            run {
+                val width = (constraints.maxWidth - hourMaxWidth) + (CurrentTimeMarkerRadius * 2)
+                    .roundToPx()
+                constraints.copy(
+                    minWidth = width,
+                    maxWidth = width,
+                )
+            },
         )
 
         return layout(constraints.maxWidth, (hourSize * 24).roundToPx()) {
@@ -334,7 +344,7 @@ private data class CalendarMeasurePolicy(
                 )
             }
             currentTimeDividerPlaceable.place(
-                x = hourMaxWidth,
+                x = hourMaxWidth - CurrentTimeMarkerRadius.roundToPx() * 2,
                 y = run {
                     val paddingTop = (hourAverageHeightPx / 2) - (currentTimeDividerPlaceable.height / 2)
 
@@ -342,6 +352,35 @@ private data class CalendarMeasurePolicy(
                 },
             )
         }
+    }
+}
+
+@Composable
+private fun CurrentTimeIndicator(
+    color: Color,
+    lineThickness: Dp,
+    markerRadius: Dp,
+    modifier: Modifier = Modifier,
+) {
+    Canvas(modifier = modifier) {
+        val lineThicknessPx = lineThickness.toPx()
+        val markerRadiusPx = markerRadius.toPx()
+        val centerY = size.height / 2f
+
+        val markerCenterX = markerRadiusPx
+        drawCircle(
+            color = color,
+            radius = markerRadiusPx,
+            center = Offset(markerCenterX, centerY),
+            style = Stroke(width = lineThicknessPx),
+        )
+
+        drawLine(
+            color = color,
+            start = Offset(markerRadiusPx * 2, centerY),
+            end = Offset(size.width, centerY),
+            strokeWidth = lineThicknessPx,
+        )
     }
 }
 

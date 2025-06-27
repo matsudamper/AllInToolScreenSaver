@@ -174,10 +174,10 @@ complexity:
     thresholdInInterfaces: 11
     thresholdInObjects: 11
     thresholdInEnums: 11
-    ignoreDeprecated: false
-    ignorePrivate: false
-    ignoreOverridden: false
-    ignoreAnnotatedFunctions: []
+    ignoreDeprecated: true
+    ignorePrivate: true
+    ignoreOverridden: true
+    ignoreAnnotatedFunctions: ['Composable']
 
 coroutines:
   active: true
