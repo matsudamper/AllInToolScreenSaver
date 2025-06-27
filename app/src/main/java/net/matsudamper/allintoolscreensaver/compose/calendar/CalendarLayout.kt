@@ -676,6 +676,11 @@ private fun Preview() {
                         description = "Description",
                         color = Color.Red,
                     ),
+                    CalendarLayoutUiState.Event.AllDay(
+                        title = "All Day Event 2",
+                        description = "Description",
+                        color = Color.Yellow,
+                    ),
                 ),
             ),
             clock = clock,
