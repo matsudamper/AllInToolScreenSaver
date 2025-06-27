@@ -62,7 +62,7 @@ class MainActivity : ComponentActivity() {
                     }
                     entry<NavKeys.CalendarDisplay>(
                         metadata = CustomTwoPaneSceneStrategy.extendPane(),
-                    ) { entry ->
+                    ) { _ ->
                         CalendarDisplayScreen()
                     }
                 },
