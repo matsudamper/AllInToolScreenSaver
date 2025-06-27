@@ -1,5 +1,6 @@
 package net.matsudamper.allintoolscreensaver
 
+import android.content.ContentUris
 import android.content.Context
 import android.provider.CalendarContract
 import java.time.Instant
@@ -90,28 +91,28 @@ class CalendarManager(private val context: Context) : CalendarRepository {
             val events = mutableListOf<CalendarEvent>()
 
             val projection = arrayOf(
-                CalendarContract.Events._ID,
-                CalendarContract.Events.TITLE,
-                CalendarContract.Events.DESCRIPTION,
-                CalendarContract.Events.DTSTART,
-                CalendarContract.Events.DTEND,
-                CalendarContract.Events.ALL_DAY,
-                CalendarContract.Events.CALENDAR_ID,
-                CalendarContract.Events.CALENDAR_COLOR,
+                CalendarContract.Instances._ID,
+                CalendarContract.Instances.TITLE,
+                CalendarContract.Instances.DESCRIPTION,
+                CalendarContract.Instances.DTSTART,
+                CalendarContract.Instances.DTEND,
+                CalendarContract.Instances.ALL_DAY,
+                CalendarContract.Instances.CALENDAR_ID,
+                CalendarContract.Instances.CALENDAR_COLOR,
+                CalendarContract.Instances.EVENT_COLOR,
             )
 
-            val selection = "${CalendarContract.Events.CALENDAR_ID} IN (${calendarIds.joinToString(",")}) AND " +
-                "${CalendarContract.Events.DTSTART} <= ? AND " +
-                "${CalendarContract.Events.DTEND} >= ?"
-
-            val selectionArgs = arrayOf(endTime.toEpochMilli().toString(), startTime.toEpochMilli().toString())
+            val selection = "${CalendarContract.Events.CALENDAR_ID} IN (${calendarIds.joinToString(",")}) AND 1 "
 
             val cursor = context.contentResolver.query(
-                CalendarContract.Events.CONTENT_URI,
+                CalendarContract.Instances.CONTENT_URI.buildUpon().also { builder ->
+                    ContentUris.appendId(builder, startTime.toEpochMilli())
+                    ContentUris.appendId(builder, endTime.toEpochMilli())
+                }.build(),
                 projection,
                 selection,
-                selectionArgs,
-                "${CalendarContract.Events.DTSTART} ASC",
+                null,
+                null,
             )
 
             cursor?.use { c ->
@@ -122,7 +123,11 @@ class CalendarManager(private val context: Context) : CalendarRepository {
                     val eventStartTime = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events.DTSTART))
                     val eventEndTime = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events.DTEND))
                     val allDay = c.getInt(c.getColumnIndexOrThrow(CalendarContract.Events.ALL_DAY)) == 1
-                    val color = c.getInt(c.getColumnIndexOrThrow(CalendarContract.Events.CALENDAR_COLOR))
+                    val color = run {
+                        val eventColorIndex = c.getColumnIndexOrThrow(CalendarContract.Instances.EVENT_COLOR)
+                        val calendarColorIndex = c.getColumnIndexOrThrow(CalendarContract.Instances.CALENDAR_COLOR)
+                        if (!c.isNull(eventColorIndex)) c.getInt(eventColorIndex) else c.getInt(calendarColorIndex)
+                    }
                     events.add(
                         if (allDay) {
                             CalendarEvent.AllDay(
