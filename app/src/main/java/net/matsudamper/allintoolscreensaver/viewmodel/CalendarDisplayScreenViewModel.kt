@@ -94,8 +94,9 @@ class CalendarDisplayScreenViewModel(
                                         startTime = LocalTime.ofInstant(event.startTime, ZoneId.systemDefault()),
                                         endTime = LocalTime.ofInstant(event.endTime, ZoneId.systemDefault()),
                                         title = event.title,
-                                        description = createDisplayTime(event.startTime, event.endTime),
+                                        displayTime = createDisplayTime(event.startTime, event.endTime),
                                         color = Color(event.color),
+                                        description = event.description,
                                     )
                                 },
                             allDayEvents = viewModelState.events.filterIsInstance<CalendarEvent.AllDay>()

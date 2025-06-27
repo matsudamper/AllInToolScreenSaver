@@ -1,5 +1,9 @@
 package net.matsudamper.allintoolscreensaver.compose
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -235,20 +240,31 @@ fun ScreenSaverScreen(
 //        }
 
         for (dialogItem in LocalDreamDialogContentHolder.current) {
-            Box(
-                modifier = Modifier
-                    .clickable(
-                        interactionSource = null,
-                        indication = null,
-                        onClick = {
-                            dialogItem.dismissRequest()
-                        },
-                    )
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.7f)),
-                contentAlignment = Alignment.Center,
+            var visible by remember { mutableStateOf(false) }
+            DisposableEffect(Unit) {
+                visible = true
+                onDispose { visible = false }
+            }
+            AnimatedVisibility(
+                visible = visible,
+                enter = fadeIn(initialAlpha = 0.5f),
+                exit = fadeOut(),
             ) {
-                dialogItem.content()
+                Box(
+                    modifier = Modifier
+                        .clickable(
+                            interactionSource = null,
+                            indication = null,
+                            onClick = {
+                                dialogItem.dismissRequest()
+                            },
+                        )
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.7f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    dialogItem.content()
+                }
             }
         }
     }

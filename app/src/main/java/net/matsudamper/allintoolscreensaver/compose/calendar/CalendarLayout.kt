@@ -3,9 +3,15 @@ package net.matsudamper.allintoolscreensaver.compose.calendar
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
@@ -15,20 +21,22 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
@@ -62,6 +70,7 @@ import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import net.matsudamper.allintoolscreensaver.compose.component.DreamDialog
 
 data class CalendarLayoutUiState(
     val events: List<Event.Time>,
@@ -75,6 +84,7 @@ data class CalendarLayoutUiState(
         data class Time(
             val startTime: LocalTime,
             val endTime: LocalTime,
+            val displayTime: String,
             override val title: String,
             override val description: String?,
             override val color: Color,
@@ -202,21 +212,30 @@ internal fun CalendarLayout(
             delay((1.seconds.inWholeNanoseconds - now.nano).nanoseconds)
         }
     }
+    val dialogInfoState = remember { mutableStateOf<CalendarLayoutUiState.Event?>(null) }
+    val dialogInfo = dialogInfoState.value
+    if (dialogInfo != null) {
+        DreamDialog(
+            dismissRequest = { dialogInfoState.value = null },
+        ) {
+            EventDialogContent(
+                event = dialogInfo,
+                onDismissRequest = { dialogInfoState.value = null },
+            )
+        }
+    }
 
     Surface(modifier = modifier) {
         Column {
             for (event in uiState.allDayEvents) {
-                val annotatedDescription = remember(event.description) {
-                    event.description?.let { htmlToAnnotatedString(it) }
-                }
-
-                TimeCard(
+                AllDayCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp),
-                    title = event.title,
-                    description = annotatedDescription?.text,
-                    color = event.color,
+                    event = event,
+                    onClick = {
+                        dialogInfoState.value = event
+                    },
                 )
             }
             HorizontalDivider()
@@ -236,13 +255,14 @@ internal fun CalendarLayout(
                     )
                     for (event in calcTimeEvents) {
                         TimeCard(
-                            title = event.uiState.title,
-                            description = event.uiState.description,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(event.heightCount * hourSize / HourSplitCount)
                                 .padding(1.dp),
-                            color = event.uiState.color,
+                            event = event,
+                            onClick = {
+                                dialogInfoState.value = event.uiState
+                            },
                         )
                     }
                 },
@@ -254,6 +274,64 @@ internal fun CalendarLayout(
                     )
                 },
             )
+        }
+    }
+}
+
+@Composable
+private fun EventDialogContent(
+    event: CalendarLayoutUiState.Event,
+    onDismissRequest: () -> Unit,
+) {
+    Card(
+        modifier = Modifier
+            .sizeIn(
+                minWidth = 500.dp,
+                minHeight = 300.dp,
+            )
+            .height(IntrinsicSize.Min)
+            .width(IntrinsicSize.Min),
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(24.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.Start,
+        ) {
+            Text(
+                text = event.title,
+                style = MaterialTheme.typography.headlineLarge,
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            when (event) {
+                is CalendarLayoutUiState.Event.Time -> {
+                    Text(
+                        text = event.displayTime,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = event.description.orEmpty(),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                }
+
+                is CalendarLayoutUiState.Event.AllDay -> {
+                    Text(
+                        text = event.description.orEmpty(),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(24.dp))
+            OutlinedButton(
+                modifier = Modifier.align(Alignment.End),
+                onClick = onDismissRequest,
+            ) {
+                Text(text = "CLOSE")
+            }
         }
     }
 }
@@ -386,10 +464,43 @@ private fun CurrentTimeIndicator(
 }
 
 @Composable
+@NonRestartableComposable
+private fun AllDayCard(
+    event: CalendarLayoutUiState.Event.AllDay,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    EventCard(
+        modifier = modifier,
+        title = event.title,
+        displayTime = null,
+        color = event.color,
+        onClick = onClick,
+    )
+}
+
+@Composable
+@NonRestartableComposable
 private fun TimeCard(
+    event: CalcTimeEvent,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    EventCard(
+        title = event.uiState.title,
+        displayTime = event.uiState.displayTime,
+        modifier = modifier,
+        color = event.uiState.color,
+        onClick = onClick,
+    )
+}
+
+@Composable
+private fun EventCard(
     title: String,
-    description: String?,
+    displayTime: String?,
     color: Color,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
@@ -398,6 +509,7 @@ private fun TimeCard(
         colors = CardDefaults.cardColors(
             containerColor = color,
         ),
+        onClick = onClick,
     ) {
         Column(
             modifier = Modifier.padding(4.dp),
@@ -408,10 +520,10 @@ private fun TimeCard(
                     maxFontSize = MaterialTheme.typography.labelMedium.fontSize,
                 ),
             )
-            if (description != null) {
+            if (displayTime != null) {
                 BasicText(
-                    text = remember(description) {
-                        htmlToAnnotatedString(description)
+                    text = remember(displayTime) {
+                        htmlToAnnotatedString(displayTime)
                     },
                     autoSize = TextAutoSize.StepBased(
                         maxFontSize = MaterialTheme.typography.labelSmall.fontSize,
@@ -478,6 +590,22 @@ private fun assignEventRows(events: List<CalcTimeEvent>): List<CalcTimeEvent> {
 }
 
 @Composable
+@Preview
+private fun PreviewEventDialogContent() {
+    EventDialogContent(
+        event = CalendarLayoutUiState.Event.Time(
+            startTime = LocalTime.of(1, 0),
+            endTime = LocalTime.of(2, 0),
+            title = "Sample Event",
+            displayTime = "01:00 - 02:00",
+            description = "This is a sample event description.",
+            color = Color.Blue,
+        ),
+        onDismissRequest = {},
+    )
+}
+
+@Composable
 @Preview(showBackground = true)
 private fun Preview() {
     val clock = remember {
@@ -498,6 +626,7 @@ private fun Preview() {
                         startTime = LocalTime.of(0, 0),
                         endTime = LocalTime.of(1, 0),
                         title = "One",
+                        displayTime = "00:00 - 01:00",
                         description = "description",
                         color = Color.Red,
                     ),
@@ -505,6 +634,7 @@ private fun Preview() {
                         startTime = LocalTime.of(1, 0),
                         endTime = LocalTime.of(3, 0),
                         title = "Two",
+                        displayTime = "01:00 - 03:00",
                         description = "description",
                         color = Color.Blue,
                     ),
@@ -512,6 +642,7 @@ private fun Preview() {
                         startTime = LocalTime.of(1, 0),
                         endTime = LocalTime.of(2, 0),
                         title = "Three",
+                        displayTime = "01:00 - 02:00",
                         description = "description",
                         color = Color.Yellow,
                     ),
@@ -519,6 +650,7 @@ private fun Preview() {
                         startTime = LocalTime.of(1, 30),
                         endTime = LocalTime.of(3, 0),
                         title = "Four",
+                        displayTime = "01:30 - 03:00",
                         description = "description",
                         color = Color.Green,
                     ),
@@ -526,6 +658,7 @@ private fun Preview() {
                         startTime = LocalTime.of(2, 0),
                         endTime = LocalTime.of(3, 0),
                         title = "Five",
+                        displayTime = "02:00 - 03:00",
                         description = "description",
                         color = Color.Magenta,
                     ),
@@ -533,6 +666,7 @@ private fun Preview() {
                         startTime = LocalTime.of(3, 15),
                         endTime = LocalTime.of(3, 30),
                         title = "Six",
+                        displayTime = "03:15 - 03:30",
                         description = "description",
                         color = Color.Cyan,
                     ),
@@ -540,7 +674,7 @@ private fun Preview() {
                 allDayEvents = listOf(
                     CalendarLayoutUiState.Event.AllDay(
                         title = "All Day Event",
-                        description = "description",
+                        description = "Description",
                         color = Color.Red,
                     ),
                 ),
