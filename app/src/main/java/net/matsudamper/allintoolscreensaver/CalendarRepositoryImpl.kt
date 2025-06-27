@@ -46,7 +46,7 @@ interface CalendarRepository {
     ): List<CalendarEvent>
 }
 
-class CalendarManager(private val context: Context) : CalendarRepository {
+class CalendarRepositoryImpl(private val context: Context) : CalendarRepository {
 
     override suspend fun getAvailableCalendars(): List<CalendarInfo> {
         return withContext(Dispatchers.IO) {

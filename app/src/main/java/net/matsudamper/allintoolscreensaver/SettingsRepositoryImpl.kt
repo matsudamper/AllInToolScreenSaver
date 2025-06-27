@@ -45,7 +45,7 @@ private val Context.settingsDataStore: DataStore<Settings> by dataStore(
     serializer = SettingsSerializer,
 )
 
-class SettingsManager(private val context: Context) : SettingsRepository {
+class SettingsRepositoryImpl(private val context: Context) : SettingsRepository {
     private val dataStore = context.settingsDataStore
 
     override val settingsFlow: Flow<Settings> = dataStore.data

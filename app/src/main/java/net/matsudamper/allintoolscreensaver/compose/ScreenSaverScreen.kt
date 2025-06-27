@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -60,7 +59,7 @@ import dev.chrisbanes.haze.rememberHazeState
 import net.matsudamper.allintoolscreensaver.AlertManager
 import net.matsudamper.allintoolscreensaver.CalendarEvent
 import net.matsudamper.allintoolscreensaver.ImageManager
-import net.matsudamper.allintoolscreensaver.SettingsManager
+import net.matsudamper.allintoolscreensaver.SettingsRepositoryImpl
 import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreen
 import net.matsudamper.allintoolscreensaver.compose.component.LocalDreamDialogContentHolder
 import net.matsudamper.allintoolscreensaver.viewmodel.DigitalClockScreenViewModel
@@ -75,7 +74,7 @@ fun ScreenSaverScreen(
     val viewModel: DigitalClockScreenViewModel = viewModel(
         initializer = {
             DigitalClockScreenViewModel(
-                settingsManager = SettingsManager(context),
+                settingsRepositoryImpl = SettingsRepositoryImpl(context),
                 imageManager = ImageManager(context),
             )
         },

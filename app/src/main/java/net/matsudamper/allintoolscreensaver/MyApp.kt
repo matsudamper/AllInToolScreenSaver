@@ -10,14 +10,13 @@ import org.koin.dsl.module
 class MyApp : Application() {
     override fun onCreate() {
         super.onCreate()
-
         startKoin {
             modules(
                 module {
                     single<Application> { this@MyApp }
                     single<Context> { this@MyApp }
-                    single<SettingsRepository> { SettingsManager(get()) }
-                    single<CalendarRepository> { CalendarManager(get()) }
+                    single<SettingsRepository> { SettingsRepositoryImpl(get()) }
+                    single<CalendarRepository> { CalendarRepositoryImpl(get()) }
                     single { AlertManager(get()) }
                     viewModel {
                         CalendarDisplayScreenViewModel(get(), get(), get())
