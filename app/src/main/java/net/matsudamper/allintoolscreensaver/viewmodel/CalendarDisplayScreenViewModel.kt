@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.AlertManager
 import net.matsudamper.allintoolscreensaver.CalendarEvent
@@ -116,8 +117,11 @@ class CalendarDisplayScreenViewModel(
                 .distinctUntilChanged()
                 .collectLatest { _ ->
                     delay(1.minutes)
-                    operationFlow.send {
-                        it.moveCurrentTime()
+                    while (isActive) {
+                        operationFlow.send {
+                            it.moveCurrentTime()
+                        }
+                        delay(5.minutes)
                     }
                 }
         }
