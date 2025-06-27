@@ -19,11 +19,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.Stable
@@ -226,18 +228,25 @@ internal fun CalendarLayout(
 
     Surface(modifier = modifier) {
         Column {
-            for (event in uiState.allDayEvents) {
-                AllDayCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    event = event,
-                    onClick = {
-                        dialogInfoState.value = event
-                    },
-                )
+            if (uiState.allDayEvents.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                for (event in uiState.allDayEvents) {
+                    AllDayCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = 8.dp,
+                                vertical = 4.dp,
+                            ),
+                        event = event,
+                        onClick = {
+                            dialogInfoState.value = event
+                        },
+                    )
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                HorizontalDivider()
             }
-            HorizontalDivider()
             Layout(
                 modifier = Modifier.verticalScroll(state.scrollState),
                 content = {
@@ -502,33 +511,37 @@ private fun EventCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(2.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = color,
-        ),
-        onClick = onClick,
+    CompositionLocalProvider(
+        LocalMinimumInteractiveComponentSize provides 0.dp,
     ) {
-        Column(
-            modifier = Modifier.padding(4.dp),
+        Card(
+            modifier = modifier,
+            shape = RoundedCornerShape(2.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = color,
+            ),
+            onClick = onClick,
         ) {
-            BasicText(
-                text = title,
-                autoSize = TextAutoSize.StepBased(
-                    maxFontSize = MaterialTheme.typography.labelMedium.fontSize,
-                ),
-            )
-            if (displayTime != null) {
+            Column(
+                modifier = Modifier.padding(4.dp),
+            ) {
                 BasicText(
-                    text = remember(displayTime) {
-                        htmlToAnnotatedString(displayTime)
-                    },
+                    text = title,
                     autoSize = TextAutoSize.StepBased(
-                        maxFontSize = MaterialTheme.typography.labelSmall.fontSize,
+                        maxFontSize = MaterialTheme.typography.labelMedium.fontSize,
                     ),
-                    overflow = TextOverflow.Ellipsis,
                 )
+                if (displayTime != null) {
+                    BasicText(
+                        text = remember(displayTime) {
+                            htmlToAnnotatedString(displayTime)
+                        },
+                        autoSize = TextAutoSize.StepBased(
+                            maxFontSize = MaterialTheme.typography.labelSmall.fontSize,
+                        ),
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         }
     }
