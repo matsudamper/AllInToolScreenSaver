@@ -1,18 +1,12 @@
 package net.matsudamper.allintoolscreensaver.compose.calendar
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -24,8 +18,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import java.time.Clock
@@ -33,9 +27,15 @@ import java.time.LocalTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import net.matsudamper.allintoolscreensaver.TimeRangeSlider
+import net.matsudamper.allintoolscreensaver.TimeRangeSliderItem
 import net.matsudamper.allintoolscreensaver.compose.component.DreamDialog
+import net.matsudamper.allintoolscreensaver.rememberTimeRangeSlider
 import net.matsudamper.allintoolscreensaver.viewmodel.CalendarDisplayScreenViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -46,6 +46,19 @@ fun CalendarDisplayScreen(
     clock: Clock = remember { Clock.systemDefaultZone() },
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    CalendarDisplayScreen(
+        modifier = modifier,
+        uiState = uiState,
+        clock = clock,
+    )
+}
+
+@Composable
+fun CalendarDisplayScreen(
+    uiState: CalendarDisplayScreenUiState,
+    clock: Clock,
+    modifier: Modifier = Modifier,
+) {
     val coroutineScope = rememberCoroutineScope()
     val calendarState = rememberCalendarState()
 
@@ -78,45 +91,38 @@ fun CalendarDisplayScreen(
         modifier = modifier
             .fillMaxSize(),
     ) { paddingValues ->
-        Box {
+        Column(
+            modifier = Modifier.padding(paddingValues),
+        ) {
             CalendarLayout(
-                modifier = Modifier.padding(paddingValues),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
                 uiState = uiState.calendarUiState,
                 state = calendarState,
+                clock = clock,
             )
-
-            Row(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(12.dp),
-            ) {
-                ZoomControls(
-                    onZoomIn = {
-                        calendarState.zoomIn()
+            val sliderState = rememberTimeRangeSlider(calendarState = calendarState)
+            LaunchedEffect(sliderState) {
+                sliderState.sliderStateChanged
+                    .filter { it.isUserInteraction }
+                    .collectLatest {
                         uiState.listener.onInteraction()
-                    },
-                    onZoomOut = {
-                        calendarState.zoomOut()
-                        uiState.listener.onInteraction()
-                    },
-                    modifier = Modifier.align(Alignment.Bottom),
-                )
-                Spacer(modifier = Modifier.width(18.dp))
-                ScrollControls(
-                    onScrollUp = {
-                        uiState.listener.onInteraction()
-                        coroutineScope.launch {
-                            calendarState.addAnimateScrollToHours(-3)
-                        }
-                    },
-                    onScrollDown = {
-                        uiState.listener.onInteraction()
-                        coroutineScope.launch {
-                            calendarState.addAnimateScrollToHours(3)
-                        }
-                    },
-                )
+                    }
             }
+            TimeRangeSlider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                state = sliderState,
+                items = remember(uiState.calendarUiState.events) {
+                    uiState.calendarUiState.events.map {
+                        TimeRangeSliderItem(
+                            startTime = it.startTime,
+                        )
+                    }
+                },
+            )
         }
     }
 
@@ -131,70 +137,6 @@ fun CalendarDisplayScreen(
                 eventTitle = currentAlert.title,
                 eventDescription = currentAlert.description,
             )
-        }
-    }
-}
-
-@Composable
-private fun ZoomControls(
-    onZoomIn: () -> Unit,
-    onZoomOut: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        FloatingActionButton(
-            modifier = Modifier
-                .testTag(CalendarDisplayScreenTestTag.ZoomOutButton.testTag()),
-            onClick = onZoomOut,
-        ) {
-            Text(
-                text = "－",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.ExtraBold,
-            )
-        }
-
-        FloatingActionButton(
-            modifier = Modifier
-                .testTag(CalendarDisplayScreenTestTag.ZoomInButton.testTag()),
-            onClick = onZoomIn,
-        ) {
-            Text(
-                text = "＋",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.ExtraBold,
-            )
-        }
-    }
-}
-
-@Composable
-private fun ScrollControls(
-    onScrollUp: () -> Unit,
-    onScrollDown: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        FloatingActionButton(
-            modifier = Modifier
-                .testTag(CalendarDisplayScreenTestTag.ScrollUpButton.testTag()),
-            onClick = onScrollUp,
-        ) {
-            Icon(Icons.Default.KeyboardArrowUp, contentDescription = "上にスクロール")
-        }
-
-        FloatingActionButton(
-            modifier = Modifier
-                .testTag(CalendarDisplayScreenTestTag.ScrollDownButton.testTag()),
-            onClick = onScrollDown,
-        ) {
-            Icon(Icons.Default.KeyboardArrowDown, contentDescription = "下にスクロール")
         }
     }
 }
@@ -226,10 +168,29 @@ private fun AlertContent(
         if (eventDescription.isNullOrBlank().not()) {
             Spacer(modifier = Modifier.padding(8.dp))
             Text(
-                text = eventDescription.orEmpty(),
+                text = eventDescription,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
             )
         }
     }
+}
+
+@Composable
+@Preview
+private fun Preview() {
+    CalendarDisplayScreen(
+        uiState = CalendarDisplayScreenUiState(
+            calendarUiState = previewCalendarLayoutUiState,
+            operationFlow = remember { Channel(Channel.UNLIMITED) },
+            listener = object : CalendarDisplayScreenUiState.Listener {
+                override suspend fun onStart() = Unit
+                override fun onInteraction() = Unit
+                override fun onAlertDismiss() = Unit
+            },
+            currentAlert = null,
+        ),
+        clock = previewCalendarLayoutClock,
+        modifier = Modifier.fillMaxSize(),
+    )
 }

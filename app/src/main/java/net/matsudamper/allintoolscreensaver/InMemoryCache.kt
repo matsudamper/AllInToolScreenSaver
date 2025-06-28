@@ -2,7 +2,7 @@ package net.matsudamper.allintoolscreensaver
 
 import android.net.Uri
 
-class InMemoryCache() {
+class InMemoryCache {
     var imageInfo: ImageInfo? = null
 
     data class ImageInfo(

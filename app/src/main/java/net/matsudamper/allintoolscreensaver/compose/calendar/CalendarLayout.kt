@@ -107,10 +107,10 @@ private val CurrentTimeMarkerRadius = 5.dp
 class CalendarState internal constructor(
     internal val scrollState: ScrollState,
     private val density: Density,
-    hourSize: Dp,
+    initialHourSize: Dp,
 ) {
-
-    var hourSize: Dp by mutableStateOf(hourSize)
+    var verticalPadding by mutableIntStateOf(0)
+    var hourSize: Dp by mutableStateOf(initialHourSize)
 
     fun zoomIn() {
         hourSize = (hourSize + 10.dp)
@@ -137,7 +137,6 @@ class CalendarState internal constructor(
 
     suspend fun scrollToHours(hours: Int) {
         val offset = with(density) { (hours * hourSize).roundToPx() }
-        scrollState.animateScrollTo(offset)
         scrollState.scrollTo(offset)
     }
 
@@ -161,7 +160,7 @@ fun rememberCalendarState(initialHourSize: Dp = 100.dp): CalendarState {
         CalendarState(
             scrollState = scrollState,
             density = density,
-            hourSize = initialHourSize,
+            initialHourSize = initialHourSize,
         )
     }
 }
@@ -274,11 +273,17 @@ internal fun CalendarLayout(
                         )
                     }
                 },
-                measurePolicy = remember(hourSize, currentDayOfMinutes, calcTimeEvents) {
+                measurePolicy = remember(
+                    hourSize,
+                    currentDayOfMinutes,
+                    calcTimeEvents,
+                    state,
+                ) {
                     CalendarMeasurePolicy(
                         hourSize = hourSize,
                         currentDayOfMinutes = currentDayOfMinutes,
                         calcTimeEvents = calcTimeEvents,
+                        calendarState = state,
                     )
                 },
             )
@@ -372,9 +377,10 @@ data class CalcTimeEvent(
 )
 
 private data class CalendarMeasurePolicy(
-    val hourSize: Dp,
-    val currentDayOfMinutes: Int,
-    val calcTimeEvents: List<CalcTimeEvent>,
+    private val hourSize: Dp,
+    private val currentDayOfMinutes: Int,
+    private val calcTimeEvents: List<CalcTimeEvent>,
+    private val calendarState: CalendarState,
 ) : MeasurePolicy {
     override fun MeasureScope.measure(measurables: List<Measurable>, constraints: Constraints): MeasureResult {
         val hourPlaceableList = (0 until 24).map { index ->
@@ -382,6 +388,7 @@ private data class CalendarMeasurePolicy(
         }
         val hourMaxWidth = hourPlaceableList.maxOf { it.width }
         val hourAverageHeightPx = hourPlaceableList.sumOf { it.height } / 24
+        calendarState.verticalPadding = hourAverageHeightPx / 2
 
         val hourDividerPlaceableList = (0 until 24).map { index ->
             measurables[hourDividerIndex(index)].measure(
@@ -617,86 +624,89 @@ private fun PreviewEventDialogContent() {
     )
 }
 
+internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
+    events = listOf(
+        CalendarLayoutUiState.Event.Time(
+            startTime = LocalTime.of(0, 0),
+            endTime = LocalTime.of(1, 0),
+            title = "One",
+            displayTime = "00:00 - 01:00",
+            description = "description",
+            color = Color.Red,
+        ),
+        CalendarLayoutUiState.Event.Time(
+            startTime = LocalTime.of(1, 0),
+            endTime = LocalTime.of(3, 0),
+            title = "Two",
+            displayTime = "01:00 - 03:00",
+            description = "description",
+            color = Color.Blue,
+        ),
+        CalendarLayoutUiState.Event.Time(
+            startTime = LocalTime.of(1, 0),
+            endTime = LocalTime.of(2, 0),
+            title = "Three",
+            displayTime = "01:00 - 02:00",
+            description = "description",
+            color = Color.Yellow,
+        ),
+        CalendarLayoutUiState.Event.Time(
+            startTime = LocalTime.of(1, 30),
+            endTime = LocalTime.of(3, 0),
+            title = "Four",
+            displayTime = "01:30 - 03:00",
+            description = "description",
+            color = Color.Green,
+        ),
+        CalendarLayoutUiState.Event.Time(
+            startTime = LocalTime.of(2, 0),
+            endTime = LocalTime.of(3, 0),
+            title = "Five",
+            displayTime = "02:00 - 03:00",
+            description = "description",
+            color = Color.Magenta,
+        ),
+        CalendarLayoutUiState.Event.Time(
+            startTime = LocalTime.of(3, 15),
+            endTime = LocalTime.of(3, 30),
+            title = "Six",
+            displayTime = "03:15 - 03:30",
+            description = "description",
+            color = Color.Cyan,
+        ),
+    ),
+    allDayEvents = listOf(
+        CalendarLayoutUiState.Event.AllDay(
+            title = "All Day Event",
+            description = "Description",
+            color = Color.Red,
+        ),
+        CalendarLayoutUiState.Event.AllDay(
+            title = "All Day Event 2",
+            description = "Description",
+            color = Color.Yellow,
+        ),
+    ),
+)
+
+val previewCalendarLayoutClock: Clock = run {
+    val zone = ZoneId.of("UTC")
+    Clock.fixed(
+        LocalDateTime.of(
+            LocalDate.of(2010, 10, 10),
+            LocalTime.of(1, 30, 0),
+        ).toInstant(ZoneOffset.ofHours(0)),
+        zone,
+    )
+}
+
 @Composable
 @Preview(showBackground = true)
 private fun Preview() {
-    val clock = remember {
-        val zone = ZoneId.of("UTC")
-        Clock.fixed(
-            LocalDateTime.of(
-                LocalDate.of(2010, 10, 10),
-                LocalTime.of(1, 30, 0),
-            ).toInstant(ZoneOffset.ofHours(0)),
-            zone,
-        )
-    }
     MaterialTheme {
         CalendarLayout(
-            uiState = CalendarLayoutUiState(
-                events = listOf(
-                    CalendarLayoutUiState.Event.Time(
-                        startTime = LocalTime.of(0, 0),
-                        endTime = LocalTime.of(1, 0),
-                        title = "One",
-                        displayTime = "00:00 - 01:00",
-                        description = "description",
-                        color = Color.Red,
-                    ),
-                    CalendarLayoutUiState.Event.Time(
-                        startTime = LocalTime.of(1, 0),
-                        endTime = LocalTime.of(3, 0),
-                        title = "Two",
-                        displayTime = "01:00 - 03:00",
-                        description = "description",
-                        color = Color.Blue,
-                    ),
-                    CalendarLayoutUiState.Event.Time(
-                        startTime = LocalTime.of(1, 0),
-                        endTime = LocalTime.of(2, 0),
-                        title = "Three",
-                        displayTime = "01:00 - 02:00",
-                        description = "description",
-                        color = Color.Yellow,
-                    ),
-                    CalendarLayoutUiState.Event.Time(
-                        startTime = LocalTime.of(1, 30),
-                        endTime = LocalTime.of(3, 0),
-                        title = "Four",
-                        displayTime = "01:30 - 03:00",
-                        description = "description",
-                        color = Color.Green,
-                    ),
-                    CalendarLayoutUiState.Event.Time(
-                        startTime = LocalTime.of(2, 0),
-                        endTime = LocalTime.of(3, 0),
-                        title = "Five",
-                        displayTime = "02:00 - 03:00",
-                        description = "description",
-                        color = Color.Magenta,
-                    ),
-                    CalendarLayoutUiState.Event.Time(
-                        startTime = LocalTime.of(3, 15),
-                        endTime = LocalTime.of(3, 30),
-                        title = "Six",
-                        displayTime = "03:15 - 03:30",
-                        description = "description",
-                        color = Color.Cyan,
-                    ),
-                ),
-                allDayEvents = listOf(
-                    CalendarLayoutUiState.Event.AllDay(
-                        title = "All Day Event",
-                        description = "Description",
-                        color = Color.Red,
-                    ),
-                    CalendarLayoutUiState.Event.AllDay(
-                        title = "All Day Event 2",
-                        description = "Description",
-                        color = Color.Yellow,
-                    ),
-                ),
-            ),
-            clock = clock,
+            uiState = previewCalendarLayoutUiState,
+            clock = previewCalendarLayoutClock,
         )
     }
 }

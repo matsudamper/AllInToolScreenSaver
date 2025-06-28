@@ -1,5 +1,6 @@
 package net.matsudamper.allintoolscreensaver
 
+import android.app.Application
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
@@ -10,13 +11,18 @@ import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.io.PlatformTestStorageRegistry
 import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
 import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreen
+import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreenUiState
+import net.matsudamper.allintoolscreensaver.compose.calendar.previewCalendarLayoutClock
+import net.matsudamper.allintoolscreensaver.compose.calendar.previewCalendarLayoutUiState
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -49,6 +55,7 @@ class CalendarDisplayScreenTest {
                     single<CalendarRepository> { calendarRepository }
                     single {
                         net.matsudamper.allintoolscreensaver.viewmodel.CalendarDisplayScreenViewModel(
+                            application = ApplicationProvider.getApplicationContext<Application>(),
                             settingsRepository = get(),
                             calendarRepository = get(),
                         )
@@ -98,6 +105,17 @@ class CalendarDisplayScreenTest {
         // カレンダー表示画面を表示
         composeTestRule.setContent {
             CalendarDisplayScreen(
+                uiState = CalendarDisplayScreenUiState(
+                    calendarUiState = net.matsudamper.allintoolscreensaver.compose.calendar.previewCalendarLayoutUiState,
+                    operationFlow = kotlinx.coroutines.channels.Channel(kotlinx.coroutines.channels.Channel.UNLIMITED),
+                    listener = object : CalendarDisplayScreenUiState.Listener {
+                        override suspend fun onStart() = Unit
+                        override fun onInteraction() = Unit
+                        override fun onAlertDismiss() = Unit
+                    },
+                    currentAlert = null,
+                ),
+                clock = net.matsudamper.allintoolscreensaver.compose.calendar.previewCalendarLayoutClock,
                 modifier = Modifier.fillMaxSize(),
             )
         }
