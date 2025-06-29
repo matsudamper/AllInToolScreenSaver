@@ -396,12 +396,6 @@ private data class CalendarMeasurePolicy(
             hourPlaceableList.forEachIndexed { index, placeable ->
                 placeable.place(0, hourSize.roundToPx() * index)
             }
-            hourDividerPlaceableList.forEachIndexed { index, placeable ->
-                placeable.place(
-                    x = hourMaxWidth,
-                    y = (hourSize * index).roundToPx() + (hourAverageHeightPx / 2),
-                )
-            }
             eventPlaceableList.forEachIndexed { index, placeable ->
                 val event = calcTimeEvents[index]
                 val eventWidth = (constraints.maxWidth - hourMaxWidth) / event.rowSplitSize
@@ -418,6 +412,12 @@ private data class CalendarMeasurePolicy(
                     ((currentDayOfMinutes / 60f) * hourSize).roundToPx() + paddingTop
                 },
             )
+            hourDividerPlaceableList.forEachIndexed { index, placeable ->
+                placeable.place(
+                    x = hourMaxWidth,
+                    y = (hourSize * index).roundToPx() + (hourAverageHeightPx / 2),
+                )
+            }
         }
     }
 }
