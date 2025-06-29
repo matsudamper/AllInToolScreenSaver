@@ -195,7 +195,7 @@ fun ScreenSaverScreen(
             DreamAlertDialog(
                 title = {
                     Text(
-                        text = currentAlert.title,
+                        text = currentAlert.event.title,
                     )
                 },
                 dismissRequest = {
@@ -205,11 +205,11 @@ fun ScreenSaverScreen(
                     Text(text = "CLOSE")
                 },
                 onClickNegative = {
-                    currentAlert = null
+                    eventAlertUiState.value.listener.onAlertDismiss()
                 },
                 positiveButton = null,
             ) {
-                Text(text = currentAlert.description.orEmpty())
+                Text(text = currentAlert.event.description.orEmpty())
             }
         }
 

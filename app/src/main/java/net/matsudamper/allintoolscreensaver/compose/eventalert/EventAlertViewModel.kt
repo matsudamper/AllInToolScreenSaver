@@ -37,7 +37,9 @@ class EventAlertViewModel(
             viewModelStateFlow.collect { viewModelState ->
                 uiStateFlow.update { uiState ->
                     uiState.copy(
-                        currentAlert = viewModelState.currentAlert,
+                        currentAlert = viewModelState.currentAlert?.let { event ->
+                            EventAlertUiState.DialogInfo(event = event)
+                        },
                     )
                 }
             }
