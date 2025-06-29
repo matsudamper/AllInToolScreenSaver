@@ -241,10 +241,10 @@ private fun isWhite(
             hsvArray[2]
         }
     }
-    val isWhiteCount = vList.count { it > 0.95f }
+    val isWhiteCount = vList.count { it > 0.9f }
 
     val whitePar = isWhiteCount / vList.size.toFloat()
-    return whitePar > 0.3f
+    return whitePar > 0.2f
 }
 
 @Composable
