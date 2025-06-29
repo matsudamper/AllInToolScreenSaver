@@ -93,7 +93,7 @@ data class CalendarLayoutUiState(
     }
 }
 
-private const val HourSplitCount = 4
+private const val HourSplitCount = 60
 private val CurrentTimeDividerSize = 4.dp
 private val CurrentTimeMarkerRadius = 5.dp
 
@@ -170,7 +170,7 @@ internal fun CalendarLayout(
                 )
 
                 val index = run {
-                    event.startTime.hour * HourSplitCount + floor(event.startTime.minute / 15f)
+                    event.startTime.hour * HourSplitCount + floor(event.startTime.minute / (60f / HourSplitCount))
                 }.toInt()
                 add(
                     CalcTimeEvent(
