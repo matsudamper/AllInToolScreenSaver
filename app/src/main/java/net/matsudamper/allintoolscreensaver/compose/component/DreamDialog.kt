@@ -112,18 +112,14 @@ fun DreamAlertDialog(
     title: @Composable () -> Unit,
     dismissRequest: () -> Unit,
     positiveButton: @Composable (() -> Unit)? = {
-        OutlinedButton(onClick = {}) {
-            Text(text = "OK")
-        }
+        Text(text = "OK")
     },
     negativeButton: @Composable (() -> Unit)? = {
-        OutlinedButton(onClick = {}) {
-            Text(text = "CANCEL")
-        }
+        Text(text = "CANCEL")
     },
     onClickPositive: () -> Unit = {},
     onClickNegative: () -> Unit = {},
-    content: @Composable () -> Unit,
+    content: (@Composable () -> Unit)? = null,
 ) {
     DreamDialog(dismissRequest) {
         Card(
@@ -150,7 +146,7 @@ fun DreamAlertDialog(
                 CompositionLocalProvider(
                     LocalTextStyle provides MaterialTheme.typography.bodyLarge,
                 ) {
-                    content()
+                    content?.invoke()
                 }
                 if (positiveButton != null || negativeButton != null) {
                     Spacer(modifier = Modifier.weight(1f))

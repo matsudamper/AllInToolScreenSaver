@@ -57,6 +57,7 @@ import net.matsudamper.allintoolscreensaver.AlertManager
 import net.matsudamper.allintoolscreensaver.CalendarEvent
 import net.matsudamper.allintoolscreensaver.ImageManager
 import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreen
+import net.matsudamper.allintoolscreensaver.compose.component.DreamAlertDialog
 import net.matsudamper.allintoolscreensaver.compose.component.DreamDialogHost
 import net.matsudamper.allintoolscreensaver.viewmodel.DigitalClockScreenViewModel
 import org.koin.compose.koinInject
@@ -67,7 +68,6 @@ fun ScreenSaverScreen(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    var showAlertDialog by remember { mutableStateOf(false) }
     val currentAlertState = remember { mutableStateOf<CalendarEvent?>(null) }
     val viewModel: DigitalClockScreenViewModel = viewModel(
         initializer = {
@@ -93,7 +93,6 @@ fun ScreenSaverScreen(
     LaunchedEffect(Unit) {
         alertManager.onAlertTriggered = { calendarEvent ->
             currentAlertState.value = calendarEvent
-            showAlertDialog = true
         }
         alertManager.startAlertMonitoring()
     }
@@ -194,18 +193,25 @@ fun ScreenSaverScreen(
             )
         }
 
-        // アラートダイアログ
-//        val currentAlert = currentAlertState.value
-//        if (showAlertDialog && currentAlert != null) {
-//            ClockAlertDialog(
-//                alertTime = currentAlert,
-//                onDismiss = {
-//                    showAlertDialog = false
-//                    currentAlertState.value = null
-//                },
-//                alertManager = alertManager,
-//            )
-//        }
+        val currentAlert = currentAlertState.value
+        if (currentAlert != null) {
+            DreamAlertDialog(
+                title = {
+                    Text(
+                        text = currentAlert.title,
+                    )
+                },
+                dismissRequest = {
+                    currentAlertState.value = null
+                },
+                negativeButton = {
+                    Text(text = "CLOSE")
+                },
+                positiveButton = null,
+            ) {
+                Text(text = currentAlert.description.orEmpty())
+            }
+        }
 
         DreamDialogHost()
     }
