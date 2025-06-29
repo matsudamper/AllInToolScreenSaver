@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
@@ -121,39 +122,10 @@ fun ScreenSaverScreen(
                     .filterNotNull()
                     .collectLatest { rect ->
                         val imageBitmap = graphicsLayer.toImageBitmap()
-                        val bitmap = run {
-                            val bitmap = imageBitmap.asAndroidBitmap()
-                            if (bitmap.config == android.graphics.Bitmap.Config.HARDWARE) {
-                                bitmap.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
-                            } else {
-                                bitmap
-                            }
-                        }
-
-                        val step = 4
-                        val colorArray = IntArray((rect.width).toInt() * (rect.height).toInt()).also { array ->
-                            bitmap.getPixels(
-                                array,
-                                0,
-                                rect.width.toInt(),
-                                rect.left.toInt(),
-                                rect.top.toInt(),
-                                rect.width.toInt(),
-                                rect.height.toInt(),
-                            )
-                        }.toList().windowed(size = step, step = step).map { it.first() }
-
-                        val vList = run {
-                            val hsvArray = FloatArray(3)
-                            colorArray.map { color ->
-                                android.graphics.Color.colorToHSV(color, hsvArray)
-                                hsvArray[2]
-                            }
-                        }
-                        val isWhiteCount = vList.count { it > 0.95f }
-
-                        val whitePar = isWhiteCount / vList.size.toFloat()
-                        isWhite = whitePar > 0.3f
+                        isWhite = isWhite(
+                            rect = rect,
+                            imageBitmap = imageBitmap,
+                        )
                     }
             }
 
@@ -237,6 +209,45 @@ fun ScreenSaverScreen(
 
         DreamDialogHost()
     }
+}
+
+private fun isWhite(
+    rect: Rect,
+    imageBitmap: ImageBitmap,
+): Boolean {
+    val bitmap = run {
+        val bitmap = imageBitmap.asAndroidBitmap()
+        if (bitmap.config == android.graphics.Bitmap.Config.HARDWARE) {
+            bitmap.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
+        } else {
+            bitmap
+        }
+    }
+
+    val step = 4
+    val colorArray = IntArray((rect.width).toInt() * (rect.height).toInt()).also { array ->
+        bitmap.getPixels(
+            array,
+            0,
+            rect.width.toInt(),
+            rect.left.toInt(),
+            rect.top.toInt(),
+            rect.width.toInt(),
+            rect.height.toInt(),
+        )
+    }.toList().windowed(size = step, step = step).map { it.first() }
+
+    val vList = run {
+        val hsvArray = FloatArray(3)
+        colorArray.map { color ->
+            android.graphics.Color.colorToHSV(color, hsvArray)
+            hsvArray[2]
+        }
+    }
+    val isWhiteCount = vList.count { it > 0.95f }
+
+    val whitePar = isWhiteCount / vList.size.toFloat()
+    return whitePar > 0.3f
 }
 
 @Composable
