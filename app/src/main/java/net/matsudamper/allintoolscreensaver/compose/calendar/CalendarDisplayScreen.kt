@@ -133,41 +133,6 @@ fun CalendarDisplayScreen(
 }
 
 @Composable
-private fun AlertContent(
-    eventTitle: String,
-    eventDescription: String?,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Text(
-            text = "予定の時間です",
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Spacer(modifier = Modifier.padding(16.dp))
-        Text(
-            text = eventTitle,
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.Bold,
-        )
-        if (eventDescription.isNullOrBlank().not()) {
-            Spacer(modifier = Modifier.padding(8.dp))
-            Text(
-                text = eventDescription,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-    }
-}
-
-@Composable
 @Preview
 private fun Preview() {
     CalendarDisplayScreen(

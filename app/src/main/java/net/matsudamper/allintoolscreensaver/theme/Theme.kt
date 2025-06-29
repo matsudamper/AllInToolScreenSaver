@@ -38,6 +38,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
+@Suppress("ModifierMissing")
 fun AllInToolScreenSaverTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,

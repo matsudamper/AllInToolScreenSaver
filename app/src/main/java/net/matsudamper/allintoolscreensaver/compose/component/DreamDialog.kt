@@ -44,6 +44,7 @@ val LocalDreamDialogContentHolder = compositionLocalOf<MutableStateFlow<List<Dia
 }
 
 @Composable
+@Suppress("ModifierMissing")
 fun DreamDialog(
     dismissRequest: () -> Unit,
     content: @Composable () -> Unit,
@@ -78,6 +79,7 @@ fun DreamDialog(
 }
 
 @Composable
+@Suppress("ModifierMissing")
 fun DreamDialogHost() {
     for (dialogItem in LocalDreamDialogContentHolder.current.collectAsState().value) {
         var visible by remember { mutableStateOf(false) }
@@ -108,6 +110,7 @@ fun DreamDialogHost() {
 }
 
 @Composable
+@Suppress("ModifierMissing")
 fun DreamAlertDialog(
     title: @Composable () -> Unit,
     dismissRequest: () -> Unit,
