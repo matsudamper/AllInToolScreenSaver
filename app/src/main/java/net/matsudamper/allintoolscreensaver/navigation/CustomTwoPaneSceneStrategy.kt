@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.Scene
@@ -20,15 +21,17 @@ class CustomTwoPaneSceneStrategy<T : Any> : SceneStrategy<T> {
         }
         val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
 
-        val isExtended = windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)
+        val isExtended = remember(windowSizeClass) {
+            windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)
+        }
         return if (isExtended) {
-            val mainPaneIndex = entries.indexOfLast { it.metadata.containsKey(KEY_EXTEND_PANE).not() }
-            val mainPane = entries[mainPaneIndex]
-            val extendPane = entries.drop(mainPaneIndex + 1).firstOrNull { it.metadata.containsKey(KEY_EXTEND_PANE) }
+            val extendPane = entries.lastOrNull { it.metadata.containsKey(KEY_EXTEND_PANE) }
+            val previousEntries = entries.filterNot { it.metadata.containsKey(KEY_EXTEND_PANE) }
+            val mainPane = previousEntries.last()
 
             TwoPaneScene(
                 key = listOf(mainPane.contentKey, extendPane?.contentKey),
-                previousEntries = entries.dropLast(1),
+                previousEntries = previousEntries.dropLast(1),
                 firstEntry = mainPane,
                 secondEntry = extendPane,
             )
