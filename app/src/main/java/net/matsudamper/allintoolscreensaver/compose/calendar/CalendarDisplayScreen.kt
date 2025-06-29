@@ -3,10 +3,12 @@ package net.matsudamper.allintoolscreensaver.compose.calendar
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -40,6 +42,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun CalendarDisplayScreen(
+    contentWindowInsets: WindowInsets,
     modifier: Modifier = Modifier,
     viewModel: CalendarDisplayScreenViewModel = koinViewModel(),
     clock: Clock = remember { Clock.systemDefaultZone() },
@@ -49,6 +52,7 @@ fun CalendarDisplayScreen(
         modifier = modifier,
         uiState = uiState,
         clock = clock,
+        contentWindowInsets = contentWindowInsets,
     )
 }
 
@@ -56,6 +60,7 @@ fun CalendarDisplayScreen(
 fun CalendarDisplayScreen(
     uiState: CalendarDisplayScreenUiState,
     clock: Clock,
+    contentWindowInsets: WindowInsets,
     modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -89,6 +94,7 @@ fun CalendarDisplayScreen(
     Scaffold(
         modifier = modifier
             .fillMaxSize(),
+        contentWindowInsets = contentWindowInsets,
     ) { paddingValues ->
         Column(
             modifier = Modifier.padding(paddingValues),
@@ -175,5 +181,6 @@ private fun Preview() {
         ),
         clock = previewCalendarLayoutClock,
         modifier = Modifier.fillMaxSize(),
+        contentWindowInsets = WindowInsets.systemBars,
     )
 }
