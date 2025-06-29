@@ -13,9 +13,10 @@ import kotlinx.coroutines.launch
 class AlertManager(
     private val calendarRepository: CalendarRepository,
     private val settingsRepository: SettingsRepository,
+    private val inMemoryCache: InMemoryCache,
 ) {
     private var toneGenerator: ToneGenerator? = null
-    private val alreadyTriggeredEvents = mutableSetOf<Long>()
+
 
     var onAlertTriggered: ((CalendarEvent) -> Unit)? = null
 
@@ -53,16 +54,16 @@ class AlertManager(
         )
 
         events.filterIsInstance<CalendarEvent.Time>().forEach { event ->
-            if (event.id !in alreadyTriggeredEvents &&
+            if (event.id !in inMemoryCache.alreadyTriggeredEvents &&
                 event.startTime.isBefore(now.plusSeconds(30)) &&
                 event.startTime.isAfter(now.minusSeconds(30))
             ) {
-                alreadyTriggeredEvents.add(event.id)
+                inMemoryCache.alreadyTriggeredEvents.add(event.id)
                 triggerAlert(event)
             }
         }
 
-        alreadyTriggeredEvents.removeAll { eventId ->
+        inMemoryCache.alreadyTriggeredEvents.removeAll { eventId ->
             events.none { it.id == eventId }
         }
     }
