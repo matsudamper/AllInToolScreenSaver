@@ -163,9 +163,9 @@ fun DreamAlertDialog(
                             ) {
                                 positiveButton()
                             }
-                            Spacer(modifier = Modifier.width(8.dp))
                         }
                         if (negativeButton != null) {
+                            Spacer(modifier = Modifier.width(8.dp))
                             OutlinedButton(
                                 onClick = onClickNegative,
                             ) {

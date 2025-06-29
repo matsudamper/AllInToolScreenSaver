@@ -287,10 +287,13 @@ private fun EventDialog(
         negativeButton = {
             Text(text = "CLOSE")
         },
+        positiveButton = null,
+        onClickNegative = {
+            onDismissRequest()
+        },
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier,
             horizontalAlignment = Alignment.Start,
         ) {
             when (event) {
