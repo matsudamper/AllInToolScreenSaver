@@ -2,6 +2,7 @@ package net.matsudamper.allintoolscreensaver
 
 import android.app.Application
 import android.graphics.Bitmap
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -15,14 +16,18 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.io.PlatformTestStorageRegistry
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
+import net.matsudamper.allintoolscreensaver.CalendarEvent
+import net.matsudamper.allintoolscreensaver.CalendarRepository
+import net.matsudamper.allintoolscreensaver.SettingsRepository
 import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreen
 import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreenUiState
 import net.matsudamper.allintoolscreensaver.compose.calendar.previewCalendarLayoutClock
-import net.matsudamper.allintoolscreensaver.compose.calendar.previewCalendarLayoutUiState
+import net.matsudamper.allintoolscreensaver.waitUntilExactlyOne
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -44,7 +49,7 @@ class CalendarDisplayScreenTest {
 
     @Before
     fun before() {
-        stopKoin() // 既にKoinが起動していれば停止
+        stopKoin()
         settingsRepository = FakeSettingsManager()
         calendarRepository = FakeCalendarRepository()
 
@@ -72,11 +77,9 @@ class CalendarDisplayScreenTest {
 
     @Test(timeout = 10_000L)
     fun `カレンダーの表示が重ならないか確認する`() = runAndCaptureScreen {
-        // カレンダーを設定
         val calendarId = 1L
         settingsRepository.setSelectedCalendarIds(listOf(calendarId))
 
-        // 重複する時間のイベントを作成
         val now = LocalDateTime.now()
         val startTime = now.withHour(10).withMinute(0).withSecond(0).withNano(0)
         val endTime = now.withHour(11).withMinute(0).withSecond(0).withNano(0)
@@ -102,28 +105,46 @@ class CalendarDisplayScreenTest {
         calendarRepository.addEvent(event1)
         calendarRepository.addEvent(event2)
 
-        // カレンダー表示画面を表示
+        val testEvents = listOf(
+            net.matsudamper.allintoolscreensaver.compose.calendar.CalendarLayoutUiState.Event.Time(
+                startTime = java.time.LocalTime.of(10, 0),
+                endTime = java.time.LocalTime.of(11, 0),
+                title = "会議A",
+                displayTime = "10:00 - 11:00",
+                description = "重要な会議",
+                color = Color.Red,
+            ),
+            net.matsudamper.allintoolscreensaver.compose.calendar.CalendarLayoutUiState.Event.Time(
+                startTime = java.time.LocalTime.of(10, 30),
+                endTime = java.time.LocalTime.of(11, 30),
+                title = "会議B",
+                displayTime = "10:30 - 11:30",
+                description = "別の会議",
+                color = Color.Blue,
+            ),
+        )
+
         composeTestRule.setContent {
             CalendarDisplayScreen(
                 uiState = CalendarDisplayScreenUiState(
-                    calendarUiState = net.matsudamper.allintoolscreensaver.compose.calendar.previewCalendarLayoutUiState,
-                    operationFlow = kotlinx.coroutines.channels.Channel(kotlinx.coroutines.channels.Channel.UNLIMITED),
+                    calendarUiState = net.matsudamper.allintoolscreensaver.compose.calendar.CalendarLayoutUiState(
+                        events = testEvents,
+                        allDayEvents = listOf(),
+                    ),
+                    operationFlow = Channel(Channel.UNLIMITED),
                     listener = object : CalendarDisplayScreenUiState.Listener {
                         override suspend fun onStart() = Unit
                         override fun onInteraction() = Unit
-                        override fun onAlertDismiss() = Unit
                     },
-                    currentAlert = null,
                 ),
-                clock = net.matsudamper.allintoolscreensaver.compose.calendar.previewCalendarLayoutClock,
+                clock = previewCalendarLayoutClock,
+                contentWindowInsets = WindowInsets(),
                 modifier = Modifier.fillMaxSize(),
             )
         }
 
-        // イベントが表示されるまで待機
         composeTestRule.waitForIdle()
 
-        // waitUntilExactlyOneを使用してイベントの表示を待機
         val event1Node = composeTestRule.waitUntilExactlyOne(
             matcher = hasText("会議A"),
             timeout = 10.seconds,
@@ -134,11 +155,9 @@ class CalendarDisplayScreenTest {
             timeout = 10.seconds,
         )
 
-        // イベントが異なる位置に表示されていることを確認（重複していない）
         val event1Bounds = event1Node.getBoundsInRoot()
         val event2Bounds = event2Node.getBoundsInRoot()
 
-        // イベントが重複していないことを確認（Y座標またはX座標が異なる）
         val isOverlapping = !(
             event1Bounds.bottom <= event2Bounds.top ||
                 event2Bounds.bottom <= event1Bounds.top ||
