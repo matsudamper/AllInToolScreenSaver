@@ -62,7 +62,6 @@ class TimeRangeSliderState(
                     calendarState.scrollState.maxValue,
                     calendarState.scrollState.viewportSize,
                     calendarState.hourSize,
-                    calendarState.verticalPadding,
                 )
             }.collectLatest {
                 updateRange(
@@ -70,7 +69,6 @@ class TimeRangeSliderState(
                     calendarScrollMaxValue = calendarState.scrollState.maxValue,
                     calendarHourHeight = calendarState.hourSize,
                     calendarScrollViewPortSize = calendarState.scrollState.viewportSize,
-                    calendarVerticalPadding = calendarState.verticalPadding,
                 )
             }
         }
@@ -196,7 +194,7 @@ class TimeRangeSliderState(
 
     private fun updateHourSize() {
         calendarState.hourSize = with(density) {
-            val displayRatio = rangeEndRatio - rangeStartRatio + (calendarState.verticalPadding / calendarState.scrollState.viewportSize.toFloat())
+            val displayRatio = rangeEndRatio - rangeStartRatio
             run {
                 val displayHour = 24 * displayRatio
                 calendarState.scrollState.viewportSize / displayHour
@@ -209,7 +207,6 @@ class TimeRangeSliderState(
         calendarScrollMaxValue: Int,
         calendarScrollViewPortSize: Int,
         calendarHourHeight: Dp,
-        calendarVerticalPadding: Int,
     ) {
         if (dragMode != DragMode.NONE) return
 
@@ -217,9 +214,7 @@ class TimeRangeSliderState(
             val calendarScrollRatio = calendarScrollValue.toFloat() / (calendarScrollMaxValue + calendarScrollViewPortSize)
 
             rangeStartRatio = calendarScrollRatio
-            val normalEndRatio = calendarScrollRatio + (calendarScrollViewPortSize / calendarHourHeight.toPx() / 24f)
-            val endPaddingRatio = calendarVerticalPadding / calendarScrollViewPortSize.toFloat()
-            rangeEndRatio = normalEndRatio - endPaddingRatio + (endPaddingRatio * normalEndRatio)
+            rangeEndRatio = calendarScrollRatio + (calendarScrollViewPortSize / calendarHourHeight.toPx() / 24f)
         }
 
         mutableSliderStateChanged.trySend(

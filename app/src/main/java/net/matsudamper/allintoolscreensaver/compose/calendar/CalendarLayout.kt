@@ -112,16 +112,6 @@ class CalendarState internal constructor(
     var verticalPadding by mutableIntStateOf(0)
     var hourSize: Dp by mutableStateOf(initialHourSize)
 
-    fun zoomIn() {
-        hourSize = (hourSize + 10.dp)
-            .coerceAtMost(200.dp)
-    }
-
-    fun zoomOut() {
-        hourSize = (hourSize - 10.dp)
-            .coerceAtLeast(10.dp)
-    }
-
     fun isCurrentTimeDisplayed(): Boolean {
         val hourHeightPx = with(density) { hourSize.roundToPx() }
         val now = LocalTime.now()
