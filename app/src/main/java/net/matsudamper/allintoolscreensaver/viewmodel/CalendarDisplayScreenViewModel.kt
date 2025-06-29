@@ -28,13 +28,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import net.matsudamper.allintoolscreensaver.AlertManager
 import net.matsudamper.allintoolscreensaver.CalendarEvent
 import net.matsudamper.allintoolscreensaver.CalendarRepository
 import net.matsudamper.allintoolscreensaver.SettingsRepository
 import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreenUiState
 import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarLayoutUiState
-import org.koin.java.KoinJavaComponent.inject
 
 class CalendarDisplayScreenViewModel(
     application: Application,
@@ -42,16 +40,11 @@ class CalendarDisplayScreenViewModel(
     private val calendarRepository: CalendarRepository,
 ) : AndroidViewModel(application) {
     private val context get() = application.applicationContext
-
-    private val alertManager: AlertManager by inject(AlertManager::class.java)
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val listener = object : CalendarDisplayScreenUiState.Listener {
         override suspend fun onStart() {
             coroutineScope {
-                launch {
-                    startAlertMonitoring()
-                }
                 launch {
                     fetchEvent()
                 }
@@ -64,12 +57,6 @@ class CalendarDisplayScreenViewModel(
                 state.copy(lastInteractionTime = Instant.now())
             }
         }
-
-        override fun onAlertDismiss() {
-            viewModelStateFlow.update { state ->
-                state.copy(currentAlert = null)
-            }
-        }
     }
     private val operationFlow = Channel<(CalendarDisplayScreenUiState.Operation) -> Unit>(Channel.UNLIMITED)
     val uiState: StateFlow<CalendarDisplayScreenUiState> = MutableStateFlow(
@@ -78,7 +65,6 @@ class CalendarDisplayScreenViewModel(
                 events = listOf(),
                 allDayEvents = listOf(),
             ),
-            currentAlert = null,
             listener = listener,
             operationFlow = operationFlow,
         ),
@@ -108,7 +94,6 @@ class CalendarDisplayScreenViewModel(
                                     )
                                 },
                         ),
-                        currentAlert = viewModelState.currentAlert,
                     )
                 }
             }
@@ -133,15 +118,6 @@ class CalendarDisplayScreenViewModel(
         val endTime = LocalTime.ofInstant(end, ZoneId.systemDefault())
         fun Int.padding(): String = toString().padStart(2, '0')
         return "${startTime.hour.padding()}:${startTime.minute.padding()} - ${endTime.hour.padding()}:${endTime.minute.padding()}"
-    }
-
-    private fun startAlertMonitoring() {
-        alertManager.onAlertTriggered = { event ->
-            viewModelStateFlow.update { state ->
-                state.copy(currentAlert = event)
-            }
-        }
-        alertManager.startAlertMonitoring()
     }
 
     private fun fetchEvent() {
@@ -184,14 +160,8 @@ class CalendarDisplayScreenViewModel(
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        alertManager.cleanup()
-    }
-
     private data class ViewModelState(
         val events: List<CalendarEvent> = listOf(),
         val lastInteractionTime: Instant = Instant.now(),
-        val currentAlert: CalendarEvent? = null,
     )
 }

@@ -34,7 +34,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.TimeRangeSlider
 import net.matsudamper.allintoolscreensaver.TimeRangeSliderItem
-import net.matsudamper.allintoolscreensaver.compose.component.DreamDialog
 import net.matsudamper.allintoolscreensaver.rememberTimeRangeSlider
 import net.matsudamper.allintoolscreensaver.viewmodel.CalendarDisplayScreenViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -125,20 +124,6 @@ fun CalendarDisplayScreen(
             )
         }
     }
-
-    val currentAlert = uiState.currentAlert
-    if (currentAlert != null) {
-        DreamDialog(
-            dismissRequest = {
-                uiState.listener.onAlertDismiss()
-            },
-        ) {
-            AlertContent(
-                eventTitle = currentAlert.title,
-                eventDescription = currentAlert.description,
-            )
-        }
-    }
 }
 
 @Composable
@@ -186,9 +171,7 @@ private fun Preview() {
             listener = object : CalendarDisplayScreenUiState.Listener {
                 override suspend fun onStart() = Unit
                 override fun onInteraction() = Unit
-                override fun onAlertDismiss() = Unit
             },
-            currentAlert = null,
         ),
         clock = previewCalendarLayoutClock,
         modifier = Modifier.fillMaxSize(),

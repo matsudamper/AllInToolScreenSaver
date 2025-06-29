@@ -17,7 +17,7 @@ class MyApp : Application() {
                     factory<Context> { this@MyApp }
                     single<SettingsRepository> { SettingsRepositoryImpl(get()) }
                     single<CalendarRepository> { CalendarRepositoryImpl(get()) }
-                    single<AlertManager> { AlertManager(get(), get()) }
+                    factory<AlertManager> { AlertManager(get(), get()) }
                     single<InMemoryCache> { InMemoryCache() }
                     viewModel {
                         CalendarDisplayScreenViewModel(get(), get(), get())

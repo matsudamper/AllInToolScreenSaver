@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,29 +37,23 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
-import net.matsudamper.allintoolscreensaver.AlertManager
-import net.matsudamper.allintoolscreensaver.CalendarEvent
 import net.matsudamper.allintoolscreensaver.ImageManager
 import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreen
 import net.matsudamper.allintoolscreensaver.compose.component.DreamAlertDialog
 import net.matsudamper.allintoolscreensaver.compose.component.DreamDialogHost
+import net.matsudamper.allintoolscreensaver.compose.component.SuspendLifecycleStartEffect
+import net.matsudamper.allintoolscreensaver.compose.eventalert.EventAlertViewModel
 import net.matsudamper.allintoolscreensaver.viewmodel.DigitalClockScreenViewModel
-import org.koin.compose.koinInject
 import org.koin.core.context.GlobalContext
 
 @Composable
@@ -68,8 +61,7 @@ fun ScreenSaverScreen(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val currentAlertState = remember { mutableStateOf<CalendarEvent?>(null) }
-    val viewModel: DigitalClockScreenViewModel = viewModel(
+    val digitalClockViewModel: DigitalClockScreenViewModel = viewModel(
         initializer = {
             val koin = GlobalContext.get()
             DigitalClockScreenViewModel(
@@ -79,29 +71,26 @@ fun ScreenSaverScreen(
             )
         },
     )
-    val uiStateState = viewModel.uiState.collectAsState()
-    val alertManager = koinInject<AlertManager>()
+    val eventAlertViewModel: EventAlertViewModel = viewModel(
+        initializer = {
+            val koin = GlobalContext.get()
+            EventAlertViewModel(
+                alertManager = koin.get(),
+            )
+        },
+    )
+    val digitalClockUiState = digitalClockViewModel.uiState.collectAsState()
+    val eventAlertUiState = eventAlertViewModel.uiState.collectAsState()
     val hazeState = rememberHazeState()
-    LifecycleStartEffect(uiStateState.value.listener) {
-        val scope = CoroutineScope(Job())
-        scope.launch {
-            uiStateState.value.listener.onStart()
-        }
-        onStopOrDispose { scope.cancel() }
+
+    SuspendLifecycleStartEffect(digitalClockUiState.value.listener) {
+        digitalClockUiState.value.listener.onStart()
     }
 
-    LaunchedEffect(Unit) {
-        alertManager.onAlertTriggered = { calendarEvent ->
-            currentAlertState.value = calendarEvent
-        }
-        alertManager.startAlertMonitoring()
+    SuspendLifecycleStartEffect(eventAlertUiState.value.listener) {
+        eventAlertUiState.value.listener.onStart()
     }
 
-    DisposableEffect(Unit) {
-        onDispose {
-            alertManager.cleanup()
-        }
-    }
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -142,12 +131,12 @@ fun ScreenSaverScreen(
                             }
                             drawLayer(graphicsLayer)
                         },
-                    pagerItems = uiStateState.value.pagerItems,
+                    pagerItems = digitalClockUiState.value.pagerItems,
                     onPageChange = { newPage ->
                         pageChanged.trySend(Unit)
-                        uiStateState.value.listener.onPageChanged(newPage)
+                        digitalClockUiState.value.listener.onPageChanged(newPage)
                     },
-                    imageSwitchIntervalSeconds = uiStateState.value.imageSwitchIntervalSeconds,
+                    imageSwitchIntervalSeconds = digitalClockUiState.value.imageSwitchIntervalSeconds,
                 )
                 Box(
                     modifier = Modifier
@@ -180,8 +169,8 @@ fun ScreenSaverScreen(
                                 horizontal = 12.dp,
                                 vertical = 12.dp,
                             ),
-                        date = uiStateState.value.currentDate,
-                        time = uiStateState.value.currentTime,
+                        date = digitalClockUiState.value.currentDate,
+                        time = digitalClockUiState.value.currentTime,
                     )
                 }
             }
@@ -193,7 +182,7 @@ fun ScreenSaverScreen(
             )
         }
 
-        val currentAlert = currentAlertState.value
+        val currentAlert = eventAlertUiState.value.currentAlert
         if (currentAlert != null) {
             DreamAlertDialog(
                 title = {
@@ -202,7 +191,7 @@ fun ScreenSaverScreen(
                     )
                 },
                 dismissRequest = {
-                    currentAlertState.value = null
+                    eventAlertUiState.value.listener.onAlertDismiss()
                 },
                 negativeButton = {
                     Text(text = "CLOSE")
