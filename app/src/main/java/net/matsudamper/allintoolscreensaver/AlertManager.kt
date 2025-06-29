@@ -47,13 +47,13 @@ class AlertManager(
         val now = Instant.now()
         val endTime = now.plusSeconds(60)
 
-        val events = calendarRepository.getEventsForTimeRange(
+        val targetEvent = calendarRepository.getEventsForTimeRange(
             calendarIds = selectedCalendarIds,
             startTime = now.minusSeconds(60),
             endTime = endTime,
         )
 
-        events.filterIsInstance<CalendarEvent.Time>().forEach { event ->
+        targetEvent.filterIsInstance<CalendarEvent.Time>().forEach { event ->
             if (event.id !in inMemoryCache.alreadyTriggeredEvents &&
                 event.startTime.isBefore(now.plusSeconds(30)) &&
                 event.startTime.isAfter(now.minusSeconds(30))
@@ -64,7 +64,7 @@ class AlertManager(
         }
 
         inMemoryCache.alreadyTriggeredEvents.removeAll { eventId ->
-            events.none { it.id == eventId }
+            targetEvent.none { it.id == eventId }
         }
     }
 
