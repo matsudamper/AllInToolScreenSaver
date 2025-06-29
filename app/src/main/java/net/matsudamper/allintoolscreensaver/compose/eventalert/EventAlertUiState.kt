@@ -9,7 +9,7 @@ data class EventAlertUiState(
     data class DialogInfo(
         val event: CalendarEvent,
     )
-    
+
     interface Listener {
         suspend fun onStart()
         fun onAlertDismiss()

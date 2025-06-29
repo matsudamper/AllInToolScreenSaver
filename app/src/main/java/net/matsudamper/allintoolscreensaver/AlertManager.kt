@@ -22,7 +22,7 @@ class AlertManager(
     suspend fun startAlertMonitoring() {
         coroutineScope {
             toneGenerator = runCatching {
-                ToneGenerator(AudioManager.STREAM_ALARM, 100)
+                ToneGenerator(AudioManager.STREAM_RING, 100)
             }.getOrNull()
             launch {
                 while (isActive) {
@@ -54,8 +54,8 @@ class AlertManager(
 
         events.filterIsInstance<CalendarEvent.Time>().forEach { event ->
             if (event.id !in alreadyTriggeredEvents &&
-                event.startTime <= now.plusSeconds(30) &&
-                event.startTime > now.minusSeconds(30)
+                event.startTime.isBefore(now.plusSeconds(30)) &&
+                event.startTime.isAfter(now.minusSeconds(30))
             ) {
                 alreadyTriggeredEvents.add(event.id)
                 triggerAlert(event)
