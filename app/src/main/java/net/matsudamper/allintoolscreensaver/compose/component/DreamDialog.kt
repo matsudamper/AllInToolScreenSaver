@@ -34,6 +34,10 @@ fun DreamDialog(
             dreamDialogContentHolder.remove(item)
         }
     }
+
+    if (LocalInspectionMode.current) {
+        content()
+    }
 }
 
 @Composable
