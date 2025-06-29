@@ -27,6 +27,7 @@ import coil.compose.AsyncImage
 fun SlideShowScreen(
     pagerItems: List<PagerItem>,
     onPageChange: (Int) -> Unit,
+    @Suppress("ParameterNaming") onPageChanged: () -> Unit,
     imageSwitchIntervalSeconds: Int?,
     modifier: Modifier = Modifier,
 ) {
@@ -56,6 +57,22 @@ fun SlideShowScreen(
 
             if (currentPage != 1) {
                 latestOnPageChange(currentPage)
+            }
+        }
+    }
+    val latestOnPageChanged by rememberUpdatedState(onPageChanged)
+    LaunchedEffect(pagerState) {
+        snapshotFlow {
+            listOf(
+                pagerState.currentPage,
+                pagerState.isScrollInProgress,
+                pagerState.targetPage,
+            )
+        }.collectLatest {
+            if (pagerState.isScrollInProgress) return@collectLatest
+
+            if (pagerState.targetPage == pagerState.currentPage) {
+                latestOnPageChanged()
             }
         }
     }

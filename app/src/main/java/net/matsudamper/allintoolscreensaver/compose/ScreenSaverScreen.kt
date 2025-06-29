@@ -135,8 +135,10 @@ fun ScreenSaverScreen(
                         },
                     pagerItems = digitalClockUiState.value.pagerItems,
                     onPageChange = { newPage ->
-                        pageChanged.trySend(Unit)
                         digitalClockUiState.value.listener.onPageChanged(newPage)
+                    },
+                    onPageChanged = {
+                        pageChanged.trySend(Unit)
                     },
                     imageSwitchIntervalSeconds = digitalClockUiState.value.imageSwitchIntervalSeconds,
                 )
