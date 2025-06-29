@@ -1,5 +1,6 @@
 package net.matsudamper.allintoolscreensaver.compose
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -157,15 +158,18 @@ fun ScreenSaverScreen(
                             ),
                         ),
                 ) {
+                    val animatedBackgroundColor by animateColorAsState(
+                        targetValue = if (isWhite) {
+                            Color.Black.copy(alpha = 0.4f)
+                        } else {
+                            Color.Transparent
+                        },
+                        label = "clock_background_animation",
+                    )
+
                     Clock(
                         modifier = Modifier
-                            .background(
-                                color = if (isWhite) {
-                                    Color.Black.copy(alpha = 0.4f)
-                                } else {
-                                    Color.Transparent
-                                },
-                            )
+                            .background(color = animatedBackgroundColor)
                             .padding(
                                 horizontal = 12.dp,
                                 vertical = 12.dp,
