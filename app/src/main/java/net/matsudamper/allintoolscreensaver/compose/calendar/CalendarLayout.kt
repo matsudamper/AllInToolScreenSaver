@@ -164,8 +164,11 @@ internal fun CalendarLayout(
                 val eventSize = run {
                     val second = event.endTime.toSecondOfDay() - event.startTime.toSecondOfDay()
                     val minutes = second / 60f
-                    ceil(minutes / 15f).toInt()
-                }.coerceAtLeast(2)
+                    ceil(minutes / (60f / HourSplitCount)).toInt()
+                }.coerceAtLeast(
+                    // 最低の高さは15分
+                    HourSplitCount / 4,
+                )
 
                 val index = run {
                     event.startTime.hour * HourSplitCount + floor(event.startTime.minute / 15f)
@@ -337,9 +340,9 @@ private fun eventItemIndex(index: Int): Int {
 }
 
 data class CalcTimeEvent(
-    // 時間の高さをの1/4を1としたサイズ。最低の高さは2
+    // 時間の高さをの1/HourSplitCountを1としたサイズ。最低の高さは15分
     val heightCount: Int,
-    // 時間の高さをの1/4を1としたサイズの0時からの開始位置
+    // 時間の高さをの1/HourSplitCountを1としたサイズの0時からの開始位置
     val startIndex: Int,
     val uiState: CalendarLayoutUiState.Event.Time,
     // その時間帯が何個で分割されているか
