@@ -21,7 +21,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,8 +51,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.coerceAtLeast
-import androidx.compose.ui.unit.coerceAtMost
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import androidx.core.text.HtmlCompat
@@ -71,7 +68,7 @@ import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import net.matsudamper.allintoolscreensaver.compose.component.DreamDialog
+import net.matsudamper.allintoolscreensaver.compose.component.DreamAlertDialog
 
 data class CalendarLayoutUiState(
     val events: List<Event.Time>,
@@ -205,14 +202,10 @@ internal fun CalendarLayout(
     val dialogInfoState = remember { mutableStateOf<CalendarLayoutUiState.Event?>(null) }
     val dialogInfo = dialogInfoState.value
     if (dialogInfo != null) {
-        DreamDialog(
-            dismissRequest = { dialogInfoState.value = null },
-        ) {
-            EventDialogContent(
-                event = dialogInfo,
-                onDismissRequest = { dialogInfoState.value = null },
-            )
-        }
+        EventDialog(
+            event = dialogInfo,
+            onDismissRequest = { dialogInfoState.value = null },
+        )
     }
 
     Surface(modifier = modifier) {
@@ -282,30 +275,26 @@ internal fun CalendarLayout(
 }
 
 @Composable
-private fun EventDialogContent(
+private fun EventDialog(
     event: CalendarLayoutUiState.Event,
     onDismissRequest: () -> Unit,
 ) {
-    Card(
-        modifier = Modifier
-            .sizeIn(
-                minWidth = 500.dp,
-                minHeight = 300.dp,
+    DreamAlertDialog(
+        dismissRequest = onDismissRequest,
+        title = {
+            Text(
+                text = event.title,
             )
-            .height(IntrinsicSize.Min)
-            .width(IntrinsicSize.Min),
+        },
+        negativeButton = {
+            Text(text = "CLOSE")
+        },
     ) {
         Column(
             modifier = Modifier
-                .padding(24.dp)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.Start,
         ) {
-            Text(
-                text = event.title,
-                style = MaterialTheme.typography.headlineLarge,
-            )
-            Spacer(modifier = Modifier.height(24.dp))
             when (event) {
                 is CalendarLayoutUiState.Event.Time -> {
                     Text(
@@ -325,15 +314,6 @@ private fun EventDialogContent(
                         style = MaterialTheme.typography.bodyLarge,
                     )
                 }
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-            Spacer(modifier = Modifier.height(24.dp))
-            OutlinedButton(
-                modifier = Modifier.align(Alignment.End),
-                onClick = onDismissRequest,
-            ) {
-                Text(text = "CLOSE")
             }
         }
     }
@@ -601,7 +581,7 @@ private fun assignEventRows(events: List<CalcTimeEvent>): List<CalcTimeEvent> {
 @Composable
 @Preview
 private fun PreviewEventDialogContent() {
-    EventDialogContent(
+    EventDialog(
         event = CalendarLayoutUiState.Event.Time(
             startTime = LocalTime.of(1, 0),
             endTime = LocalTime.of(2, 0),
