@@ -204,6 +204,9 @@ fun ScreenSaverScreen(
                 negativeButton = {
                     Text(text = "CLOSE")
                 },
+                onClickNegative = {
+                    currentAlert = null
+                },
                 positiveButton = null,
             ) {
                 Text(text = currentAlert.description.orEmpty())
