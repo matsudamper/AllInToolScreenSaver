@@ -2,6 +2,7 @@ package net.matsudamper.allintoolscreensaver.compose
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -96,7 +97,10 @@ private fun CalendarSelectionScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "カレンダー選択",
+                        text = when (uiState.selectionMode) {
+                            CalendarSelectionMode.DISPLAY -> "カレンダー選択"
+                            CalendarSelectionMode.ALERT -> "アラート対象カレンダー選択"
+                        },
                     )
                 },
                 navigationIcon = {
@@ -197,7 +201,11 @@ private fun CalendarItem(
     modifier: Modifier = Modifier,
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable {
+                calendar.listener.onSelectionChanged(!calendar.isSelected)
+            },
         colors = CardDefaults.cardColors(
             containerColor = if (calendar.isSelected) {
                 MaterialTheme.colorScheme.primaryContainer

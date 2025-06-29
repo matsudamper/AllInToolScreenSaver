@@ -7,4 +7,6 @@ message Settings {
   string image_directory_uri = 1;
   repeated int64 selected_calendar_ids = 2;
   int32 image_switch_interval_seconds = 3;
+  bool alert_enabled = 4;
+  repeated int64 alert_calendar_ids = 5;
 } 

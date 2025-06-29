@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.navigation3.runtime.NavBackStack
 import net.matsudamper.allintoolscreensaver.CalendarInfo
 import net.matsudamper.allintoolscreensaver.CalendarRepository
@@ -48,5 +49,21 @@ class MainScreenViewModelListenerImpl(
 
     override fun onNavigateToCalendarDisplay() {
         backStack.addLast(NavKeys.CalendarDisplay)
+    }
+
+    override fun onNavigateToAlertCalendarSelection() {
+        backStack.addLast(NavKeys.AlertCalendarSelection)
+    }
+
+    override fun checkOverlayPermission(): Boolean {
+        return Settings.canDrawOverlays(application)
+    }
+
+    override fun onRequestOverlayPermission() {
+        val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).also { intent ->
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.data = "package:${application.packageName}".toUri()
+        }
+        application.startActivity(intent)
     }
 }

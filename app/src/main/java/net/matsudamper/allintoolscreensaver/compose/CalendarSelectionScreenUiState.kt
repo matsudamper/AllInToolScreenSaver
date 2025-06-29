@@ -2,9 +2,15 @@ package net.matsudamper.allintoolscreensaver.compose
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 
+enum class CalendarSelectionMode {
+    DISPLAY,
+    ALERT,
+}
+
 data class CalendarSelectionScreenUiState(
     val availableCalendars: List<Calendar>,
     val hasCalendarPermission: Boolean,
+    val selectionMode: CalendarSelectionMode,
     val listener: Listener,
 ) {
     data class Calendar(

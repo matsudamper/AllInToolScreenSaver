@@ -12,6 +12,9 @@ data class MainActivityUiState(
     val hasCalendarPermission: Boolean,
     val selectedCalendar: String,
     val imageSwitchIntervalSeconds: Int,
+    val hasOverlayPermission: Boolean,
+    val alertCalendarIds: List<Long>,
+    val selectedAlertCalendar: String,
     val listener: Listener,
 ) {
 
@@ -19,12 +22,14 @@ data class MainActivityUiState(
     interface Listener {
         suspend fun onStart()
         fun onDirectorySelected(uri: Uri)
-        fun onCalendarPermissionRequested()
         fun onCalendarSelectionChanged(calendarId: Long, isSelected: Boolean)
         fun onImageSwitchIntervalChanged(seconds: Int)
         fun onOpenDreamSettings()
         fun onNavigateToCalendarSelection()
-        fun updateCalendarPermission(isGranted: Boolean)
+        fun onNavigateToAlertCalendarSelection()
         fun onNavigateToCalendarDisplay()
+        fun onRequestOverlayPermission()
+        fun updatePermissions(calendar: Boolean? = null, overlay: Boolean? = null)
+        suspend fun onResume()
     }
 }

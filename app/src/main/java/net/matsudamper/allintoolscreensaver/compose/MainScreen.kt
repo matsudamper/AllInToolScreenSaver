@@ -37,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
+import net.matsudamper.allintoolscreensaver.compose.component.SuspendLifecycleResumeEffect
 import net.matsudamper.allintoolscreensaver.compose.component.SuspendLifecycleStartEffect
 import net.matsudamper.allintoolscreensaver.theme.AllInToolScreenSaverTheme
 import net.matsudamper.allintoolscreensaver.viewmodel.MainScreenViewModel
@@ -61,7 +62,6 @@ fun MainScreen(
     },
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
     LaunchedEffect(viewModel.eventHandler) {
         val koin = GlobalContext.get()
         viewModel.eventHandler.collect(
@@ -96,7 +96,11 @@ private fun MainScreen(
     val calendarPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
     ) { isGranted ->
-        uiState.listener.updateCalendarPermission(isGranted)
+        uiState.listener.updatePermissions(calendar = isGranted)
+    }
+
+    SuspendLifecycleResumeEffect(Unit) {
+        uiState.listener.onResume()
     }
 
     SuspendLifecycleStartEffect(Unit) {
@@ -142,6 +146,8 @@ private fun MainScreen(
                 CalendarSection(
                     modifier = Modifier.fillMaxWidth(),
                     selectedCalendar = uiState.selectedCalendar,
+                    selectedAlertCalendar = uiState.selectedAlertCalendar,
+                    hasOverlayPermission = uiState.hasOverlayPermission,
                     onClickCalendar = {
                         uiState.listener.onNavigateToCalendarDisplay()
                     },
@@ -151,6 +157,16 @@ private fun MainScreen(
                         } else {
                             calendarPermissionLauncher.launch(android.Manifest.permission.READ_CALENDAR)
                         }
+                    },
+                    onClickAlertSettings = {
+                        if (uiState.hasCalendarPermission) {
+                            uiState.listener.onNavigateToAlertCalendarSelection()
+                        } else {
+                            calendarPermissionLauncher.launch(android.Manifest.permission.READ_CALENDAR)
+                        }
+                    },
+                    onRequestOverlayPermission = {
+                        uiState.listener.onRequestOverlayPermission()
                     },
                 )
             }
@@ -324,7 +340,11 @@ private fun ScreenSaverSection(
 private fun CalendarSection(
     onCalendarSelect: () -> Unit,
     onClickCalendar: () -> Unit,
+    onClickAlertSettings: () -> Unit,
+    onRequestOverlayPermission: () -> Unit,
     selectedCalendar: String,
+    selectedAlertCalendar: String,
+    hasOverlayPermission: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Section(
@@ -352,13 +372,37 @@ private fun CalendarSection(
                 }
             },
             { paddingValues ->
-                Text(
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
+                        .clickable {
+                            if (hasOverlayPermission) {
+                                onClickAlertSettings()
+                            } else {
+                                onRequestOverlayPermission()
+                            }
+                        }
                         .padding(paddingValues),
-                    text = "アラート機能",
-                    style = MaterialTheme.typography.titleMedium,
-                )
+                ) {
+                    Text(
+                        text = "アラート対象カレンダー選択",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    if (hasOverlayPermission) {
+                        Text(
+                            text = selectedAlertCalendar,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    } else {
+                        Text(
+                            text = "※ オーバーレイ権限が必要です",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                }
             },
             { paddingValues ->
                 Text(
@@ -433,16 +477,21 @@ private fun MainScreenPreview() {
                 hasCalendarPermission = false,
                 imageSwitchIntervalSeconds = 30,
                 selectedCalendar = "未選択",
+                hasOverlayPermission = false,
+                alertCalendarIds = listOf(),
+                selectedAlertCalendar = "未選択",
                 listener = object : MainActivityUiState.Listener {
                     override suspend fun onStart() = Unit
+                    override suspend fun onResume() = Unit
                     override fun onDirectorySelected(uri: android.net.Uri) = Unit
-                    override fun onCalendarPermissionRequested() = Unit
                     override fun onCalendarSelectionChanged(calendarId: Long, isSelected: Boolean) = Unit
                     override fun onImageSwitchIntervalChanged(seconds: Int) = Unit
                     override fun onOpenDreamSettings() = Unit
                     override fun onNavigateToCalendarSelection() = Unit
-                    override fun updateCalendarPermission(isGranted: Boolean) = Unit
+                    override fun onNavigateToAlertCalendarSelection() = Unit
                     override fun onNavigateToCalendarDisplay() = Unit
+                    override fun onRequestOverlayPermission() = Unit
+                    override fun updatePermissions(calendar: Boolean?, overlay: Boolean?) = Unit
                 },
             ),
         )

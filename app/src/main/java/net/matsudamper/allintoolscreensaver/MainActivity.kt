@@ -9,16 +9,22 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import net.matsudamper.allintoolscreensaver.compose.CalendarSelectionMode
 import net.matsudamper.allintoolscreensaver.compose.CalendarSelectionScreen
 import net.matsudamper.allintoolscreensaver.compose.MainScreen
 import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreen
 import net.matsudamper.allintoolscreensaver.navigation.CustomTwoPaneSceneStrategy
 import net.matsudamper.allintoolscreensaver.theme.AllInToolScreenSaverTheme
+import net.matsudamper.allintoolscreensaver.viewmodel.CalendarSelectionScreenViewModel
+import net.matsudamper.allintoolscreensaver.viewmodel.MainScreenViewModel
+import org.koin.core.context.GlobalContext
 
 class MainActivity : ComponentActivity() {
 
@@ -51,8 +57,16 @@ class MainActivity : ComponentActivity() {
                 sceneStrategy = CustomTwoPaneSceneStrategy(),
                 entryProvider = entryProvider {
                     entry<NavKeys.Main> {
+                        val viewModel = viewModel {
+                            val koin = GlobalContext.get()
+                            MainScreenViewModel(
+                                settingsRepository = koin.get(),
+                                inMemoryCache = koin.get(),
+                            )
+                        }
                         MainScreen(
                             backStack = backStack,
+                            viewModel = viewModel,
                         )
                     }
                     entry<NavKeys.CalendarSelection>(
@@ -60,6 +74,29 @@ class MainActivity : ComponentActivity() {
                     ) {
                         CalendarSelectionScreen(
                             backStack = backStack,
+                            viewModel = viewModel(key = NavKeys.CalendarSelection::class.java.name) {
+                                val koin = GlobalContext.get()
+                                CalendarSelectionScreenViewModel(
+                                    calendarRepository = koin.get(),
+                                    settingsRepository = koin.get(),
+                                    selectionMode = CalendarSelectionMode.DISPLAY,
+                                )
+                            },
+                        )
+                    }
+                    entry<NavKeys.AlertCalendarSelection>(
+                        metadata = CustomTwoPaneSceneStrategy.extendPane(),
+                    ) {
+                        CalendarSelectionScreen(
+                            backStack = backStack,
+                            viewModel = viewModel(key = NavKeys.AlertCalendarSelection::class.java.name) {
+                                val koin = GlobalContext.get()
+                                CalendarSelectionScreenViewModel(
+                                    calendarRepository = koin.get(),
+                                    settingsRepository = koin.get(),
+                                    selectionMode = CalendarSelectionMode.ALERT,
+                                )
+                            },
                         )
                     }
                     entry<NavKeys.CalendarDisplay>(

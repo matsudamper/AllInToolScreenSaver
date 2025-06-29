@@ -2,6 +2,8 @@ package net.matsudamper.allintoolscreensaver.compose.eventalert
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,6 +23,10 @@ class EventAlertViewModel(
         }
 
         override fun onAlertDismiss() {
+            val currentAlert = viewModelStateFlow.value.currentAlert
+            if (currentAlert != null) {
+                alertManager.dismissAlert(currentAlert.event, currentAlert.alertType)
+            }
             viewModelStateFlow.update { state ->
                 state.copy(currentAlert = null)
             }
@@ -37,8 +43,14 @@ class EventAlertViewModel(
             viewModelStateFlow.collect { viewModelState ->
                 uiStateFlow.update { uiState ->
                     uiState.copy(
-                        currentAlert = viewModelState.currentAlert?.let { event ->
-                            EventAlertUiState.DialogInfo(event = event)
+                        currentAlert = viewModelState.currentAlert?.let { alert ->
+                            EventAlertUiState.DialogInfo(
+                                event = alert.event,
+                                alertType = alert.alertType,
+                                eventStartTime = alert.eventStartTime,
+                                eventStartTimeText = "開始時刻: ${alert.eventStartTime.format(DateTimeFormatter.ofPattern("HH:mm"))}",
+                                isRepeatingAlert = alert.isRepeatingAlert,
+                            )
                         },
                     )
                 }
@@ -47,15 +59,29 @@ class EventAlertViewModel(
     }.asStateFlow()
 
     private suspend fun collectAlertMonitoring() {
-        alertManager.onAlertTriggered = { event ->
+        alertManager.onScreenSaverAlertTriggered = { event, alertType, eventStartTime, isRepeating ->
             viewModelStateFlow.update { state ->
-                state.copy(currentAlert = event)
+                state.copy(
+                    currentAlert = AlertDialogInfo(
+                        event = event,
+                        alertType = alertType,
+                        eventStartTime = eventStartTime,
+                        isRepeatingAlert = isRepeating,
+                    ),
+                )
             }
         }
         alertManager.startAlertMonitoring()
     }
 
     private data class ViewModelState(
-        val currentAlert: CalendarEvent? = null,
+        val currentAlert: AlertDialogInfo? = null,
+    )
+
+    private data class AlertDialogInfo(
+        val event: CalendarEvent,
+        val alertType: AlertType,
+        val eventStartTime: LocalTime,
+        val isRepeatingAlert: Boolean,
     )
 }

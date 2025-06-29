@@ -6,45 +6,51 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class FakeSettingsManager : SettingsRepository {
-    private val _selectedCalendarIds = MutableStateFlow<List<Long>>(listOf())
-    private val _imageSwitchIntervalSeconds = MutableStateFlow<Int>(30)
-    private var _imageDirectoryUri: Uri? = null
+    private val selectedCalendarIdsFlow = MutableStateFlow<List<Long>>(listOf())
+    private val imageSwitchIntervalSecondsFlow = MutableStateFlow<Int>(30)
+    private val alertEnabledFlow = MutableStateFlow<Boolean>(false)
+    private val alertCalendarIdsFlow = MutableStateFlow<List<Long>>(listOf())
+    private var imageDirectoryUri: Uri? = null
 
     override val settingsFlow: Flow<Settings> = MutableStateFlow(Settings.getDefaultInstance())
 
     fun setSelectedCalendarIds(calendarIds: List<Long>) {
-        _selectedCalendarIds.value = calendarIds
+        selectedCalendarIdsFlow.value = calendarIds
     }
 
     override suspend fun saveImageDirectoryUri(uri: Uri) {
-        _imageDirectoryUri = uri
-    }
-
-    override suspend fun getImageDirectoryUri(): Uri? {
-        return _imageDirectoryUri
+        imageDirectoryUri = uri
     }
 
     override suspend fun saveSelectedCalendarIds(calendarIds: List<Long>) {
-        _selectedCalendarIds.value = calendarIds
-    }
-
-    override suspend fun getSelectedCalendarIds(): List<Long> {
-        return _selectedCalendarIds.value
+        selectedCalendarIdsFlow.value = calendarIds
     }
 
     override fun getSelectedCalendarIdsFlow(): Flow<List<Long>> {
-        return _selectedCalendarIds.asStateFlow()
+        return selectedCalendarIdsFlow.asStateFlow()
     }
 
     override suspend fun saveImageSwitchIntervalSeconds(seconds: Int) {
-        _imageSwitchIntervalSeconds.value = seconds
-    }
-
-    override suspend fun getImageSwitchIntervalSeconds(): Int {
-        return _imageSwitchIntervalSeconds.value
+        imageSwitchIntervalSecondsFlow.value = seconds
     }
 
     override fun getImageSwitchIntervalSecondsFlow(): Flow<Int> {
-        return _imageSwitchIntervalSeconds.asStateFlow()
+        return imageSwitchIntervalSecondsFlow.asStateFlow()
+    }
+
+    override suspend fun saveAlertEnabled(enabled: Boolean) {
+        alertEnabledFlow.value = enabled
+    }
+
+    override fun getAlertEnabledFlow(): Flow<Boolean> {
+        return alertEnabledFlow.asStateFlow()
+    }
+
+    override suspend fun saveAlertCalendarIds(calendarIds: List<Long>) {
+        alertCalendarIdsFlow.value = calendarIds
+    }
+
+    override fun getAlertCalendarIdsFlow(): Flow<List<Long>> {
+        return alertCalendarIdsFlow.asStateFlow()
     }
 }

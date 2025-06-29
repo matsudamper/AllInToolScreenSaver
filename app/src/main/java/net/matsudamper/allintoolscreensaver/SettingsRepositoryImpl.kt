@@ -2,7 +2,6 @@ package net.matsudamper.allintoolscreensaver
 
 import android.content.Context
 import android.net.Uri
-import androidx.core.net.toUri
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
@@ -10,20 +9,20 @@ import androidx.datastore.dataStore
 import java.io.InputStream
 import java.io.OutputStream
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import com.google.protobuf.InvalidProtocolBufferException
 
 interface SettingsRepository {
     val settingsFlow: Flow<Settings>
     suspend fun saveImageDirectoryUri(uri: Uri)
-    suspend fun getImageDirectoryUri(): Uri?
     suspend fun saveSelectedCalendarIds(calendarIds: List<Long>)
-    suspend fun getSelectedCalendarIds(): List<Long>
     fun getSelectedCalendarIdsFlow(): Flow<List<Long>>
     suspend fun saveImageSwitchIntervalSeconds(seconds: Int)
-    suspend fun getImageSwitchIntervalSeconds(): Int
     fun getImageSwitchIntervalSecondsFlow(): Flow<Int>
+    suspend fun saveAlertEnabled(enabled: Boolean)
+    fun getAlertEnabledFlow(): Flow<Boolean>
+    suspend fun saveAlertCalendarIds(calendarIds: List<Long>)
+    fun getAlertCalendarIdsFlow(): Flow<List<Long>>
 }
 
 object SettingsSerializer : Serializer<Settings> {
@@ -58,15 +57,6 @@ class SettingsRepositoryImpl(private val context: Context) : SettingsRepository 
         }
     }
 
-    override suspend fun getImageDirectoryUri(): Uri? {
-        val settings = dataStore.data.first()
-        return if (settings.imageDirectoryUri.isNotEmpty()) {
-            settings.imageDirectoryUri.toUri()
-        } else {
-            null
-        }
-    }
-
     override suspend fun saveSelectedCalendarIds(calendarIds: List<Long>) {
         dataStore.updateData { currentSettings ->
             currentSettings.toBuilder()
@@ -74,11 +64,6 @@ class SettingsRepositoryImpl(private val context: Context) : SettingsRepository 
                 .addAllSelectedCalendarIds(calendarIds)
                 .build()
         }
-    }
-
-    override suspend fun getSelectedCalendarIds(): List<Long> {
-        val settings = dataStore.data.first()
-        return settings.selectedCalendarIdsList
     }
 
     override fun getSelectedCalendarIdsFlow(): Flow<List<Long>> = dataStore.data.map { settings ->
@@ -93,20 +78,36 @@ class SettingsRepositoryImpl(private val context: Context) : SettingsRepository 
         }
     }
 
-    override suspend fun getImageSwitchIntervalSeconds(): Int {
-        val settings = dataStore.data.first()
-        return if (settings.imageSwitchIntervalSeconds == 0) {
-            30
-        } else {
-            settings.imageSwitchIntervalSeconds
-        }
-    }
-
     override fun getImageSwitchIntervalSecondsFlow(): Flow<Int> = dataStore.data.map { settings ->
         if (settings.imageSwitchIntervalSeconds == 0) {
             30
         } else {
             settings.imageSwitchIntervalSeconds
         }
+    }
+
+    override suspend fun saveAlertEnabled(enabled: Boolean) {
+        dataStore.updateData { currentSettings ->
+            currentSettings.toBuilder()
+                .setAlertEnabled(enabled)
+                .build()
+        }
+    }
+
+    override fun getAlertEnabledFlow(): Flow<Boolean> = dataStore.data.map { settings ->
+        settings.alertEnabled
+    }
+
+    override suspend fun saveAlertCalendarIds(calendarIds: List<Long>) {
+        dataStore.updateData { currentSettings ->
+            currentSettings.toBuilder()
+                .clearAlertCalendarIds()
+                .addAllAlertCalendarIds(calendarIds)
+                .build()
+        }
+    }
+
+    override fun getAlertCalendarIdsFlow(): Flow<List<Long>> = dataStore.data.map { settings ->
+        settings.alertCalendarIdsList
     }
 }

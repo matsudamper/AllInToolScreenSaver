@@ -16,6 +16,7 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import net.matsudamper.allintoolscreensaver.compose.ScreenSaverScreen
 import net.matsudamper.allintoolscreensaver.theme.AllInToolScreenSaverTheme
+import org.koin.core.context.GlobalContext
 
 class ClockDreamService :
     DreamService(),
@@ -27,12 +28,13 @@ class ClockDreamService :
     override val viewModelStore = ViewModelStore()
     override val savedStateRegistry: SavedStateRegistry
         get() = savedStateRegistryController.savedStateRegistry
-
     private val lifecycleRegistry = LifecycleRegistry(this)
-
     private val savedStateRegistryController = SavedStateRegistryController.create(this).apply {
         performAttach()
     }
+
+    private val koin get() = GlobalContext.get()
+    private val alertManager by koin.inject<AlertManager>()
 
     override fun onCreate() {
         super.onCreate()
@@ -72,11 +74,17 @@ class ClockDreamService :
     override fun onDreamingStarted() {
         super.onDreamingStarted()
         lifecycleRegistry.currentState = Lifecycle.State.STARTED
+        AlertService.notifyDreamStateChanged(this, true)
+
+        alertManager.setDreamServiceActive(true)
     }
 
     override fun onDreamingStopped() {
         super.onDreamingStopped()
         lifecycleRegistry.currentState = Lifecycle.State.CREATED
+        AlertService.notifyDreamStateChanged(this, false)
+
+        alertManager.setDreamServiceActive(false)
     }
 
     override fun onDetachedFromWindow() {

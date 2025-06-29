@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.CalendarInfo
@@ -30,9 +31,15 @@ class MainScreenViewModel(
         override suspend fun onStart() {
             coroutineScope {
                 launch {
-                    checkCalendarPermission()
                     loadAvailableCalendars()
+                    updateOverlayPermissionState()
                 }
+            }
+        }
+
+        override suspend fun onResume() {
+            coroutineScope {
+                checkCalendarPermission()
             }
         }
 
@@ -56,13 +63,9 @@ class MainScreenViewModel(
             }
         }
 
-        override fun onCalendarPermissionRequested() {
-            checkCalendarPermission()
-        }
-
         override fun onCalendarSelectionChanged(calendarId: Long, isSelected: Boolean) {
             viewModelScope.launch {
-                val currentIds = settingsRepository.getSelectedCalendarIds()
+                val currentIds = settingsRepository.settingsFlow.first().selectedCalendarIdsList
                 val newIds = if (isSelected) {
                     currentIds + calendarId
                 } else {
@@ -94,8 +97,33 @@ class MainScreenViewModel(
             }
         }
 
-        override fun updateCalendarPermission(isGranted: Boolean) {
-            this@MainScreenViewModel.updateCalendarPermission(isGranted)
+        override fun onNavigateToAlertCalendarSelection() {
+            viewModelScope.launch {
+                eventSender.send {
+                    it.onNavigateToAlertCalendarSelection()
+                }
+            }
+        }
+
+        override fun onRequestOverlayPermission() {
+            viewModelScope.launch {
+                eventSender.send {
+                    it.onRequestOverlayPermission()
+                }
+            }
+        }
+
+        override fun updatePermissions(calendar: Boolean?, overlay: Boolean?) {
+            if (calendar != null) {
+                this@MainScreenViewModel.updateCalendarPermission(calendar)
+            }
+            if (overlay == null) {
+                updateOverlayPermissionState()
+            } else {
+                viewModelStateFlow.update { state ->
+                    state.copy(hasOverlayPermission = overlay)
+                }
+            }
         }
     }
 
@@ -107,6 +135,9 @@ class MainScreenViewModel(
             hasCalendarPermission = false,
             imageSwitchIntervalSeconds = 30,
             selectedCalendar = "",
+            hasOverlayPermission = false,
+            alertCalendarIds = listOf(),
+            selectedAlertCalendar = "",
             listener = listener,
         ),
     ).also { uiStateFlow ->
@@ -114,7 +145,8 @@ class MainScreenViewModel(
             combine(
                 viewModelStateFlow,
                 settingsRepository.settingsFlow,
-            ) { viewModelState, settings ->
+                settingsRepository.getAlertCalendarIdsFlow(),
+            ) { viewModelState, settings, alertCalendarIds ->
                 MainActivityUiState(
                     selectedDirectoryPath = settings.imageDirectoryUri
                         .ifEmpty { null },
@@ -132,6 +164,15 @@ class MainScreenViewModel(
                                 ?.displayName
                         }
                         .joinToString(", "),
+                    hasOverlayPermission = viewModelState.hasOverlayPermission,
+                    alertCalendarIds = alertCalendarIds,
+                    selectedAlertCalendar = alertCalendarIds
+                        .mapNotNull { calendarId ->
+                            viewModelState.availableCalendars.find { it.id == calendarId }
+                                ?.displayName
+                        }
+                        .takeIf { it.isNotEmpty() }
+                        ?.joinToString(", ") ?: "未選択",
                     listener = listener,
                 )
             }.collectLatest { newUiState ->
@@ -171,9 +212,21 @@ class MainScreenViewModel(
         }
     }
 
+    private fun updateOverlayPermissionState() {
+        viewModelScope.launch {
+            val hasOverlayPermission = eventSender.send {
+                it.checkOverlayPermission()
+            }
+            viewModelStateFlow.update { state ->
+                state.copy(hasOverlayPermission = hasOverlayPermission)
+            }
+        }
+    }
+
     private data class ViewModelState(
         val availableCalendars: List<CalendarInfo> = listOf(),
         val hasCalendarPermission: Boolean = false,
+        val hasOverlayPermission: Boolean = false,
     )
 
     interface Listener {
@@ -183,5 +236,8 @@ class MainScreenViewModel(
         suspend fun loadAvailableCalendars(): List<CalendarInfo>
         fun onNavigateToCalendarSelection()
         fun onNavigateToCalendarDisplay()
+        fun onNavigateToAlertCalendarSelection()
+        fun checkOverlayPermission(): Boolean
+        fun onRequestOverlayPermission()
     }
 }

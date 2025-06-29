@@ -11,5 +11,8 @@ object NavKeys {
     data object CalendarSelection : NavKey
 
     @Serializable
+    data object AlertCalendarSelection : NavKey
+
+    @Serializable
     data object CalendarDisplay : NavKey
 }

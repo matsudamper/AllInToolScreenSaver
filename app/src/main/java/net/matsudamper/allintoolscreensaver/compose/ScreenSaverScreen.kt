@@ -12,7 +12,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -169,16 +172,19 @@ fun ScreenSaverScreen(
                         label = "clock_background_animation",
                     )
 
-                    Clock(
+                    Column(
                         modifier = Modifier
                             .background(color = animatedBackgroundColor)
                             .padding(
                                 horizontal = 12.dp,
                                 vertical = 12.dp,
                             ),
-                        date = digitalClockUiState.value.currentDate,
-                        time = digitalClockUiState.value.currentTime,
-                    )
+                    ) {
+                        Clock(
+                            date = digitalClockUiState.value.currentDate,
+                            time = digitalClockUiState.value.currentTime,
+                        )
+                    }
                 }
             }
 
@@ -194,9 +200,15 @@ fun ScreenSaverScreen(
         if (currentAlert != null) {
             DreamAlertDialog(
                 title = {
-                    Text(
-                        text = currentAlert.event.title,
-                    )
+                    Column {
+                        Text(
+                            text = currentAlert.event.title,
+                        )
+                        Text(
+                            text = "${currentAlert.alertType.displayText}のアラート",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
                 },
                 dismissRequest = {
                     eventAlertUiState.value.listener.onAlertDismiss()
@@ -209,7 +221,24 @@ fun ScreenSaverScreen(
                 },
                 positiveButton = null,
             ) {
-                Text(text = currentAlert.event.description.orEmpty())
+                Column {
+                    Text(
+                        text = currentAlert.eventStartTimeText,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    if (currentAlert.isRepeatingAlert) {
+                        Text(
+                            text = "※ このアラートは10秒おきに5分間繰り返されます",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    Text(text = currentAlert.event.description.orEmpty())
+                }
             }
         }
 

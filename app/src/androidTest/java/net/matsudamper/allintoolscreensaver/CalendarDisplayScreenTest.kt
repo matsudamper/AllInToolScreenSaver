@@ -131,10 +131,12 @@ class CalendarDisplayScreenTest {
                         events = testEvents,
                         allDayEvents = listOf(),
                     ),
+                    alertEnabled = false,
                     operationFlow = Channel(Channel.UNLIMITED),
                     listener = object : CalendarDisplayScreenUiState.Listener {
                         override suspend fun onStart() = Unit
                         override fun onInteraction() = Unit
+                        override fun onAlertEnabledChanged(enabled: Boolean) = Unit
                     },
                 ),
                 clock = previewCalendarLayoutClock,

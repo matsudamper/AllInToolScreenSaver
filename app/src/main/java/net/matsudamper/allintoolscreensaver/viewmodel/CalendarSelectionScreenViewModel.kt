@@ -11,12 +11,14 @@ import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.CalendarInfo
 import net.matsudamper.allintoolscreensaver.CalendarRepository
 import net.matsudamper.allintoolscreensaver.SettingsRepository
+import net.matsudamper.allintoolscreensaver.compose.CalendarSelectionMode
 import net.matsudamper.allintoolscreensaver.compose.CalendarSelectionScreenUiState
 import net.matsudamper.allintoolscreensaver.lib.EventSender
 
 class CalendarSelectionScreenViewModel(
     private val calendarRepository: CalendarRepository,
     private val settingsRepository: SettingsRepository,
+    private val selectionMode: CalendarSelectionMode = CalendarSelectionMode.DISPLAY,
 ) : ViewModel() {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
@@ -35,7 +37,11 @@ class CalendarSelectionScreenViewModel(
                     }
                 }
                 launch {
-                    settingsRepository.getSelectedCalendarIdsFlow().collectLatest { idList ->
+                    val flow = when (selectionMode) {
+                        CalendarSelectionMode.DISPLAY -> settingsRepository.getSelectedCalendarIdsFlow()
+                        CalendarSelectionMode.ALERT -> settingsRepository.getAlertCalendarIdsFlow()
+                    }
+                    flow.collectLatest { idList ->
                         viewModelStateFlow.update { currentState ->
                             currentState.copy(
                                 selectedCalendarIds = idList.toSet(),
@@ -78,6 +84,7 @@ class CalendarSelectionScreenViewModel(
         CalendarSelectionScreenUiState(
             availableCalendars = listOf(),
             hasCalendarPermission = false,
+            selectionMode = selectionMode,
             listener = listener,
         ),
     ).also { mutableStateFlow ->
@@ -101,7 +108,15 @@ class CalendarSelectionScreenViewModel(
                                             currentState.selectedCalendarIds - it.id
                                         }
 
-                                        settingsRepository.saveSelectedCalendarIds(newSelectedIds.toList())
+                                        when (selectionMode) {
+                                            CalendarSelectionMode.DISPLAY -> {
+                                                settingsRepository.saveSelectedCalendarIds(newSelectedIds.toList())
+                                            }
+                                            CalendarSelectionMode.ALERT -> {
+                                                settingsRepository.saveAlertCalendarIds(newSelectedIds.toList())
+                                            }
+                                        }
+
                                         viewModelStateFlow.update {
                                             currentState.copy(
                                                 selectedCalendarIds = newSelectedIds,
@@ -113,6 +128,7 @@ class CalendarSelectionScreenViewModel(
                         )
                     },
                     hasCalendarPermission = state.hasCalendarPermission,
+                    selectionMode = selectionMode,
                     listener = listener,
                 )
             }

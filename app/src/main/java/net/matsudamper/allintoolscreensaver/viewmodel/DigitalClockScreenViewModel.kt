@@ -1,6 +1,7 @@
 package net.matsudamper.allintoolscreensaver.viewmodel
 
 import android.net.Uri
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import java.text.SimpleDateFormat
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
@@ -192,7 +194,7 @@ class DigitalClockScreenViewModel(
             return
         }
 
-        val directoryUri = settingsRepositor.getImageDirectoryUri() ?: return updateLoadingFalse()
+        val directoryUri = settingsRepositor.settingsFlow.first().imageDirectoryUri.takeIf { it.isNotEmpty() }?.toUri() ?: return updateLoadingFalse()
 
         if (viewModelStateFlow.value.images.isEmpty()) {
             val uris = imageManager.getImageUrisFromDirectory(directoryUri)

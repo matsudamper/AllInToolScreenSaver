@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
@@ -49,12 +50,19 @@ class CalendarDisplayScreenViewModel(
                     fetchEvent()
                 }
                 launch { observeCalendarChanges() }
+                launch { observeAlertSettings() }
             }
         }
 
         override fun onInteraction() {
             viewModelStateFlow.update { state ->
                 state.copy(lastInteractionTime = Instant.now())
+            }
+        }
+
+        override fun onAlertEnabledChanged(enabled: Boolean) {
+            viewModelScope.launch {
+                settingsRepository.saveAlertEnabled(enabled)
             }
         }
     }
@@ -65,6 +73,7 @@ class CalendarDisplayScreenViewModel(
                 events = listOf(),
                 allDayEvents = listOf(),
             ),
+            alertEnabled = false,
             listener = listener,
             operationFlow = operationFlow,
         ),
@@ -94,6 +103,7 @@ class CalendarDisplayScreenViewModel(
                                     )
                                 },
                         ),
+                        alertEnabled = viewModelState.alertEnabled,
                     )
                 }
             }
@@ -122,7 +132,7 @@ class CalendarDisplayScreenViewModel(
 
     private fun fetchEvent() {
         viewModelScope.launch {
-            val selectedCalendarIds = settingsRepository.getSelectedCalendarIds()
+            val selectedCalendarIds = settingsRepository.settingsFlow.first().selectedCalendarIdsList
 
             if (selectedCalendarIds.isNotEmpty()) {
                 val today = LocalDate.now()
@@ -135,6 +145,14 @@ class CalendarDisplayScreenViewModel(
                         events = events,
                     )
                 }
+            }
+        }
+    }
+
+    private suspend fun observeAlertSettings() {
+        settingsRepository.getAlertEnabledFlow().collectLatest { alertEnabled ->
+            viewModelStateFlow.update { state ->
+                state.copy(alertEnabled = alertEnabled)
             }
         }
     }
@@ -163,5 +181,6 @@ class CalendarDisplayScreenViewModel(
     private data class ViewModelState(
         val events: List<CalendarEvent> = listOf(),
         val lastInteractionTime: Instant = Instant.now(),
+        val alertEnabled: Boolean = false,
     )
 }
