@@ -1,10 +1,10 @@
 package net.matsudamper.allintoolscreensaver
 
-import android.media.AudioManager
-import android.media.ToneGenerator
+import android.app.Application
+import android.media.Ringtone
+import android.media.RingtoneManager
 import java.time.Instant
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -14,27 +14,22 @@ class AlertManager(
     private val calendarRepository: CalendarRepository,
     private val settingsRepository: SettingsRepository,
     private val inMemoryCache: InMemoryCache,
+    private val application: Application,
 ) {
-    private var toneGenerator: ToneGenerator? = null
-
-
+    private var ringtone: Ringtone? = null
     var onAlertTriggered: ((CalendarEvent) -> Unit)? = null
 
     suspend fun startAlertMonitoring() {
         coroutineScope {
-            toneGenerator = runCatching {
-                ToneGenerator(AudioManager.STREAM_RING, 100)
-            }.getOrNull()
+            ringtone = RingtoneManager.getRingtone(
+                application,
+                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
+            )
             launch {
                 while (isActive) {
                     checkUpcomingEvents()
                     delay(10.seconds)
                 }
-            }
-            launch {
-                runCatching { awaitCancellation() }
-                toneGenerator?.release()
-                toneGenerator = null
             }
         }
     }
@@ -69,7 +64,7 @@ class AlertManager(
     }
 
     private fun triggerAlert(event: CalendarEvent) {
-        toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 500)
+        ringtone?.play()
         onAlertTriggered?.invoke(event)
     }
 }
