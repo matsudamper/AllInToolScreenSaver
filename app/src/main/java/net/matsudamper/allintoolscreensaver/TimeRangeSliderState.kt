@@ -52,7 +52,7 @@ class TimeRangeSliderState(
     internal var dragMode by mutableStateOf(DragMode.NONE)
         private set
 
-    private val handleWidth = 16.dp
+    private val handleWidth = 42.dp
 
     init {
         coroutineScope.launch {
