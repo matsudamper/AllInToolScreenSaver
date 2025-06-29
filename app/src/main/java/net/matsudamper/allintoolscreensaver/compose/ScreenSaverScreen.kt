@@ -60,7 +60,7 @@ import net.matsudamper.allintoolscreensaver.AlertManager
 import net.matsudamper.allintoolscreensaver.CalendarEvent
 import net.matsudamper.allintoolscreensaver.ImageManager
 import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreen
-import net.matsudamper.allintoolscreensaver.compose.component.LocalDreamDialogContentHolder
+import net.matsudamper.allintoolscreensaver.compose.component.DreamDialogHost
 import net.matsudamper.allintoolscreensaver.viewmodel.DigitalClockScreenViewModel
 import org.koin.compose.koinInject
 import org.koin.core.context.GlobalContext
@@ -239,34 +239,7 @@ fun ScreenSaverScreen(
 //            )
 //        }
 
-        for (dialogItem in LocalDreamDialogContentHolder.current) {
-            var visible by remember { mutableStateOf(false) }
-            DisposableEffect(Unit) {
-                visible = true
-                onDispose { visible = false }
-            }
-            AnimatedVisibility(
-                visible = visible,
-                enter = fadeIn(initialAlpha = 0.5f),
-                exit = fadeOut(),
-            ) {
-                Box(
-                    modifier = Modifier
-                        .clickable(
-                            interactionSource = null,
-                            indication = null,
-                            onClick = {
-                                dialogItem.dismissRequest()
-                            },
-                        )
-                        .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.7f)),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    dialogItem.content()
-                }
-            }
-        }
+        DreamDialogHost()
     }
 }
 
