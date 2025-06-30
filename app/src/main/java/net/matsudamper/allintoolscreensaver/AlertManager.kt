@@ -22,6 +22,7 @@ class AlertManager(
     private var ringtone: Ringtone? = null
     private val activeAlerts = mutableMapOf<String, AlertInfo>()
     private val repeatingAlerts = mutableMapOf<String, Instant>()
+    private val dismissedAlerts = mutableSetOf<String>()
     private val alertKey = AlertKey()
 
     var onAlertTriggered: ((CalendarEvent, AlertType, LocalTime, Boolean) -> Unit)? = null
@@ -73,10 +74,7 @@ class AlertManager(
             val alertTime = eventStartTime.minusSeconds((alertType.minutesBefore * 60).toLong())
             val alertKeyValue = alertKey.create(event, alertType)
 
-            if (alertKeyValue !in activeAlerts &&
-                now.isAfter(alertTime.minusSeconds(30)) &&
-                now.isBefore(alertTime.plusSeconds(30))
-            ) {
+            if (shouldTriggerAlert(alertKeyValue, alertTime, now)) {
                 val alertInfo = AlertInfo(
                     event = event,
                     alertType = alertType,
@@ -92,6 +90,13 @@ class AlertManager(
                 triggerAlert(event, alertType)
             }
         }
+    }
+
+    private fun shouldTriggerAlert(alertKeyValue: String, alertTime: Instant, now: Instant): Boolean {
+        return alertKeyValue !in activeAlerts &&
+            alertKeyValue !in dismissedAlerts &&
+            now.isAfter(alertTime.minusSeconds(30)) &&
+            now.isBefore(alertTime.plusSeconds(30))
     }
 
     private fun checkRepeatingAlerts() {
@@ -127,6 +132,15 @@ class AlertManager(
             activeAlerts.remove(key)
             repeatingAlerts.remove(key)
         }
+
+        val dismissedKeysToRemove = dismissedAlerts.filter { key ->
+            val eventId = alertKey.parseEventId(key)
+            eventId !in currentEventIds
+        }
+
+        dismissedKeysToRemove.forEach { key ->
+            dismissedAlerts.remove(key)
+        }
     }
 
     private fun triggerAlert(event: CalendarEvent, alertType: AlertType, isRepeating: Boolean = false) {
@@ -149,6 +163,7 @@ class AlertManager(
         val alertKeyValue = alertKey.create(event, alertType)
         activeAlerts.remove(alertKeyValue)
         repeatingAlerts.remove(alertKeyValue)
+        dismissedAlerts.add(alertKeyValue)
     }
 
     data class AlertInfo(
