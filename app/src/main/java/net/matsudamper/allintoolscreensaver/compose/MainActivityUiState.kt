@@ -2,12 +2,11 @@ package net.matsudamper.allintoolscreensaver.compose
 
 import android.net.Uri
 import androidx.compose.runtime.Immutable
-import net.matsudamper.allintoolscreensaver.CalendarInfo
 
 @Immutable
 data class MainActivityUiState(
     val selectedDirectoryPath: String?,
-    val availableCalendars: List<CalendarInfo>,
+    val availableCalendars: List<CalendarItem>,
     val selectedCalendarIds: List<Long>,
     val hasCalendarPermission: Boolean,
     val selectedCalendar: String,
@@ -17,6 +16,19 @@ data class MainActivityUiState(
     val selectedAlertCalendar: String,
     val listener: Listener,
 ) {
+    data class CalendarItem(
+        val id: Long,
+        val displayName: String,
+        val accountName: String,
+        val color: Int,
+        val isSelected: Boolean,
+        val listener: CalendarItemListener,
+    )
+
+    @Immutable
+    interface CalendarItemListener {
+        fun onSelectionChanged(isSelected: Boolean)
+    }
 
     @Immutable
     interface Listener {

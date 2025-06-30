@@ -147,10 +147,14 @@ class MainScreenViewModel(
                 settingsRepository.settingsFlow,
                 settingsRepository.getAlertCalendarIdsFlow(),
             ) { viewModelState, settings, alertCalendarIds ->
+                val availableCalendarItems = viewModelState.availableCalendars.map { calendarInfo ->
+                    createCalendarItem(calendarInfo, settings.selectedCalendarIdsList)
+                }
+
                 MainActivityUiState(
                     selectedDirectoryPath = settings.imageDirectoryUri
                         .ifEmpty { null },
-                    availableCalendars = viewModelState.availableCalendars,
+                    availableCalendars = availableCalendarItems,
                     selectedCalendarIds = settings.selectedCalendarIdsList,
                     hasCalendarPermission = viewModelState.hasCalendarPermission,
                     imageSwitchIntervalSeconds = if (settings.imageSwitchIntervalSeconds == 0) {
@@ -180,6 +184,24 @@ class MainScreenViewModel(
             }
         }
     }.asStateFlow()
+
+    private fun createCalendarItem(
+        calendarInfo: CalendarInfo,
+        selectedCalendarIds: List<Long>,
+    ): MainActivityUiState.CalendarItem {
+        return MainActivityUiState.CalendarItem(
+            id = calendarInfo.id,
+            displayName = calendarInfo.displayName,
+            accountName = calendarInfo.accountName,
+            color = calendarInfo.color,
+            isSelected = calendarInfo.id in selectedCalendarIds,
+            listener = object : MainActivityUiState.CalendarItemListener {
+                override fun onSelectionChanged(isSelected: Boolean) {
+                    listener.onCalendarSelectionChanged(calendarInfo.id, isSelected)
+                }
+            },
+        )
+    }
 
     private fun checkCalendarPermission() {
         viewModelScope.launch {
