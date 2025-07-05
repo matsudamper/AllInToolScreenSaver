@@ -6,7 +6,8 @@ plugins {
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.kotlinAndroid) apply false
     alias(libs.plugins.kotlinCompose) apply false
-    alias(libs.plugins.ktlingGradle) apply false
+    alias(libs.plugins.kotlinJvm) apply false
+    alias(libs.plugins.ktlintGradle) apply false
     alias(libs.plugins.detekt) apply false
 }
 
@@ -14,6 +15,7 @@ allprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
     apply(plugin = "io.gitlab.arturbosch.detekt")
     val detektPlugins by configurations
+    val ktlintRuleset by configurations
     configure<DetektExtension> {
         parallel = true
         config.setFrom(
@@ -24,6 +26,8 @@ allprojects {
     dependencies {
         detektPlugins(rootProject.libs.kotlinCompilerWrapper)
         detektPlugins(rootProject.libs.detekt)
+
+        ktlintRuleset(project(":ktlint-custom-rules"))
     }
 
     configure<KtlintExtension> {
