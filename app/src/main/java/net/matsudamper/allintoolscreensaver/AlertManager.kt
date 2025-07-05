@@ -13,8 +13,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import net.matsudamper.allintoolscreensaver.AttendeeStatus
 import net.matsudamper.allintoolscreensaver.compose.eventalert.AlertType
+import net.matsudamper.allintoolscreensaver.ui.AttendeeStatus
 
 class AlertManager(
     private val calendarRepository: CalendarRepository,

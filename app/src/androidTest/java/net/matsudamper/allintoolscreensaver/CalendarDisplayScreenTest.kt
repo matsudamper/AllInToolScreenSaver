@@ -15,13 +15,14 @@ import androidx.compose.ui.test.onRoot
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.io.PlatformTestStorageRegistry
+import java.time.Clock
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
-import net.matsudamper.allintoolscreensaver.AttendeeStatus
+import net.matsudamper.allintoolscreensaver.ui.AttendeeStatus
 import net.matsudamper.allintoolscreensaver.CalendarEvent
 import net.matsudamper.allintoolscreensaver.CalendarRepository
 import net.matsudamper.allintoolscreensaver.SettingsRepository
@@ -64,6 +65,7 @@ class CalendarDisplayScreenTest {
                             application = ApplicationProvider.getApplicationContext<Application>(),
                             settingsRepository = get(),
                             calendarRepository = get(),
+                            clock = Clock.systemDefaultZone(),
                         )
                     }
                 },

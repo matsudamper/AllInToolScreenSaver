@@ -12,28 +12,10 @@ import android.provider.Settings
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationCompat
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -43,7 +25,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.compose.eventalert.AlertType
-import net.matsudamper.allintoolscreensaver.theme.AllInToolScreenSaverTheme
+import net.matsudamper.allintoolscreensaver.ui.compose.AlertOverlayDialog
+import net.matsudamper.allintoolscreensaver.ui.state.AlertDialogUiState
+import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
 import org.koin.core.context.GlobalContext
 
 class AlertService : Service() {
@@ -143,7 +127,13 @@ class AlertService : Service() {
         composeView.setContent {
             AllInToolScreenSaverTheme {
                 AlertOverlayDialog(
-                    alertInfo = alert,
+                    alertInfo = AlertDialogUiState(
+                        title = alert.event.title,
+                        alertTypeDisplayText = alert.alertType.displayText,
+                        eventStartTimeText = alert.eventStartTimeText,
+                        description = alert.event.description.orEmpty(),
+                        isRepeatingAlert = alert.isRepeatingAlert,
+                    ),
                     onDismiss = ::dismissCurrentAlert,
                 )
             }
@@ -214,76 +204,6 @@ class AlertService : Service() {
             intent.action = ACTION_DREAM_STATE_CHANGED
             intent.putExtra(EXTRA_DREAM_ACTIVE, isActive)
             context.startService(intent)
-        }
-    }
-}
-
-@Composable
-private fun AlertOverlayDialog(
-    alertInfo: AlertService.AlertDialogInfo,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.7f)),
-        contentAlignment = Alignment.Center,
-    ) {
-        Card(
-            modifier = Modifier
-                .size(width = 400.dp, height = 300.dp)
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = alertInfo.event.title,
-                    style = MaterialTheme.typography.headlineMedium,
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = "${alertInfo.alertType.displayText}のアラート",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = alertInfo.eventStartTimeText,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-
-                if (alertInfo.isRepeatingAlert) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "※ このアラートは10秒おきに5分間繰り返されます",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = alertInfo.event.description.orEmpty(),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                Button(
-                    onClick = onDismiss,
-                ) {
-                    Text("閉じる")
-                }
-            }
         }
     }
 }

@@ -1,14 +1,12 @@
 package net.matsudamper.allintoolscreensaver.compose.calendar
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
@@ -24,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.NonRestartableComposable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -40,13 +37,11 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
@@ -60,14 +55,15 @@ import java.time.ZoneOffset
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
-import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import net.matsudamper.allintoolscreensaver.AttendeeStatus
-import net.matsudamper.allintoolscreensaver.compose.LocalClock
-import net.matsudamper.allintoolscreensaver.compose.component.DreamAlertDialog
+import net.matsudamper.allintoolscreensaver.ui.AttendeeStatus
+import net.matsudamper.allintoolscreensaver.ui.CalendarState
+import net.matsudamper.allintoolscreensaver.ui.compose.LocalClock
+import net.matsudamper.allintoolscreensaver.ui.compose.component.DreamAlertDialog
+import net.matsudamper.allintoolscreensaver.ui.rememberCalendarState
 
 data class CalendarLayoutUiState(
     val events: List<Event.Time>,
@@ -101,61 +97,6 @@ data class CalendarLayoutUiState(
 private const val HourSplitCount = 60
 private val CurrentTimeDividerSize = 4.dp
 private val CurrentTimeMarkerRadius = 5.dp
-
-@Stable
-class CalendarState internal constructor(
-    internal val scrollState: ScrollState,
-    private val density: Density,
-    initialHourSize: Dp,
-    private val clock: Clock,
-) {
-    var verticalPadding by mutableIntStateOf(0)
-    var hourSize: Dp by mutableStateOf(initialHourSize)
-
-    fun isCurrentTimeDisplayed(): Boolean {
-        val hourHeightPx = with(density) { hourSize.roundToPx() }
-        val now = LocalTime.now(clock)
-        val currentTimeValue = (now.hour / (now.minute / 60f) * hourHeightPx).roundToInt()
-        val startValue = scrollState.value + hourHeightPx
-        val endValue = scrollState.maxValue - hourHeightPx
-        return if (startValue > endValue) {
-            currentTimeValue in (scrollState.value)..(scrollState.maxValue)
-        } else {
-            currentTimeValue in (scrollState.value + hourHeightPx)..(scrollState.maxValue - hourHeightPx)
-        }
-    }
-
-    suspend fun scrollToHours(hours: Int) {
-        val offset = with(density) { (hours * hourSize).roundToPx() }
-        scrollState.scrollTo(offset)
-    }
-
-    suspend fun animateScrollToHours(hours: Int) {
-        val offset = with(density) { (hours * hourSize).roundToPx() }
-        scrollState.animateScrollTo(offset)
-    }
-
-    suspend fun addAnimateScrollToHours(hours: Int) {
-        with(density) {
-            scrollState.animateScrollTo(scrollState.value + (hours * hourSize).roundToPx())
-        }
-    }
-}
-
-@Composable
-fun rememberCalendarState(initialHourSize: Dp = 100.dp): CalendarState {
-    val scrollState = rememberScrollState()
-    val density = LocalDensity.current
-    val clock = LocalClock.current
-    return remember(scrollState, density, clock) {
-        CalendarState(
-            scrollState = scrollState,
-            density = density,
-            initialHourSize = initialHourSize,
-            clock = clock,
-        )
-    }
-}
 
 @Composable
 internal fun CalendarLayout(

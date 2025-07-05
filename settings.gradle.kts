@@ -24,5 +24,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "AllInToolScreenSaver"
 include(":app")
+include(":ui")
 include(":ktlint-custom-rules")
 include(":costom-detekt-rules")

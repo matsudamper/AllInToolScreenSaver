@@ -85,25 +85,23 @@ protobuf {
 }
 
 dependencies {
+    implementation(project(":ui"))
     implementation(platform(libs.androidxComposeBom))
-    implementation(libs.androidxCoreKtx)
-    implementation(libs.androidxLifecycleRuntimeKtx)
-    implementation(libs.androidxLifecycleRuntimeCompose)
-    implementation(libs.androidxActivityCompose)
     implementation(libs.androidxUi)
     implementation(libs.androidxUiGraphics)
     implementation(libs.androidxUiToolingPreview)
     implementation(libs.androidxMaterial3)
-    implementation(libs.androidxFoundationPager)
+    implementation(libs.androidxCoreKtx)
+    implementation(libs.androidxLifecycleRuntimeKtx)
+    implementation(libs.androidxLifecycleRuntimeCompose)
+    implementation(libs.androidxActivityCompose)
     implementation(libs.androidxDocumentfile)
     implementation(libs.androidxLifecycleViewmodelCompose)
     implementation(libs.androidxDatastore)
 
-    implementation(libs.coilCompose)
     implementation(libs.protobufKotlinLite)
     implementation(libs.koinAndroid)
     implementation(libs.koinAndroidxCompose)
-    implementation(libs.haze)
 
     implementation(libs.androidxNavigation3Ui)
     implementation(libs.androidxNavigation3Runtime)

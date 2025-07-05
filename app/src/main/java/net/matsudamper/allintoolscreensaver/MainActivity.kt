@@ -18,10 +18,10 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import net.matsudamper.allintoolscreensaver.compose.CalendarSelectionMode
 import net.matsudamper.allintoolscreensaver.compose.CalendarSelectionScreen
-import net.matsudamper.allintoolscreensaver.compose.MainScreen
+import net.matsudamper.allintoolscreensaver.compose.MainScreenAdapter
 import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreen
 import net.matsudamper.allintoolscreensaver.navigation.CustomTwoPaneSceneStrategy
-import net.matsudamper.allintoolscreensaver.theme.AllInToolScreenSaverTheme
+import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
 import net.matsudamper.allintoolscreensaver.viewmodel.CalendarSelectionScreenViewModel
 import net.matsudamper.allintoolscreensaver.viewmodel.MainScreenViewModel
 import org.koin.core.context.GlobalContext
@@ -32,7 +32,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AllInToolScreenSaverTheme {
+            AllInToolScreenSaverTheme(
+                clock = GlobalContext.get().get(),
+            ) {
                 AppNavigation()
             }
         }
@@ -64,7 +66,7 @@ class MainActivity : ComponentActivity() {
                                 inMemoryCache = koin.get(),
                             )
                         }
-                        MainScreen(
+                        MainScreenAdapter(
                             backStack = backStack,
                             viewModel = viewModel,
                         )

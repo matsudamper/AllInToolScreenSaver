@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.theme
+package net.matsudamper.allintoolscreensaver.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

@@ -9,6 +9,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.matsudamper.allintoolscreensaver.ui.AttendeeStatus
 
 data class CalendarInfo(
     val id: Long,
@@ -16,14 +17,6 @@ data class CalendarInfo(
     val accountName: String,
     val color: Int,
 )
-
-enum class AttendeeStatus {
-    NONE,
-    ACCEPTED,
-    DECLINED,
-    INVITED,
-    TENTATIVE,
-}
 
 sealed interface CalendarEvent {
     val id: Long

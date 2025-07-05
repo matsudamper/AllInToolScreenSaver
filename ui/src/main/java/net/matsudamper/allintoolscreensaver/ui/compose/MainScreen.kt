@@ -1,7 +1,5 @@
-package net.matsudamper.allintoolscreensaver.compose
+package net.matsudamper.allintoolscreensaver.ui.compose
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,86 +25,28 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation3.runtime.NavBackStack
-import net.matsudamper.allintoolscreensaver.compose.component.SuspendLifecycleResumeEffect
-import net.matsudamper.allintoolscreensaver.compose.component.SuspendLifecycleStartEffect
-import net.matsudamper.allintoolscreensaver.theme.AllInToolScreenSaverTheme
-import net.matsudamper.allintoolscreensaver.viewmodel.MainScreenViewModel
-import net.matsudamper.allintoolscreensaver.viewmodel.MainScreenViewModelListenerImpl
-import org.koin.core.context.GlobalContext
 
 private val SectionHorizontalPadding = 12.dp
-
 private val SectionLargeRadiusSize = 16.dp
 private val SectionSmallRadiusSize = 8.dp
 
-@Composable
-fun MainScreen(
-    backStack: NavBackStack,
-    modifier: Modifier = Modifier,
-    viewModel: MainScreenViewModel = viewModel {
-        val koin = GlobalContext.get()
-        MainScreenViewModel(
-            settingsRepository = koin.get(),
-            inMemoryCache = koin.get(),
-        )
-    },
-) {
-    val uiState by viewModel.uiState.collectAsState()
-    LaunchedEffect(viewModel.eventHandler) {
-        val koin = GlobalContext.get()
-        viewModel.eventHandler.collect(
-            MainScreenViewModelListenerImpl(
-                application = koin.get(),
-                calendarManager = koin.get(),
-                backStack = backStack,
-            ),
-        )
-    }
-
-    MainScreen(
-        uiState = uiState,
-        modifier = modifier,
-    )
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MainScreen(
-    uiState: MainActivityUiState,
+fun MainScreen(
+    uiState: MainScreenUiState,
+    onDirectorySelect: () -> Unit,
+    onImageSwitchIntervalChange: (Int) -> Unit,
+    onCalendarSelect: () -> Unit,
+    onAlertCalendarSelect: () -> Unit,
+    onCalendarPreview: () -> Unit,
+    onOpenDreamSettings: () -> Unit,
+    onRequestOverlayPermission: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val directoryPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocumentTree(),
-    ) { uri ->
-        if (uri != null) {
-            uiState.listener.onDirectorySelected(uri)
-        }
-    }
-
-    val calendarPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-    ) { isGranted ->
-        uiState.listener.updatePermissions(calendar = isGranted)
-    }
-
-    SuspendLifecycleResumeEffect(Unit) {
-        uiState.listener.onResume()
-    }
-
-    SuspendLifecycleStartEffect(Unit) {
-        uiState.listener.onStart()
-    }
-
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -131,43 +71,20 @@ private fun MainScreen(
         ) {
             item {
                 ScreenSaverSection(
-                    selectionPath = uiState.selectedDirectoryPath.orEmpty(),
-                    onClickSelection = {
-                        directoryPickerLauncher.launch(null)
-                    },
-                    imageSwitchIntervalSeconds = uiState.imageSwitchIntervalSeconds,
-                    onImageSwitchIntervalChange = { seconds ->
-                        uiState.listener.onImageSwitchIntervalChanged(seconds)
-                    },
+                    uiState = uiState.screenSaverSectionUiState,
+                    onClickSelection = onDirectorySelect,
+                    onImageSwitchIntervalChange = onImageSwitchIntervalChange,
                 )
             }
 
             item {
                 CalendarSection(
                     modifier = Modifier.fillMaxWidth(),
-                    selectedCalendar = uiState.selectedCalendar,
-                    selectedAlertCalendar = uiState.selectedAlertCalendar,
-                    hasOverlayPermission = uiState.hasOverlayPermission,
-                    onClickCalendar = {
-                        uiState.listener.onNavigateToCalendarDisplay()
-                    },
-                    onCalendarSelect = {
-                        if (uiState.hasCalendarPermission) {
-                            uiState.listener.onNavigateToCalendarSelection()
-                        } else {
-                            calendarPermissionLauncher.launch(android.Manifest.permission.READ_CALENDAR)
-                        }
-                    },
-                    onClickAlertSettings = {
-                        if (uiState.hasCalendarPermission) {
-                            uiState.listener.onNavigateToAlertCalendarSelection()
-                        } else {
-                            calendarPermissionLauncher.launch(android.Manifest.permission.READ_CALENDAR)
-                        }
-                    },
-                    onRequestOverlayPermission = {
-                        uiState.listener.onRequestOverlayPermission()
-                    },
+                    uiState = uiState.calendarSectionUiState,
+                    onCalendarSelect = onCalendarSelect,
+                    onClickAlertSettings = onAlertCalendarSelect,
+                    onClickCalendar = onCalendarPreview,
+                    onRequestOverlayPermission = onRequestOverlayPermission,
                 )
             }
 
@@ -181,7 +98,7 @@ private fun MainScreen(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .clickable {
-                                        uiState.listener.onOpenDreamSettings()
+                                        onOpenDreamSettings()
                                     }
                                     .padding(contentPadding),
                                 contentAlignment = Alignment.CenterStart,
@@ -281,8 +198,7 @@ private fun Section(
 
 @Composable
 private fun ScreenSaverSection(
-    selectionPath: String,
-    imageSwitchIntervalSeconds: Int,
+    uiState: ScreenSaverSectionUiState,
     onClickSelection: () -> Unit,
     onImageSwitchIntervalChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
@@ -309,7 +225,7 @@ private fun ScreenSaverSection(
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = selectionPath,
+                        text = uiState.selectedDirectoryPath,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -325,10 +241,8 @@ private fun ScreenSaverSection(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     ImageSwitchIntervalSelector(
-                        currentInterval = imageSwitchIntervalSeconds,
-                        onIntervalSelect = { seconds ->
-                            onImageSwitchIntervalChange(seconds)
-                        },
+                        intervalOptions = uiState.intervalOptions,
+                        onIntervalSelect = onImageSwitchIntervalChange,
                     )
                 }
             },
@@ -338,13 +252,11 @@ private fun ScreenSaverSection(
 
 @Composable
 private fun CalendarSection(
+    uiState: CalendarSectionUiState,
     onCalendarSelect: () -> Unit,
     onClickCalendar: () -> Unit,
     onClickAlertSettings: () -> Unit,
     onRequestOverlayPermission: () -> Unit,
-    selectedCalendar: String,
-    selectedAlertCalendar: String,
-    hasOverlayPermission: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Section(
@@ -366,7 +278,7 @@ private fun CalendarSection(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = selectedCalendar,
+                        text = uiState.selectedCalendarDisplayName,
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -376,7 +288,7 @@ private fun CalendarSection(
                     modifier = Modifier
                         .fillMaxSize()
                         .clickable {
-                            if (hasOverlayPermission) {
+                            if (uiState.hasOverlayPermission) {
                                 onClickAlertSettings()
                             } else {
                                 onRequestOverlayPermission()
@@ -389,9 +301,9 @@ private fun CalendarSection(
                         style = MaterialTheme.typography.titleMedium,
                     )
                     Spacer(modifier = Modifier.height(4.dp))
-                    if (hasOverlayPermission) {
+                    if (uiState.hasOverlayPermission) {
                         Text(
-                            text = selectedAlertCalendar,
+                            text = uiState.selectedAlertCalendarDisplayName,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -422,7 +334,7 @@ private fun CalendarSection(
 
 @Composable
 private fun ImageSwitchIntervalSelector(
-    currentInterval: Int,
+    intervalOptions: List<IntervalOption>,
     onIntervalSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -433,12 +345,12 @@ private fun ImageSwitchIntervalSelector(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
-            listOf(5, 15, 30, 60).forEach { seconds ->
+            intervalOptions.forEach { option ->
                 Button(
                     onClick = {
-                        onIntervalSelect(seconds)
+                        onIntervalSelect(option.seconds)
                     },
-                    colors = if (currentInterval == seconds) {
+                    colors = if (option.isSelected) {
                         ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -450,50 +362,9 @@ private fun ImageSwitchIntervalSelector(
                         )
                     },
                 ) {
-                    Text(
-                        text = when (seconds) {
-                            5 -> "5秒"
-                            15 -> "15秒"
-                            30 -> "30秒"
-                            60 -> "1分"
-                            else -> "${seconds}秒"
-                        },
-                    )
+                    Text(text = option.displayText)
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun MainScreenPreview() {
-    AllInToolScreenSaverTheme {
-        MainScreen(
-            uiState = MainActivityUiState(
-                selectedDirectoryPath = null,
-                availableCalendars = listOf(),
-                selectedCalendarIds = listOf(),
-                hasCalendarPermission = false,
-                imageSwitchIntervalSeconds = 30,
-                selectedCalendar = "未選択",
-                hasOverlayPermission = false,
-                alertCalendarIds = listOf(),
-                selectedAlertCalendar = "未選択",
-                listener = object : MainActivityUiState.Listener {
-                    override suspend fun onStart() = Unit
-                    override suspend fun onResume() = Unit
-                    override fun onDirectorySelected(uri: android.net.Uri) = Unit
-                    override fun onCalendarSelectionChanged(calendarId: Long, isSelected: Boolean) = Unit
-                    override fun onImageSwitchIntervalChanged(seconds: Int) = Unit
-                    override fun onOpenDreamSettings() = Unit
-                    override fun onNavigateToCalendarSelection() = Unit
-                    override fun onNavigateToAlertCalendarSelection() = Unit
-                    override fun onNavigateToCalendarDisplay() = Unit
-                    override fun onRequestOverlayPermission() = Unit
-                    override fun updatePermissions(calendar: Boolean?, overlay: Boolean?) = Unit
-                },
-            ),
-        )
     }
 }

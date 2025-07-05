@@ -7,7 +7,15 @@
       "Bash(rm:*)",
       "Bash(find:*)",
       "Bash(export:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(cp:*)",
+      "Bash(cat:*)",
+      "Bash(tail:*)",
+      "Bash(pwd:*)",
+      "Bash(git:log:*)",
+      "Bash(git:status:*)",
+      "Bash(rg:*)"
     ],
     "deny": []
   }

@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver
+package net.matsudamper.allintoolscreensaver.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -32,8 +32,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarState
-import net.matsudamper.allintoolscreensaver.compose.calendar.rememberCalendarState
+import net.matsudamper.allintoolscreensaver.ui.CalendarState
 
 class TimeRangeSliderState(
     private val density: Density,
@@ -49,7 +48,7 @@ class TimeRangeSliderState(
     private val mutableSliderStateChanged = Channel<SliderStateChanged>(Channel.UNLIMITED)
     val sliderStateChanged: Flow<SliderStateChanged> = mutableSliderStateChanged.receiveAsFlow()
 
-    internal var dragMode by mutableStateOf(DragMode.NONE)
+    private var dragMode by mutableStateOf(DragMode.NONE)
         private set
 
     private val handleWidth = 42.dp
@@ -249,7 +248,7 @@ fun rememberTimeRangeSlider(
 }
 
 @Composable
-internal fun TimeRangeSlider(
+fun TimeRangeSlider(
     items: List<TimeRangeSliderItem>,
     modifier: Modifier = Modifier,
     state: TimeRangeSliderState = rememberTimeRangeSlider(),
@@ -356,6 +355,7 @@ private fun Preview() {
         modifier = Modifier
             .fillMaxWidth()
             .height(100.dp),
+        state = rememberTimeRangeSlider(),
     )
 }
 

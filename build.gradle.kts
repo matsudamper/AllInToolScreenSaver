@@ -1,5 +1,4 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-import java.util.Properties
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
@@ -10,17 +9,6 @@ plugins {
     alias(libs.plugins.kotlinJvm) apply false
     alias(libs.plugins.ktlintGradle) apply false
     alias(libs.plugins.detekt) apply false
-}
-
-beforeEvaluate {
-    val localProperties = Properties().also {
-        it.load(File("local.properties").inputStream())
-    }
-    if (System.getProperty("os.name").lowercase().contains("windows")) {
-        System.setProperty("sdk.dir", localProperties.getProperty("sdk.dir.windows"))
-    } else {
-        System.setProperty("sdk.dir", localProperties.getProperty("sdk.dir.linux"))
-    }
 }
 
 allprojects {

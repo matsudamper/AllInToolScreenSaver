@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.theme
+package net.matsudamper.allintoolscreensaver.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -11,11 +11,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import java.time.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
-import net.matsudamper.allintoolscreensaver.compose.LocalClock
-import net.matsudamper.allintoolscreensaver.compose.component.DreamDialogHost
-import net.matsudamper.allintoolscreensaver.compose.component.LocalDreamDialogContentHolder
-import org.koin.core.context.GlobalContext
+import net.matsudamper.allintoolscreensaver.ui.compose.LocalClock
+import net.matsudamper.allintoolscreensaver.ui.compose.component.DreamDialogHost
+import net.matsudamper.allintoolscreensaver.ui.compose.component.LocalDreamDialogContentHolder
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -44,6 +44,7 @@ private val LightColorScheme = lightColorScheme(
 fun AllInToolScreenSaverTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
+    clock: Clock = Clock.systemDefaultZone(),
     content: @Composable () -> Unit,
 ) {
     val colorScheme = when {
@@ -58,7 +59,7 @@ fun AllInToolScreenSaverTheme(
 
     CompositionLocalProvider(
         LocalDreamDialogContentHolder provides remember { MutableStateFlow(listOf()) },
-        LocalClock provides remember { GlobalContext.get().get() },
+        LocalClock provides clock,
     ) {
         MaterialTheme(
             colorScheme = colorScheme,

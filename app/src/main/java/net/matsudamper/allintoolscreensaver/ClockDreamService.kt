@@ -14,8 +14,8 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import net.matsudamper.allintoolscreensaver.compose.ScreenSaverScreen
-import net.matsudamper.allintoolscreensaver.theme.AllInToolScreenSaverTheme
+import net.matsudamper.allintoolscreensaver.compose.ScreenSaverScreenAdapter
+import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
 import org.koin.core.context.GlobalContext
 
 class ClockDreamService :
@@ -58,8 +58,10 @@ class ClockDreamService :
             setupViewTreeOwners()
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                AllInToolScreenSaverTheme {
-                    ScreenSaverScreen()
+                AllInToolScreenSaverTheme(
+                    clock = koin.get(),
+                ) {
+                    ScreenSaverScreenAdapter()
                 }
             }
         }
