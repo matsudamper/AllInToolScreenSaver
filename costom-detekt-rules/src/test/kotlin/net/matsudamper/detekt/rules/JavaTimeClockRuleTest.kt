@@ -1,8 +1,8 @@
 package net.matsudamper.detekt.rules
 
 import io.gitlab.arturbosch.detekt.test.compileAndLint
-import org.junit.Test
 import org.junit.Assert.assertEquals
+import org.junit.Test
 
 class JavaTimeClockRuleTest {
 
@@ -78,4 +78,4 @@ class JavaTimeClockRuleTest {
         assertEquals(1, findings.size)
         assertEquals("java.time.*.now() should use Clock parameter instead of using default system clock", findings[0].message)
     }
-} 
+}

@@ -8,10 +8,12 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 @SinceKtlint("1.0", SinceKtlint.Status.STABLE)
-class SampleRule : Rule(
-    ruleId = RuleId("custom:test"),
-    about = About(),
-), RuleAutocorrectApproveHandler {
+class SampleRule :
+    Rule(
+        ruleId = RuleId("custom:test"),
+        about = About(),
+    ),
+    RuleAutocorrectApproveHandler {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,

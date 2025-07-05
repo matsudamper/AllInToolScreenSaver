@@ -1,6 +1,11 @@
 package net.matsudamper.detekt.rules
 
-import io.gitlab.arturbosch.detekt.api.*
+import io.gitlab.arturbosch.detekt.api.CodeSmell
+import io.gitlab.arturbosch.detekt.api.Debt
+import io.gitlab.arturbosch.detekt.api.Entity
+import io.gitlab.arturbosch.detekt.api.Issue
+import io.gitlab.arturbosch.detekt.api.Rule
+import io.gitlab.arturbosch.detekt.api.Severity
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
@@ -15,7 +20,7 @@ class JavaTimeClockRule : Rule() {
         id = "JavaTimeClock",
         severity = Severity.Warning,
         description = "java.time.*.now() should use Clock parameter instead of using default system clock",
-        debt = Debt.FIVE_MINS
+        debt = Debt.FIVE_MINS,
     )
 
     override fun visitCallExpression(expression: KtCallExpression) {
@@ -40,8 +45,8 @@ class JavaTimeClockRule : Rule() {
                                 CodeSmell(
                                     issue,
                                     Entity.from(callExpression),
-                                    "java.time.$receiverText.now() should use Clock parameter instead of using default system clock"
-                                )
+                                    "java.time.$receiverText.now() should use Clock parameter instead of using default system clock",
+                                ),
                             )
                         }
                     }
@@ -66,8 +71,8 @@ class JavaTimeClockRule : Rule() {
                         CodeSmell(
                             issue,
                             Entity.from(callExpression),
-                            "java.time.*.now() should use Clock parameter instead of using default system clock"
-                        )
+                            "java.time.*.now() should use Clock parameter instead of using default system clock",
+                        ),
                     )
                 }
             }
@@ -87,4 +92,4 @@ class JavaTimeClockRule : Rule() {
             "MonthDay",
         )
     }
-} 
+}

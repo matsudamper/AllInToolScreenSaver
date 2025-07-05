@@ -11,8 +11,8 @@ class CustomRuleSetProvider : RuleSetProvider {
         return RuleSet(
             ruleSetId,
             listOf(
-                JavaTimeClockRule()
-            )
+                JavaTimeClockRule(),
+            ),
         )
     }
-} 
+}
