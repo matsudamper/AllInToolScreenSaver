@@ -1,0 +1,4 @@
+custom-rules:
+  active: true
+  JavaTimeClockRule:
+    active: true 

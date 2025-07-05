@@ -21,11 +21,13 @@ allprojects {
         config.setFrom(
             "$rootDir/.detekt/default.yml",
             "$rootDir/.detekt/compose.yml",
+            "$rootDir/.detekt/custom.yml",
         )
     }
     dependencies {
         detektPlugins(rootProject.libs.kotlinCompilerWrapper)
         detektPlugins(rootProject.libs.detekt)
+        detektPlugins(project(":costom-detekt-rules"))
 
         ktlintRuleset(project(":ktlint-custom-rules"))
     }
