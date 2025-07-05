@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 @SinceKtlint("1.0", SinceKtlint.Status.STABLE)
 class SampleRule : Rule(
-    ruleId = RuleId("custom:java-time-clock"),
+    ruleId = RuleId("custom:test"),
     about = About(),
 ), RuleAutocorrectApproveHandler {
     override fun beforeVisitChildNodes(
