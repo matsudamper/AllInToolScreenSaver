@@ -92,6 +92,7 @@ class CalendarDisplayScreenViewModel(
                                         displayTime = createDisplayTime(event.startTime, event.endTime),
                                         color = Color(event.color),
                                         description = event.description,
+                                        attendeeStatus = event.attendeeStatus,
                                     )
                                 },
                             allDayEvents = viewModelState.events.filterIsInstance<CalendarEvent.AllDay>()
@@ -100,6 +101,7 @@ class CalendarDisplayScreenViewModel(
                                         title = event.title,
                                         description = event.description,
                                         color = Color(event.color),
+                                        attendeeStatus = event.attendeeStatus,
                                     )
                                 },
                         ),

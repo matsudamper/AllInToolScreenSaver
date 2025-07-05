@@ -21,6 +21,7 @@ import java.time.ZoneId
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
+import net.matsudamper.allintoolscreensaver.AttendeeStatus
 import net.matsudamper.allintoolscreensaver.CalendarEvent
 import net.matsudamper.allintoolscreensaver.CalendarRepository
 import net.matsudamper.allintoolscreensaver.SettingsRepository
@@ -91,6 +92,7 @@ class CalendarDisplayScreenTest {
             color = Color.Red.hashCode(),
             startTime = startTime.atZone(ZoneId.systemDefault()).toInstant(),
             endTime = endTime.atZone(ZoneId.systemDefault()).toInstant(),
+            attendeeStatus = AttendeeStatus.ACCEPTED,
         )
 
         val event2 = CalendarEvent.Time(
@@ -100,6 +102,7 @@ class CalendarDisplayScreenTest {
             color = Color.Blue.hashCode(),
             startTime = startTime.plusMinutes(30).atZone(ZoneId.systemDefault()).toInstant(),
             endTime = endTime.plusMinutes(30).atZone(ZoneId.systemDefault()).toInstant(),
+            attendeeStatus = AttendeeStatus.ACCEPTED,
         )
 
         calendarRepository.addEvent(event1)
@@ -113,6 +116,7 @@ class CalendarDisplayScreenTest {
                 displayTime = "10:00 - 11:00",
                 description = "重要な会議",
                 color = Color.Red,
+                attendeeStatus = AttendeeStatus.ACCEPTED,
             ),
             net.matsudamper.allintoolscreensaver.compose.calendar.CalendarLayoutUiState.Event.Time(
                 startTime = java.time.LocalTime.of(10, 30),
@@ -121,6 +125,7 @@ class CalendarDisplayScreenTest {
                 displayTime = "10:30 - 11:30",
                 description = "別の会議",
                 color = Color.Blue,
+                attendeeStatus = AttendeeStatus.ACCEPTED,
             ),
         )
 

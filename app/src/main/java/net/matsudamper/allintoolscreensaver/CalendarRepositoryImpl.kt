@@ -14,17 +14,27 @@ data class CalendarInfo(
     val color: Int,
 )
 
+enum class AttendeeStatus {
+    NONE,
+    ACCEPTED,
+    DECLINED,
+    INVITED,
+    TENTATIVE,
+}
+
 sealed interface CalendarEvent {
     val id: Long
     val title: String
     val description: String?
     val color: Int
+    val attendeeStatus: AttendeeStatus
 
     data class Time(
         override val id: Long,
         override val title: String,
         override val description: String?,
         override val color: Int,
+        override val attendeeStatus: AttendeeStatus,
         val startTime: Instant,
         val endTime: Instant,
     ) : CalendarEvent
@@ -34,6 +44,7 @@ sealed interface CalendarEvent {
         override val title: String,
         override val description: String?,
         override val color: Int,
+        override val attendeeStatus: AttendeeStatus,
     ) : CalendarEvent
 }
 
@@ -100,6 +111,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                 CalendarContract.Instances.CALENDAR_ID,
                 CalendarContract.Instances.CALENDAR_COLOR,
                 CalendarContract.Instances.EVENT_COLOR,
+                CalendarContract.Instances.SELF_ATTENDEE_STATUS,
             )
 
             val selection = "${CalendarContract.Events.CALENDAR_ID} IN (${calendarIds.joinToString(",")}) AND 1 "
@@ -128,6 +140,20 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                         val calendarColorIndex = c.getColumnIndexOrThrow(CalendarContract.Instances.CALENDAR_COLOR)
                         if (!c.isNull(eventColorIndex)) c.getInt(eventColorIndex) else c.getInt(calendarColorIndex)
                     }
+                    val attendeeStatus = run {
+                        val statusIndex = c.getColumnIndexOrThrow(CalendarContract.Instances.SELF_ATTENDEE_STATUS)
+                        if (c.isNull(statusIndex)) {
+                            AttendeeStatus.NONE
+                        } else {
+                            when (c.getInt(statusIndex)) {
+                                CalendarContract.Attendees.ATTENDEE_STATUS_ACCEPTED -> AttendeeStatus.ACCEPTED
+                                CalendarContract.Attendees.ATTENDEE_STATUS_DECLINED -> AttendeeStatus.DECLINED
+                                CalendarContract.Attendees.ATTENDEE_STATUS_INVITED -> AttendeeStatus.INVITED
+                                CalendarContract.Attendees.ATTENDEE_STATUS_TENTATIVE -> AttendeeStatus.TENTATIVE
+                                else -> AttendeeStatus.NONE
+                            }
+                        }
+                    }
                     events.add(
                         if (allDay) {
                             CalendarEvent.AllDay(
@@ -135,6 +161,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                                 title = title,
                                 description = description,
                                 color = color,
+                                attendeeStatus = attendeeStatus,
                             )
                         } else {
                             CalendarEvent.Time(
@@ -144,6 +171,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                                 startTime = Instant.ofEpochMilli(eventStartTime),
                                 endTime = Instant.ofEpochMilli(eventEndTime),
                                 color = color,
+                                attendeeStatus = attendeeStatus,
                             )
                         },
                     )

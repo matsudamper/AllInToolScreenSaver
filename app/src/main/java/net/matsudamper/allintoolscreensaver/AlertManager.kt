@@ -12,6 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import net.matsudamper.allintoolscreensaver.AttendeeStatus
 import net.matsudamper.allintoolscreensaver.compose.eventalert.AlertType
 
 class AlertManager(
@@ -68,6 +69,10 @@ class AlertManager(
     }
 
     private fun checkAlertForEvent(event: CalendarEvent.Time, now: Instant) {
+        if (event.attendeeStatus == AttendeeStatus.DECLINED) {
+            return
+        }
+
         val eventStartTime = event.startTime
 
         AlertType.entries.forEach { alertType ->
