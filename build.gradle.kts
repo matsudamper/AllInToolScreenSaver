@@ -27,9 +27,9 @@ allprojects {
     dependencies {
         detektPlugins(rootProject.libs.kotlinCompilerWrapper)
         detektPlugins(rootProject.libs.detekt)
-        detektPlugins(project(":costom-detekt-rules"))
+        detektPlugins(rootProject.projects.costomDetektRules)
 
-        ktlintRuleset(project(":ktlint-custom-rules"))
+        ktlintRuleset(rootProject.projects.ktlintCustomRules)
     }
 
     configure<KtlintExtension> {

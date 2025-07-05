@@ -1,3 +1,5 @@
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 pluginManagement {
     repositories {
         google {
@@ -19,6 +21,7 @@ dependencyResolutionManagement {
         maven("https://androidx.dev/snapshots/latest/artifacts/repository")
     }
 }
+
 
 rootProject.name = "AllInToolScreenSaver"
 include(":app")
