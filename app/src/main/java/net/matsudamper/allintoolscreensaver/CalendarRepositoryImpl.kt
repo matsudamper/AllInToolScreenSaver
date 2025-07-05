@@ -4,6 +4,9 @@ import android.content.ContentUris
 import android.content.Context
 import android.provider.CalendarContract
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -114,7 +117,18 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                 CalendarContract.Instances.SELF_ATTENDEE_STATUS,
             )
 
-            val selection = "${CalendarContract.Events.CALENDAR_ID} IN (${calendarIds.joinToString(",")}) AND 1 "
+            // その日付のUTCでの始まりの時間を取得
+            val minDayStartUTC = run {
+                val localDate = LocalDate.ofInstant(startTime, ZoneId.systemDefault())
+                LocalDateTime.of(localDate, LocalDateTime.MIN.toLocalTime())
+                    .atZone(ZoneId.of("UTC"))
+                    .toInstant()
+            }
+
+            val selection = listOf(
+                "${CalendarContract.Events.CALENDAR_ID} IN (${calendarIds.joinToString(",")})",
+                "(${CalendarContract.Events.ALL_DAY} = 0) OR (${CalendarContract.Events.ALL_DAY} = 1 AND ${CalendarContract.Events.DTSTART} = ${minDayStartUTC.toEpochMilli()})",
+            ).joinToString(" AND ") { "($it) " }
 
             val cursor = context.contentResolver.query(
                 CalendarContract.Instances.CONTENT_URI.buildUpon().also { builder ->
