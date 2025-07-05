@@ -12,8 +12,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.flow.MutableStateFlow
+import net.matsudamper.allintoolscreensaver.compose.LocalClock
 import net.matsudamper.allintoolscreensaver.compose.component.DreamDialogHost
 import net.matsudamper.allintoolscreensaver.compose.component.LocalDreamDialogContentHolder
+import org.koin.core.context.GlobalContext
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -56,6 +58,7 @@ fun AllInToolScreenSaverTheme(
 
     CompositionLocalProvider(
         LocalDreamDialogContentHolder provides remember { MutableStateFlow(listOf()) },
+        LocalClock provides remember { GlobalContext.get().get() },
     ) {
         MaterialTheme(
             colorScheme = colorScheme,

@@ -73,6 +73,7 @@ fun ScreenSaverScreen(
                 settingsRepositor = koin.get(),
                 imageManager = ImageManager(context),
                 inMemoryCache = koin.get(),
+                clock = koin.get(),
             )
         },
     )

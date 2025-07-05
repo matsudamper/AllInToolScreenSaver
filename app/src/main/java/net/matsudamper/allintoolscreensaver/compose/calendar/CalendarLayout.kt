@@ -30,6 +30,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -66,6 +67,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import net.matsudamper.allintoolscreensaver.AttendeeStatus
+import net.matsudamper.allintoolscreensaver.compose.LocalClock
 import net.matsudamper.allintoolscreensaver.compose.component.DreamAlertDialog
 
 data class CalendarLayoutUiState(
@@ -106,13 +108,14 @@ class CalendarState internal constructor(
     internal val scrollState: ScrollState,
     private val density: Density,
     initialHourSize: Dp,
+    private val clock: Clock,
 ) {
     var verticalPadding by mutableIntStateOf(0)
     var hourSize: Dp by mutableStateOf(initialHourSize)
 
     fun isCurrentTimeDisplayed(): Boolean {
         val hourHeightPx = with(density) { hourSize.roundToPx() }
-        val now = LocalTime.now()
+        val now = LocalTime.now(clock)
         val currentTimeValue = (now.hour / (now.minute / 60f) * hourHeightPx).roundToInt()
         val startValue = scrollState.value + hourHeightPx
         val endValue = scrollState.maxValue - hourHeightPx
@@ -144,11 +147,13 @@ class CalendarState internal constructor(
 fun rememberCalendarState(initialHourSize: Dp = 100.dp): CalendarState {
     val scrollState = rememberScrollState()
     val density = LocalDensity.current
-    return remember(scrollState, density) {
+    val clock = LocalClock.current
+    return remember(scrollState, density, clock) {
         CalendarState(
             scrollState = scrollState,
             density = density,
             initialHourSize = initialHourSize,
+            clock = clock,
         )
     }
 }
@@ -158,7 +163,7 @@ internal fun CalendarLayout(
     uiState: CalendarLayoutUiState,
     modifier: Modifier = Modifier,
     state: CalendarState = rememberCalendarState(),
-    clock: Clock = remember { Clock.systemDefaultZone() },
+    clock: Clock = LocalClock.current,
 ) {
     val hourSize = state.hourSize
     val calcTimeEvents by remember(uiState.events) {
@@ -532,6 +537,7 @@ private fun EventCard(
                                     end = title.length,
                                 )
                             }
+
                             else -> AnnotatedString(title)
                         }
                     },
@@ -554,6 +560,7 @@ private fun EventCard(
                                         end = annotatedString.length,
                                     )
                                 }
+
                                 else -> annotatedString
                             }
                         },

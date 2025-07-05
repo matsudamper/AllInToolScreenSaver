@@ -3,6 +3,7 @@ package net.matsudamper.allintoolscreensaver
 import android.app.Application
 import android.media.Ringtone
 import android.media.RingtoneManager
+import java.time.Clock
 import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneId
@@ -19,6 +20,7 @@ class AlertManager(
     private val calendarRepository: CalendarRepository,
     private val settingsRepository: SettingsRepository,
     private val application: Application,
+    private val clock: Clock,
 ) {
     private var ringtone: Ringtone? = null
     private val activeAlerts = mutableMapOf<String, AlertInfo>()
@@ -52,7 +54,7 @@ class AlertManager(
         val alertCalendarIds = settingsRepository.settingsFlow.first().alertCalendarIdsList
         if (alertCalendarIds.isEmpty()) return
 
-        val now = Instant.now()
+        val now = Instant.now(clock)
         val endTime = now.plusSeconds(6 * 60)
 
         val events = calendarRepository.getEventsForTimeRange(
@@ -105,7 +107,7 @@ class AlertManager(
     }
 
     private fun checkRepeatingAlerts() {
-        val now = Instant.now()
+        val now = Instant.now(clock)
         val toRemove = mutableListOf<String>()
 
         repeatingAlerts.forEach { (alertKeyValue, startTime) ->

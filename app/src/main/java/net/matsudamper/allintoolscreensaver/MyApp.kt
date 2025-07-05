@@ -3,6 +3,7 @@ package net.matsudamper.allintoolscreensaver
 import android.app.Application
 import android.content.Context
 import android.provider.Settings
+import java.time.Clock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -30,12 +31,19 @@ class MyApp : Application() {
                             calendarRepository = get(),
                             settingsRepository = get(),
                             application = get(),
+                            clock = get(),
                         )
                     }
                     single<InMemoryCache> { InMemoryCache() }
                     viewModel {
-                        CalendarDisplayScreenViewModel(get(), get(), get())
+                        CalendarDisplayScreenViewModel(
+                            application = get(),
+                            settingsRepository = get(),
+                            calendarRepository = get(),
+                            clock = get(),
+                        )
                     }
+                    single<Clock> { Clock.systemDefaultZone() }
                 },
             )
         }

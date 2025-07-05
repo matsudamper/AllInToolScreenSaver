@@ -5,6 +5,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import java.text.SimpleDateFormat
+import java.time.Clock
 import java.time.Instant
 import java.util.Date
 import java.util.Locale
@@ -33,6 +34,7 @@ class DigitalClockScreenViewModel(
     private val settingsRepositor: SettingsRepository,
     private val imageManager: ImageManager,
     private val inMemoryCache: InMemoryCache,
+    private val clock: Clock,
 ) : ViewModel() {
     private val viewModelStateFlow = MutableStateFlow(
         run {
@@ -42,7 +44,7 @@ class DigitalClockScreenViewModel(
                     images = imageInfo.imageUris,
                     imagesShuffledIndex = imageInfo.imagesShuffledIndex,
                     currentIndex = imageInfo.currentIndex,
-                    imagesLastUpdate = Instant.now(),
+                    imagesLastUpdate = Instant.now(clock),
                     isLoading = false,
                 )
             } else {
@@ -86,7 +88,7 @@ class DigitalClockScreenViewModel(
                     )
                 }
 
-                val now = Instant.now()
+                val now = Instant.now(clock)
                 val delayTime = 1.seconds - (now.toEpochMilli() % 1000).milliseconds
                 delay(delayTime.coerceAtLeast(1.milliseconds))
             }
@@ -189,7 +191,7 @@ class DigitalClockScreenViewModel(
         if (viewModelStateFlow.value.images.size > 1000 &&
             viewModelStateFlow.value.imagesLastUpdate
                 .plusMillis(1.hours.inWholeMilliseconds)
-                .isAfter(Instant.now())
+                .isAfter(Instant.now(clock))
         ) {
             return
         }
@@ -206,7 +208,7 @@ class DigitalClockScreenViewModel(
                     images = firstList,
                     imagesShuffledIndex = firstImagesShuffledIndex,
                     currentIndex = 0,
-                    imagesLastUpdate = Instant.now(),
+                    imagesLastUpdate = Instant.now(clock),
                     isLoading = false,
                 )
             }
@@ -216,7 +218,7 @@ class DigitalClockScreenViewModel(
                 viewModelState.copy(
                     images = firstList + secondList,
                     imagesShuffledIndex = firstImagesShuffledIndex + secondList.indices.shuffled().map { firstImagesShuffledIndex.size + it },
-                    imagesLastUpdate = Instant.now(),
+                    imagesLastUpdate = Instant.now(clock),
                     isLoading = false,
                 )
             }
@@ -234,7 +236,7 @@ class DigitalClockScreenViewModel(
                     images = uris,
                     imagesShuffledIndex = uris.indices.shuffled(),
                     currentIndex = 0,
-                    imagesLastUpdate = Instant.now(),
+                    imagesLastUpdate = Instant.now(clock),
                     isLoading = false,
                 )
             }

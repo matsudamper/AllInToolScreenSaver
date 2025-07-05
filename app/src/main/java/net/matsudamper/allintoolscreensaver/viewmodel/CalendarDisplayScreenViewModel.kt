@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
+import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -39,9 +40,14 @@ class CalendarDisplayScreenViewModel(
     application: Application,
     private val settingsRepository: SettingsRepository,
     private val calendarRepository: CalendarRepository,
+    private val clock: Clock,
 ) : AndroidViewModel(application) {
     private val context get() = application.applicationContext
-    private val viewModelStateFlow = MutableStateFlow(ViewModelState())
+    private val viewModelStateFlow = MutableStateFlow(
+        ViewModelState(
+            lastInteractionTime = Instant.now(clock),
+        ),
+    )
 
     private val listener = object : CalendarDisplayScreenUiState.Listener {
         override suspend fun onStart() {
@@ -56,7 +62,7 @@ class CalendarDisplayScreenViewModel(
 
         override fun onInteraction() {
             viewModelStateFlow.update { state ->
-                state.copy(lastInteractionTime = Instant.now())
+                state.copy(lastInteractionTime = Instant.now(clock))
             }
         }
 
@@ -137,7 +143,7 @@ class CalendarDisplayScreenViewModel(
             val selectedCalendarIds = settingsRepository.settingsFlow.first().selectedCalendarIdsList
 
             if (selectedCalendarIds.isNotEmpty()) {
-                val today = LocalDate.now()
+                val today = LocalDate.now(clock)
                 val startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toInstant()
                 val endOfDay = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()
 
@@ -182,7 +188,7 @@ class CalendarDisplayScreenViewModel(
 
     private data class ViewModelState(
         val events: List<CalendarEvent> = listOf(),
-        val lastInteractionTime: Instant = Instant.now(),
+        val lastInteractionTime: Instant,
         val alertEnabled: Boolean = false,
     )
 }
