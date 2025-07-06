@@ -10,7 +10,7 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 
 @Composable
-fun SlideShowContent(
+internal fun SlideShowContent(
     uiState: SlideShowUiState,
     onPageChange: (Int) -> Unit,
     onPageChanged: () -> Unit,
