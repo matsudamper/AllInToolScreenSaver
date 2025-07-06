@@ -110,6 +110,7 @@ dependencies {
 
     implementation(libs.androidxMaterial3AdaptiveNavigation3)
 
+    androidTestImplementation(platform(libs.androidxComposeBom))
     androidTestImplementation(libs.androidxJunit)
     androidTestImplementation(libs.androidxEspressoCore)
     androidTestImplementation(libs.androidxUiTestJunit4)
