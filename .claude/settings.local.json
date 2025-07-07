@@ -21,5 +21,9 @@
       "Bash(./gradlew:--stop)",
       "Bash(./gradlew:clean)"
     ]
+  },
+  "ENV": {
+    "BASH_DEFAULT_TIMEOUT_MS": 1200000,
+    "BASH_MAX_TIMEOUT_MS": 1200000
   }
 }
