@@ -1,5 +1,6 @@
 package net.matsudamper.allintoolscreensaver.compose.calendar
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -452,11 +453,13 @@ private fun EventCard(
             colors = CardDefaults.cardColors(
                 containerColor = when (attendeeStatus) {
                     AttendeeStatus.TENTATIVE -> Color.Transparent
+                    AttendeeStatus.DECLINED -> Color.Transparent
                     else -> color
                 },
             ),
             border = when (attendeeStatus) {
-                AttendeeStatus.TENTATIVE -> CardDefaults.outlinedCardBorder()
+                AttendeeStatus.TENTATIVE,
+                AttendeeStatus.DECLINED -> BorderStroke(2.dp, color)
                 else -> null
             },
             onClick = onClick,
@@ -472,6 +475,18 @@ private fun EventCard(
                                 addStyle(
                                     style = androidx.compose.ui.text.SpanStyle(
                                         textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough,
+                                    ),
+                                    start = 0,
+                                    end = title.length,
+                                )
+                                // Add second line for thicker strikethrough
+                                addStyle(
+                                    style = androidx.compose.ui.text.SpanStyle(
+                                        textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough,
+                                        shadow = androidx.compose.ui.graphics.Shadow(
+                                            offset = androidx.compose.ui.geometry.Offset(0f, 1f),
+                                            blurRadius = 0f,
+                                        ),
                                     ),
                                     start = 0,
                                     end = title.length,
@@ -495,6 +510,18 @@ private fun EventCard(
                                     addStyle(
                                         style = androidx.compose.ui.text.SpanStyle(
                                             textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough,
+                                        ),
+                                        start = 0,
+                                        end = annotatedString.length,
+                                    )
+                                    // Add second line for thicker strikethrough
+                                    addStyle(
+                                        style = androidx.compose.ui.text.SpanStyle(
+                                            textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough,
+                                            shadow = androidx.compose.ui.graphics.Shadow(
+                                                offset = androidx.compose.ui.geometry.Offset(0f, 1f),
+                                                blurRadius = 0f,
+                                            ),
                                         ),
                                         start = 0,
                                         end = annotatedString.length,
