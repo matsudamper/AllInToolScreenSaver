@@ -15,4 +15,7 @@ object NavKeys {
 
     @Serializable
     data object CalendarDisplay : NavKey
+
+    @Serializable
+    data object SlideShowPreview : NavKey
 }
