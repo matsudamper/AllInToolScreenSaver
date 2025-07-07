@@ -459,7 +459,8 @@ private fun EventCard(
             ),
             border = when (attendeeStatus) {
                 AttendeeStatus.TENTATIVE,
-                AttendeeStatus.DECLINED -> BorderStroke(2.dp, color)
+                AttendeeStatus.DECLINED,
+                -> BorderStroke(2.dp, color)
                 else -> null
             },
             onClick = onClick,
@@ -484,7 +485,7 @@ private fun EventCard(
                                     style = androidx.compose.ui.text.SpanStyle(
                                         textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough,
                                         shadow = androidx.compose.ui.graphics.Shadow(
-                                            offset = androidx.compose.ui.geometry.Offset(0f, 1f),
+                                            offset = Offset(0f, 1f),
                                             blurRadius = 0f,
                                         ),
                                     ),
@@ -519,7 +520,7 @@ private fun EventCard(
                                         style = androidx.compose.ui.text.SpanStyle(
                                             textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough,
                                             shadow = androidx.compose.ui.graphics.Shadow(
-                                                offset = androidx.compose.ui.geometry.Offset(0f, 1f),
+                                                offset = Offset(0f, 1f),
                                                 blurRadius = 0f,
                                             ),
                                         ),
