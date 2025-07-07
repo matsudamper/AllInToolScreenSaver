@@ -8,7 +8,7 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.graphics.PixelFormat
 import android.os.IBinder
-import android.provider.Settings
+
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
@@ -80,6 +80,11 @@ class AlertService : Service() {
     }
 
     private fun createNotificationChannel() {
+        val permissionChecker = PermissionChecker(this)
+        if (!permissionChecker.hasPostNotificationsPermission()) {
+            return
+        }
+        
         val channel = NotificationChannel(
             CHANNEL_ID,
             "アラート監視サービス",
@@ -119,7 +124,8 @@ class AlertService : Service() {
     }
 
     private fun showOverlay() {
-        if (overlayView != null || !canDrawOverlays()) return
+        val permissionChecker = PermissionChecker(this)
+        if (overlayView != null || !permissionChecker.hasSystemAlertWindowPermission()) return
 
         val alert = currentAlert ?: return
 
@@ -170,9 +176,7 @@ class AlertService : Service() {
         hideOverlay()
     }
 
-    private fun canDrawOverlays(): Boolean {
-        return Settings.canDrawOverlays(this)
-    }
+
 
     data class AlertDialogInfo(
         val event: CalendarEvent,

@@ -2,7 +2,7 @@ package net.matsudamper.allintoolscreensaver
 
 import android.app.Application
 import android.content.Context
-import android.provider.Settings
+
 import java.time.Clock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +24,7 @@ class MyApp : Application() {
                 module {
                     factory<Application> { this@MyApp }
                     factory<Context> { this@MyApp }
+                    single<PermissionChecker> { PermissionChecker(get()) }
                     single<SettingsRepository> { SettingsRepositoryImpl(get()) }
                     single<CalendarRepository> { CalendarRepositoryImpl(get()) }
                     single<AlertManager> {
@@ -54,8 +55,9 @@ class MyApp : Application() {
     private fun setupAlertService() {
         applicationScope.launch {
             val settingsRepository = SettingsRepositoryImpl(this@MyApp)
+            val permissionChecker = PermissionChecker(this@MyApp)
             settingsRepository.getAlertEnabledFlow().collectLatest { isEnabled ->
-                if (isEnabled && Settings.canDrawOverlays(this@MyApp)) {
+                if (isEnabled && permissionChecker.hasSystemAlertWindowPermission()) {
                     AlertService.startService(this@MyApp)
                 } else {
                     AlertService.stopService(this@MyApp)

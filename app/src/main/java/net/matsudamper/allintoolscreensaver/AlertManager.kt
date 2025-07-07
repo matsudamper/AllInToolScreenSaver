@@ -51,6 +51,11 @@ class AlertManager(
     }
 
     private suspend fun checkUpcomingEvents() {
+        val permissionChecker = PermissionChecker(application)
+        if (!permissionChecker.hasCalendarReadPermission()) {
+            return
+        }
+
         val alertCalendarIds = settingsRepository.settingsFlow.first().alertCalendarIdsList
         if (alertCalendarIds.isEmpty()) return
 
