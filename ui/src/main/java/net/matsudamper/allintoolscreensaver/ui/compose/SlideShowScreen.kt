@@ -15,13 +15,13 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import coil.compose.AsyncImage
 
 data class PagerItem(
     val id: String,
@@ -121,15 +121,50 @@ fun SlideShowScreen(
                 }
 
                 else -> {
-                    AsyncImage(
+                    SmartAsyncImage(
                         model = item.imageUri,
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop,
-                        alignment = Alignment.TopCenter,
+                        defaultAlignment = Alignment.TopCenter,
                     )
                 }
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun SlideShowScreenPreview() {
+    SlideShowScreen(
+        pagerItems = listOf(
+            PagerItem(
+                id = "1",
+                imageUri = null,
+            ),
+            PagerItem(
+                id = "2",
+                imageUri = "https://picsum.photos/800/600?random=1",
+            ),
+            PagerItem(
+                id = "3",
+                imageUri = "https://picsum.photos/800/600?random=2",
+            ),
+        ),
+        onPageChange = {},
+        onPageChanged = {},
+        imageSwitchIntervalSeconds = 5,
+    )
+}
+
+@Preview
+@Composable
+private fun SlideShowScreenEmptyPreview() {
+    SlideShowScreen(
+        pagerItems = listOf(),
+        onPageChange = {},
+        onPageChanged = {},
+        imageSwitchIntervalSeconds = 5,
+    )
 }

@@ -39,6 +39,7 @@ dependencies {
     implementation(libs.androidxMaterial3AdaptiveNavigation3)
     implementation(libs.coilCompose)
     implementation(libs.haze)
+    implementation(libs.mlkitFaceDetection)
 
     debugImplementation(libs.androidxUiTooling)
     debugImplementation(libs.androidxUiTestManifest)
