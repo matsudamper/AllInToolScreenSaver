@@ -17,6 +17,9 @@
       "Bash(git:status:*)",
       "Bash(rg:*)"
     ],
-    "deny": []
+    "deny": [
+      "Bash(./gradlew:--stop)",
+      "Bash(./gradlew:clean)"
+    ]
   }
 }
