@@ -4,6 +4,11 @@
 こちらがチャットしたら、毎回every_executeを実行してルールを確認して
 </raw>
 
-<every_execute>
+<every_chat>
+
+<execute>
 find .cursor -type f | xargs cat
-</every_execute>
+</execute>
+
+#[n] times. # n = increment each chat, end line, etc(#1, #2...)
+</every_chat>
