@@ -120,6 +120,9 @@ fun MainScreenAdapter(
         onCalendarPreview = {
             businessUiState.listener.onNavigateToCalendarDisplay()
         },
+        onSlideShowPreview = {
+            businessUiState.listener.onNavigateToSlideShowPreview()
+        },
         onOpenDreamSettings = {
             businessUiState.listener.onOpenDreamSettings()
         },

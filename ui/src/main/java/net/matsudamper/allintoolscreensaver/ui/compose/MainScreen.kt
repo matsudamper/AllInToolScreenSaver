@@ -43,6 +43,7 @@ fun MainScreen(
     onCalendarSelect: () -> Unit,
     onAlertCalendarSelect: () -> Unit,
     onCalendarPreview: () -> Unit,
+    onSlideShowPreview: () -> Unit,
     onOpenDreamSettings: () -> Unit,
     onRequestOverlayPermission: () -> Unit,
     modifier: Modifier = Modifier,
@@ -74,6 +75,7 @@ fun MainScreen(
                     uiState = uiState.screenSaverSectionUiState,
                     onClickSelection = onDirectorySelect,
                     onImageSwitchIntervalChange = onImageSwitchIntervalChange,
+                    onSlideShowPreview = onSlideShowPreview,
                 )
             }
 
@@ -201,6 +203,7 @@ private fun ScreenSaverSection(
     uiState: ScreenSaverSectionUiState,
     onClickSelection: () -> Unit,
     onImageSwitchIntervalChange: (Int) -> Unit,
+    onSlideShowPreview: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Section(
@@ -245,6 +248,18 @@ private fun ScreenSaverSection(
                         onIntervalSelect = onImageSwitchIntervalChange,
                     )
                 }
+            },
+            { paddingValues ->
+                Text(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable {
+                            onSlideShowPreview()
+                        }
+                        .padding(paddingValues),
+                    text = "プレビュー",
+                    style = MaterialTheme.typography.titleMedium,
+                )
             },
         ),
     )
