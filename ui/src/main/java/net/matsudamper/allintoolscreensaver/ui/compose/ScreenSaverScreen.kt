@@ -53,7 +53,7 @@ fun ScreenSaverScreen(
                     .fillMaxHeight()
                     .weight(0.1f),
             ) {
-                SlideShowContent(
+                SlideShowScreen(
                     uiState = uiState.slideShowUiState,
                     onPageChange = onPageChange,
                     onPageChanged = onPageChanged,

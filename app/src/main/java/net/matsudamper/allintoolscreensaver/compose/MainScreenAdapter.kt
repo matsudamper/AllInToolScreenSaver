@@ -70,13 +70,7 @@ fun MainScreenAdapter(
     val intervalOptions = listOf(5, 15, 30, 60).map { seconds ->
         IntervalOption(
             seconds = seconds,
-            displayText = when (seconds) {
-                5 -> "5秒"
-                15 -> "15秒"
-                30 -> "30秒"
-                60 -> "1分"
-                else -> "${seconds}秒"
-            },
+            displayText = "${seconds}秒",
             isSelected = businessUiState.imageSwitchIntervalSeconds == seconds,
         )
     }

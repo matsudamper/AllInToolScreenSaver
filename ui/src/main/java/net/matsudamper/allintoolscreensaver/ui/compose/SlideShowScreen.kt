@@ -9,12 +9,14 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
@@ -22,21 +24,19 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import coil.compose.AsyncImage
-
-data class PagerItem(
-    val id: String,
-    val imageUri: String?,
-)
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeSource
 
 @Composable
 fun SlideShowScreen(
-    pagerItems: List<PagerItem>,
+    uiState: SlideShowUiState,
     onPageChange: (Int) -> Unit,
     @Suppress("ParameterNaming") onPageChanged: () -> Unit,
-    imageSwitchIntervalSeconds: Int?,
+    hazeState: HazeState,
     modifier: Modifier = Modifier,
 ) {
-    if (pagerItems.isEmpty()) {
+
+    if (uiState.imageItems.isEmpty()) {
         Box(
             modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
@@ -82,14 +82,12 @@ fun SlideShowScreen(
         }
     }
     LaunchedEffect(
-        imageSwitchIntervalSeconds,
+        uiState.intervalSeconds,
         // スクロールしたらintervalをリセットする為にcurrentPageを設定
         pagerState.currentPage,
     ) {
-        if (imageSwitchIntervalSeconds == null) return@LaunchedEffect
-
         while (isActive) {
-            delay(imageSwitchIntervalSeconds.seconds)
+            delay(uiState.intervalSeconds.seconds)
             val currentPage = pagerState.currentPage
             if (currentPage == 1) {
                 latestOnPageChange(2)
@@ -104,10 +102,11 @@ fun SlideShowScreen(
 
     HorizontalPager(
         state = pagerState,
-        modifier = modifier.fillMaxSize(),
-        key = { index -> pagerItems[index].id },
+        modifier = modifier.fillMaxSize()
+            .hazeSource(hazeState),
+        key = { index -> uiState.imageItems[index].id },
     ) { page ->
-        val item = pagerItems[page]
+        val item = uiState.imageItems[page]
 
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -132,4 +131,32 @@ fun SlideShowScreen(
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun SlideShowContentPreview() {
+    SlideShowScreen(
+        uiState = SlideShowUiState(
+            imageItems = listOf(
+                SlideShowImageItem(
+                    id = "1",
+                    imageUri = null,
+                ),
+                SlideShowImageItem(
+                    id = "2",
+                    imageUri = "https://picsum.photos/800/600?random=1",
+                ),
+                SlideShowImageItem(
+                    id = "3",
+                    imageUri = "https://picsum.photos/800/600?random=2",
+                ),
+            ),
+            currentPageIndex = 0,
+            intervalSeconds = 5,
+        ),
+        onPageChange = {},
+        onPageChanged = {},
+        hazeState = remember { HazeState() },
+    )
 }
