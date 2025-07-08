@@ -12,10 +12,10 @@ import net.matsudamper.allintoolscreensaver.ui.component.DreamAlertDialog
 import net.matsudamper.allintoolscreensaver.ui.component.SuspendLifecycleStartEffect
 import net.matsudamper.allintoolscreensaver.ui.screensaver.EventAlertUiState
 
+@Suppress("ModifierMissing")
 @Composable
-fun EventAlertContent(
+fun EventAlertDialog(
     uiState: EventAlertUiState,
-    modifier: Modifier = Modifier,
 ) {
     SuspendLifecycleStartEffect(uiState.listener) {
         uiState.listener.onStart()
@@ -23,7 +23,6 @@ fun EventAlertContent(
     val currentAlert = uiState.currentAlert
     if (currentAlert != null) {
         DreamAlertDialog(
-            modifier = modifier,
             title = {
                 Column {
                     Text(

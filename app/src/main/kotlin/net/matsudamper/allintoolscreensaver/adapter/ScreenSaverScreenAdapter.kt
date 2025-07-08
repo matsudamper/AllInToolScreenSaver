@@ -14,7 +14,7 @@ import java.time.Clock
 import dev.chrisbanes.haze.HazeState
 import net.matsudamper.allintoolscreensaver.feature.ImageManager
 import net.matsudamper.allintoolscreensaver.ui.alert.ClockContent
-import net.matsudamper.allintoolscreensaver.ui.alert.EventAlertContent
+import net.matsudamper.allintoolscreensaver.ui.alert.EventAlertDialog
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarDisplayScreen
 import net.matsudamper.allintoolscreensaver.ui.screensaver.ScreenSaverScreen
 import net.matsudamper.allintoolscreensaver.ui.slideshow.SlideShowScreen
@@ -66,7 +66,7 @@ private fun EventAlertContentAdapter() {
         },
     )
     val eventAlertUiState by eventAlertViewModel.uiState.collectAsState()
-    EventAlertContent(
+    EventAlertDialog(
         uiState = eventAlertUiState,
     )
 }
