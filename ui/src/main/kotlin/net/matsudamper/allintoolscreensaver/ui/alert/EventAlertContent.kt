@@ -15,6 +15,7 @@ import net.matsudamper.allintoolscreensaver.ui.screensaver.EventAlertUiState
 @Composable
 fun EventAlertContent(
     uiState: EventAlertUiState,
+    modifier: Modifier = Modifier,
 ) {
     SuspendLifecycleStartEffect(uiState.listener) {
         uiState.listener.onStart()
@@ -22,6 +23,7 @@ fun EventAlertContent(
     val currentAlert = uiState.currentAlert
     if (currentAlert != null) {
         DreamAlertDialog(
+            modifier = modifier,
             title = {
                 Column {
                     Text(

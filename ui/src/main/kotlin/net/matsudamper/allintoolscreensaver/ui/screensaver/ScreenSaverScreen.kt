@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -31,25 +32,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
 
-data class EventAlertUiState(
-    val currentAlert: DialogInfo?,
-    val listener: Listener,
-) {
-    data class DialogInfo(
-        val title: String,
-        val description: String,
-        val alertTypeDisplayText: String,
-        val eventStartTime: LocalTime,
-        val eventStartTimeText: String,
-        val isRepeatingAlert: Boolean,
-    )
-
-    interface Listener {
-        suspend fun onStart()
-        fun onAlertDismiss()
-    }
-}
-
 @Composable
 fun ScreenSaverScreen(
     slideshowContent: @Composable () -> Unit,
@@ -62,6 +44,7 @@ fun ScreenSaverScreen(
     val graphicsLayer = rememberGraphicsLayer()
     var clockRect by remember { mutableStateOf<Rect?>(null) }
     val pageChanged = remember { Channel<Unit>(Channel.CONFLATED) }
+    val currentUpdateIsDarkClockBackground by rememberUpdatedState(updateIsDarkClockBackground)
 
     LaunchedEffect(clockRect) {
         snapshotFlow { clockRect }
@@ -69,7 +52,7 @@ fun ScreenSaverScreen(
             .filterNotNull()
             .collectLatest { rect ->
                 val imageBitmap = graphicsLayer.toImageBitmap()
-                updateIsDarkClockBackground(
+                currentUpdateIsDarkClockBackground(
                     isWhite(
                         rect = rect,
                         imageBitmap = imageBitmap,

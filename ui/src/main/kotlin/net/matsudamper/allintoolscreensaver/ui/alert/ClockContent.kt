@@ -22,11 +22,6 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.hazeEffect
 
-data class ClockUiState(
-    val timeText: String,
-    val dateText: String,
-)
-
 @Composable
 fun ClockContent(
     uiState: ClockUiState,
