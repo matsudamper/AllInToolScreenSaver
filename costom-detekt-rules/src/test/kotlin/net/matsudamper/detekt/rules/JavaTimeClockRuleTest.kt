@@ -18,7 +18,7 @@ class JavaTimeClockRuleTest {
 
         val findings = JavaTimeClockRule().compileAndLint(code)
         assertEquals(1, findings.size)
-        assertEquals("java.time.Instant.now() should use Clock parameter instead of using default system clock", findings[0].message)
+        assertEquals("java.time.*.now() should use Clock parameter instead of using default system clock", findings[0].message)
     }
 
     @Test
@@ -33,7 +33,7 @@ class JavaTimeClockRuleTest {
 
         val findings = JavaTimeClockRule().compileAndLint(code)
         assertEquals(1, findings.size)
-        assertEquals("java.time.LocalDateTime.now() should use Clock parameter instead of using default system clock", findings[0].message)
+        assertEquals("java.time.*.now() should use Clock parameter instead of using default system clock", findings[0].message)
     }
 
     @Test
