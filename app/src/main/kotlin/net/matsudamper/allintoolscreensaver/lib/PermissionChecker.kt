@@ -1,9 +1,10 @@
-package net.matsudamper.allintoolscreensaver
+package net.matsudamper.allintoolscreensaver.lib
 
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.provider.Settings
 import androidx.core.content.ContextCompat
 
 class PermissionChecker(private val context: Context) {
@@ -27,6 +28,6 @@ class PermissionChecker(private val context: Context) {
     }
 
     fun hasSystemAlertWindowPermission(): Boolean {
-        return android.provider.Settings.canDrawOverlays(context)
+        return Settings.canDrawOverlays(context)
     }
 }

@@ -1,5 +1,6 @@
-package net.matsudamper.allintoolscreensaver
+package net.matsudamper.allintoolscreensaver.feature.alert
 
+import android.R
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
@@ -23,7 +24,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import net.matsudamper.allintoolscreensaver.CalendarRepository
+import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepository
+import net.matsudamper.allintoolscreensaver.lib.PermissionChecker
 import net.matsudamper.allintoolscreensaver.ui.compose.AlertOverlayDialog
 import net.matsudamper.allintoolscreensaver.ui.state.AlertDialogUiState
 import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
@@ -99,7 +101,7 @@ class AlertService : Service() {
     private fun createNotification() = NotificationCompat.Builder(this, CHANNEL_ID)
         .setContentTitle("アラート監視中")
         .setContentText("カレンダーアラートを監視しています")
-        .setSmallIcon(android.R.drawable.ic_dialog_info)
+        .setSmallIcon(R.drawable.ic_dialog_info)
         .setOngoing(true)
         .build()
 

@@ -18,9 +18,9 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.matsudamper.allintoolscreensaver.ImageManager
-import net.matsudamper.allintoolscreensaver.InMemoryCache
-import net.matsudamper.allintoolscreensaver.SettingsRepository
+import net.matsudamper.allintoolscreensaver.feature.ImageManager
+import net.matsudamper.allintoolscreensaver.feature.InMemoryCache
+import net.matsudamper.allintoolscreensaver.feature.setting.SettingsRepository
 import net.matsudamper.allintoolscreensaver.ui.compose.PagerItem
 import net.matsudamper.allintoolscreensaver.ui.compose.SlideshowUiState
 

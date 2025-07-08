@@ -45,7 +45,7 @@
         </service>
 
         <service
-            android:name=".AlertService"
+            android:name=".feature.alert.AlertService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="specialUse">

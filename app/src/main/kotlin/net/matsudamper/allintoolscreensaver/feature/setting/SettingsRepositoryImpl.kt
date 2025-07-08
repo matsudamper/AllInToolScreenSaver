@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver
+package net.matsudamper.allintoolscreensaver.feature.setting
 
 import android.content.Context
 import android.net.Uri
@@ -11,6 +11,7 @@ import java.io.OutputStream
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import com.google.protobuf.InvalidProtocolBufferException
+import net.matsudamper.allintoolscreensaver.Settings
 
 interface SettingsRepository {
     val settingsFlow: Flow<Settings>

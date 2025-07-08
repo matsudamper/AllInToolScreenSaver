@@ -15,6 +15,8 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import net.matsudamper.allintoolscreensaver.adapter.ScreenSaverScreenAdapter
+import net.matsudamper.allintoolscreensaver.feature.alert.AlertManager
+import net.matsudamper.allintoolscreensaver.feature.alert.AlertService
 import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
 import org.koin.core.context.GlobalContext
 
@@ -29,7 +31,7 @@ class ClockDreamService :
     override val savedStateRegistry: SavedStateRegistry
         get() = savedStateRegistryController.savedStateRegistry
     private val lifecycleRegistry = LifecycleRegistry(this)
-    private val savedStateRegistryController = SavedStateRegistryController.create(this).apply {
+    private val savedStateRegistryController = SavedStateRegistryController.Companion.create(this).apply {
         performAttach()
     }
 
@@ -76,7 +78,7 @@ class ClockDreamService :
     override fun onDreamingStarted() {
         super.onDreamingStarted()
         lifecycleRegistry.currentState = Lifecycle.State.STARTED
-        AlertService.notifyDreamStateChanged(this, true)
+        AlertService.Companion.notifyDreamStateChanged(this, true)
 
         alertManager.setDreamServiceActive(true)
     }
@@ -84,7 +86,7 @@ class ClockDreamService :
     override fun onDreamingStopped() {
         super.onDreamingStopped()
         lifecycleRegistry.currentState = Lifecycle.State.CREATED
-        AlertService.notifyDreamStateChanged(this, false)
+        AlertService.Companion.notifyDreamStateChanged(this, false)
 
         alertManager.setDreamServiceActive(false)
     }

@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver
+package net.matsudamper.allintoolscreensaver.navigation
 
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable

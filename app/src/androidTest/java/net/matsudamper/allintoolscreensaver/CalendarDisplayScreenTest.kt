@@ -21,7 +21,8 @@ import java.time.ZoneId
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
-import net.matsudamper.allintoolscreensaver.CalendarRepository
+import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepository
+import net.matsudamper.allintoolscreensaver.feature.setting.SettingsRepository
 import net.matsudamper.allintoolscreensaver.ui.AttendeeStatus
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarDisplayScreen
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarDisplayScreenUiState

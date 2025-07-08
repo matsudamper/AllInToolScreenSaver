@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver
+package net.matsudamper.allintoolscreensaver.feature.alert
 
 import android.app.Application
 import android.media.Ringtone
@@ -13,7 +13,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import net.matsudamper.allintoolscreensaver.CalendarRepository
+import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepository
+import net.matsudamper.allintoolscreensaver.lib.PermissionChecker
+import net.matsudamper.allintoolscreensaver.feature.setting.SettingsRepository
 import net.matsudamper.allintoolscreensaver.ui.AttendeeStatus
 
 class AlertManager(

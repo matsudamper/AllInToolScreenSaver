@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver
+package net.matsudamper.allintoolscreensaver.feature.calendar
 
 import android.content.ContentUris
 import android.content.Context
@@ -10,6 +10,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.matsudamper.allintoolscreensaver.lib.PermissionChecker
 import net.matsudamper.allintoolscreensaver.ui.AttendeeStatus
 
 interface CalendarRepository {

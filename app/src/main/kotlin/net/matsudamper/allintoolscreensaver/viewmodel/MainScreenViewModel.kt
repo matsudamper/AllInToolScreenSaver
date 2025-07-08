@@ -12,9 +12,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.matsudamper.allintoolscreensaver.CalendarRepository
-import net.matsudamper.allintoolscreensaver.InMemoryCache
-import net.matsudamper.allintoolscreensaver.SettingsRepository
+import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepository
+import net.matsudamper.allintoolscreensaver.feature.InMemoryCache
+import net.matsudamper.allintoolscreensaver.feature.setting.SettingsRepository
 import net.matsudamper.allintoolscreensaver.lib.EventSender
 import net.matsudamper.allintoolscreensaver.ui.compose.MainActivityUiState
 

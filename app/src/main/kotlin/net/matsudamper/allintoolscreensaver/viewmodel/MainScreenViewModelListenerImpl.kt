@@ -9,8 +9,8 @@ import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.navigation3.runtime.NavBackStack
-import net.matsudamper.allintoolscreensaver.CalendarRepository
-import net.matsudamper.allintoolscreensaver.NavKeys
+import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepository
+import net.matsudamper.allintoolscreensaver.navigation.NavKeys
 
 class MainScreenViewModelListenerImpl(
     private val application: Application,

@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.matsudamper.allintoolscreensaver.CalendarRepository
-import net.matsudamper.allintoolscreensaver.SettingsRepository
+import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepository
+import net.matsudamper.allintoolscreensaver.feature.setting.SettingsRepository
 import net.matsudamper.allintoolscreensaver.lib.EventSender
 import net.matsudamper.allintoolscreensaver.ui.compose.CalendarSelectionMode
 import net.matsudamper.allintoolscreensaver.ui.compose.CalendarSelectionScreenUiState

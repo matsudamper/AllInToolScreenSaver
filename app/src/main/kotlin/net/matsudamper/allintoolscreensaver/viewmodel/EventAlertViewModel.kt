@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.matsudamper.allintoolscreensaver.AlertManager
-import net.matsudamper.allintoolscreensaver.CalendarRepository
+import net.matsudamper.allintoolscreensaver.feature.alert.AlertManager
+import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepository
 import net.matsudamper.allintoolscreensaver.ui.compose.EventAlertUiState
 
 class EventAlertViewModel(

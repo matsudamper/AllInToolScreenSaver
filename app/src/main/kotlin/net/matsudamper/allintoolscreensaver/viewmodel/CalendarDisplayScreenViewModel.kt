@@ -30,8 +30,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import net.matsudamper.allintoolscreensaver.CalendarRepository
-import net.matsudamper.allintoolscreensaver.SettingsRepository
+import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepository
+import net.matsudamper.allintoolscreensaver.feature.setting.SettingsRepository
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarDisplayScreenUiState
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarLayoutUiState
 

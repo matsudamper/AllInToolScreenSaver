@@ -4,6 +4,7 @@ import android.net.Uri
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import net.matsudamper.allintoolscreensaver.feature.setting.SettingsRepository
 
 class FakeSettingsManager : SettingsRepository {
     private val selectedCalendarIdsFlow = MutableStateFlow<List<Long>>(listOf())

@@ -1,7 +1,7 @@
 package net.matsudamper.allintoolscreensaver
 
 import java.time.Instant
-import net.matsudamper.allintoolscreensaver.CalendarRepository
+import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepository
 
 class FakeCalendarRepository : CalendarRepository {
     private val fakeCalendars = mutableListOf<CalendarRepository.CalendarInfo>()
