@@ -30,13 +30,13 @@ class UseKotlinDurationForDelayRule : Rule() {
 
     private fun checkDelayCall(callExpression: KtCallExpression) {
         val calleeExpression = callExpression.calleeExpression
-        
+
         // Check if this is a delay() call
         if (calleeExpression is KtNameReferenceExpression && calleeExpression.text == "delay") {
             val arguments = callExpression.valueArguments
             if (arguments.isNotEmpty()) {
                 val firstArgument = arguments[0].getArgumentExpression()
-                
+
                 // Check if the argument is a numeric literal
                 if (firstArgument is KtConstantExpression) {
                     val text = firstArgument.text
@@ -46,20 +46,25 @@ class UseKotlinDurationForDelayRule : Rule() {
                                 issue,
                                 Entity.from(callExpression),
                                 "delay($text) should use Kotlin Duration instead of numeric literal. " +
-                                "Consider using ${text}.milliseconds or appropriate Duration unit.",
+                                    "Consider using $text.milliseconds or appropriate Duration unit.",
                             ),
                         )
                     }
                 }
-                
+
                 // Check for Duration method calls that might be acceptable
                 if (firstArgument is KtDotQualifiedExpression) {
                     val selectorExpression = firstArgument.selectorExpression
                     if (selectorExpression is KtNameReferenceExpression) {
                         val selectorText = selectorExpression.text
                         val durationMethods = setOf(
-                            "nanoseconds", "microseconds", "milliseconds", "seconds", 
-                            "minutes", "hours", "days"
+                            "nanoseconds",
+                            "microseconds",
+                            "milliseconds",
+                            "seconds",
+                            "minutes",
+                            "hours",
+                            "days",
                         )
                         if (!durationMethods.contains(selectorText)) {
                             // Check if receiver is numeric literal
@@ -72,7 +77,7 @@ class UseKotlinDurationForDelayRule : Rule() {
                                             issue,
                                             Entity.from(callExpression),
                                             "delay($receiverText.$selectorText) should use Kotlin Duration. " +
-                                            "Consider using $receiverText.milliseconds or appropriate Duration unit.",
+                                                "Consider using $receiverText.milliseconds or appropriate Duration unit.",
                                         ),
                                     )
                                 }

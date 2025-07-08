@@ -20,7 +20,7 @@ class UseKotlinDurationForDelayRuleTest {
         assertEquals(1, findings.size)
         assertEquals(
             "delay(1000) should use Kotlin Duration instead of numeric literal. Consider using 1000.milliseconds or appropriate Duration unit.",
-            findings[0].message
+            findings[0].message,
         )
     }
 
@@ -38,7 +38,7 @@ class UseKotlinDurationForDelayRuleTest {
         assertEquals(1, findings.size)
         assertEquals(
             "delay(1000.5) should use Kotlin Duration instead of numeric literal. Consider using 1000.5.milliseconds or appropriate Duration unit.",
-            findings[0].message
+            findings[0].message,
         )
     }
 
