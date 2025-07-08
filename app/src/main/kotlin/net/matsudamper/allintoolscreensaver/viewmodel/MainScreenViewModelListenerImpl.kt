@@ -9,7 +9,6 @@ import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.navigation3.runtime.NavBackStack
-import net.matsudamper.allintoolscreensaver.CalendarInfo
 import net.matsudamper.allintoolscreensaver.CalendarRepository
 import net.matsudamper.allintoolscreensaver.NavKeys
 
@@ -39,7 +38,7 @@ class MainScreenViewModelListenerImpl(
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    override suspend fun loadAvailableCalendars(): List<CalendarInfo> {
+    override suspend fun loadAvailableCalendars(): List<CalendarRepository.CalendarInfo> {
         return calendarManager.getAvailableCalendars()
     }
 

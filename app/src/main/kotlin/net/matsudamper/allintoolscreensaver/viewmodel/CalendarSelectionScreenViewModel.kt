@@ -8,12 +8,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.matsudamper.allintoolscreensaver.CalendarInfo
 import net.matsudamper.allintoolscreensaver.CalendarRepository
 import net.matsudamper.allintoolscreensaver.SettingsRepository
+import net.matsudamper.allintoolscreensaver.lib.EventSender
 import net.matsudamper.allintoolscreensaver.ui.compose.CalendarSelectionMode
 import net.matsudamper.allintoolscreensaver.ui.compose.CalendarSelectionScreenUiState
-import net.matsudamper.allintoolscreensaver.lib.EventSender
 
 class CalendarSelectionScreenViewModel(
     private val calendarRepository: CalendarRepository,
@@ -152,7 +151,7 @@ class CalendarSelectionScreenViewModel(
 
     data class ViewModelState(
         val hasCalendarPermission: Boolean = false,
-        val availableCalendars: List<CalendarInfo> = listOf(),
+        val availableCalendars: List<CalendarRepository.CalendarInfo> = listOf(),
         val selectedCalendarIds: Set<Long> = setOf(),
     )
 }

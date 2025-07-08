@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.AlertManager
-import net.matsudamper.allintoolscreensaver.CalendarEvent
+import net.matsudamper.allintoolscreensaver.CalendarRepository
 import net.matsudamper.allintoolscreensaver.ui.compose.EventAlertUiState
 
 class EventAlertViewModel(
@@ -81,7 +81,7 @@ class EventAlertViewModel(
     )
 
     private data class AlertDialogInfo(
-        val event: CalendarEvent,
+        val event: CalendarRepository.CalendarEvent,
         val alertType: AlertManager.AlertType,
         val eventStartTime: LocalTime,
         val isRepeatingAlert: Boolean,

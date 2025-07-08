@@ -13,6 +13,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import net.matsudamper.allintoolscreensaver.CalendarRepository
 import net.matsudamper.allintoolscreensaver.ui.AttendeeStatus
 
 class AlertManager(
@@ -27,8 +28,8 @@ class AlertManager(
     private val dismissedAlerts = mutableSetOf<String>()
     private val alertKey = AlertKey()
 
-    var onAlertTriggered: ((CalendarEvent, AlertType, LocalTime, Boolean) -> Unit)? = null
-    var onScreenSaverAlertTriggered: ((CalendarEvent, AlertType, LocalTime, Boolean) -> Unit)? = null
+    var onAlertTriggered: ((CalendarRepository.CalendarEvent, AlertType, LocalTime, Boolean) -> Unit)? = null
+    var onScreenSaverAlertTriggered: ((CalendarRepository.CalendarEvent, AlertType, LocalTime, Boolean) -> Unit)? = null
     private var isDreamServiceActive = false
 
     suspend fun startAlertMonitoring() {
@@ -67,14 +68,14 @@ class AlertManager(
             endTime = endTime,
         )
 
-        events.filterIsInstance<CalendarEvent.Time>().forEach { event ->
+        events.filterIsInstance<CalendarRepository.CalendarEvent.Time>().forEach { event ->
             checkAlertForEvent(event, now)
         }
 
         cleanupOldAlerts(events)
     }
 
-    private fun checkAlertForEvent(event: CalendarEvent.Time, now: Instant) {
+    private fun checkAlertForEvent(event: CalendarRepository.CalendarEvent.Time, now: Instant) {
         if (event.attendeeStatus == AttendeeStatus.DECLINED) {
             return
         }
@@ -132,7 +133,7 @@ class AlertManager(
         }
     }
 
-    private fun cleanupOldAlerts(currentEvents: List<CalendarEvent>) {
+    private fun cleanupOldAlerts(currentEvents: List<CalendarRepository.CalendarEvent>) {
         val currentEventIds = currentEvents.map { it.id }.toSet()
         val keysToRemove = activeAlerts.keys.filter { key ->
             val eventId = alertKey.parseEventId(key)
@@ -154,10 +155,10 @@ class AlertManager(
         }
     }
 
-    private fun triggerAlert(event: CalendarEvent, alertType: AlertType, isRepeating: Boolean = false) {
+    private fun triggerAlert(event: CalendarRepository.CalendarEvent, alertType: AlertType, isRepeating: Boolean = false) {
         ringtone?.play()
 
-        val eventStartTime = (event as CalendarEvent.Time).startTime.atZone(ZoneId.systemDefault()).toLocalTime()
+        val eventStartTime = (event as CalendarRepository.CalendarEvent.Time).startTime.atZone(ZoneId.systemDefault()).toLocalTime()
 
         if (isDreamServiceActive) {
             onScreenSaverAlertTriggered?.invoke(event, alertType, eventStartTime, isRepeating)
@@ -170,7 +171,7 @@ class AlertManager(
         isDreamServiceActive = isActive
     }
 
-    fun dismissAlert(event: CalendarEvent, alertType: AlertType) {
+    fun dismissAlert(event: CalendarRepository.CalendarEvent, alertType: AlertType) {
         val alertKeyValue = alertKey.create(event, alertType)
         activeAlerts.remove(alertKeyValue)
         repeatingAlerts.remove(alertKeyValue)
@@ -178,7 +179,7 @@ class AlertManager(
     }
 
     data class AlertInfo(
-        val event: CalendarEvent,
+        val event: CalendarRepository.CalendarEvent,
         val alertType: AlertType,
         val triggeredAt: Instant,
         val isRepeating: Boolean = false,
@@ -191,7 +192,7 @@ class AlertManager(
     }
 
     class AlertKey {
-        fun create(event: CalendarEvent, alertType: AlertType): String {
+        fun create(event: CalendarRepository.CalendarEvent, alertType: AlertType): String {
             return "${event.id}_${alertType.name}"
         }
 

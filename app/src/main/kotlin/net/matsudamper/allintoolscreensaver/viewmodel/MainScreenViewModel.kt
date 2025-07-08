@@ -12,11 +12,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.matsudamper.allintoolscreensaver.CalendarInfo
+import net.matsudamper.allintoolscreensaver.CalendarRepository
 import net.matsudamper.allintoolscreensaver.InMemoryCache
 import net.matsudamper.allintoolscreensaver.SettingsRepository
-import net.matsudamper.allintoolscreensaver.ui.compose.MainActivityUiState
 import net.matsudamper.allintoolscreensaver.lib.EventSender
+import net.matsudamper.allintoolscreensaver.ui.compose.MainActivityUiState
 
 class MainScreenViewModel(
     private val settingsRepository: SettingsRepository,
@@ -194,7 +194,7 @@ class MainScreenViewModel(
     }.asStateFlow()
 
     private fun createCalendarItem(
-        calendarInfo: CalendarInfo,
+        calendarInfo: CalendarRepository.CalendarInfo,
         selectedCalendarIds: List<Long>,
     ): MainActivityUiState.CalendarItem {
         return MainActivityUiState.CalendarItem(
@@ -254,7 +254,7 @@ class MainScreenViewModel(
     }
 
     private data class ViewModelState(
-        val availableCalendars: List<CalendarInfo> = listOf(),
+        val availableCalendars: List<CalendarRepository.CalendarInfo> = listOf(),
         val hasCalendarPermission: Boolean = false,
         val hasOverlayPermission: Boolean = false,
     )
@@ -263,7 +263,7 @@ class MainScreenViewModel(
         fun onDirectorySelected(uri: Uri)
         fun onOpenDreamSettings()
         fun checkCalendarPermission(): Boolean
-        suspend fun loadAvailableCalendars(): List<CalendarInfo>
+        suspend fun loadAvailableCalendars(): List<CalendarRepository.CalendarInfo>
         fun onNavigateToCalendarSelection()
         fun onNavigateToCalendarDisplay()
         fun onNavigateToSlideShowPreview()

@@ -21,6 +21,7 @@ import java.time.ZoneId
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
+import net.matsudamper.allintoolscreensaver.CalendarRepository
 import net.matsudamper.allintoolscreensaver.ui.AttendeeStatus
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarDisplayScreen
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarDisplayScreenUiState
@@ -83,7 +84,7 @@ class CalendarDisplayScreenTest {
         val startTime = now.withHour(10).withMinute(0).withSecond(0).withNano(0)
         val endTime = now.withHour(11).withMinute(0).withSecond(0).withNano(0)
 
-        val event1 = CalendarEvent.Time(
+        val event1 = CalendarRepository.CalendarEvent.Time(
             id = 1L,
             title = "会議A",
             description = "重要な会議",
@@ -93,7 +94,7 @@ class CalendarDisplayScreenTest {
             attendeeStatus = AttendeeStatus.ACCEPTED,
         )
 
-        val event2 = CalendarEvent.Time(
+        val event2 = CalendarRepository.CalendarEvent.Time(
             id = 2L,
             title = "会議B",
             description = "別の会議",

@@ -12,40 +12,40 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.matsudamper.allintoolscreensaver.ui.AttendeeStatus
 
-data class CalendarInfo(
-    val id: Long,
-    val displayName: String,
-    val accountName: String,
-    val color: Int,
-)
-
-sealed interface CalendarEvent {
-    val id: Long
-    val title: String
-    val description: String?
-    val color: Int
-    val attendeeStatus: AttendeeStatus
-
-    data class Time(
-        override val id: Long,
-        override val title: String,
-        override val description: String?,
-        override val color: Int,
-        override val attendeeStatus: AttendeeStatus,
-        val startTime: Instant,
-        val endTime: Instant,
-    ) : CalendarEvent
-
-    data class AllDay(
-        override val id: Long,
-        override val title: String,
-        override val description: String?,
-        override val color: Int,
-        override val attendeeStatus: AttendeeStatus,
-    ) : CalendarEvent
-}
-
 interface CalendarRepository {
+    data class CalendarInfo(
+        val id: Long,
+        val displayName: String,
+        val accountName: String,
+        val color: Int,
+    )
+
+    sealed interface CalendarEvent {
+        val id: Long
+        val title: String
+        val description: String?
+        val color: Int
+        val attendeeStatus: AttendeeStatus
+
+        data class Time(
+            override val id: Long,
+            override val title: String,
+            override val description: String?,
+            override val color: Int,
+            override val attendeeStatus: AttendeeStatus,
+            val startTime: Instant,
+            val endTime: Instant,
+        ) : CalendarEvent
+
+        data class AllDay(
+            override val id: Long,
+            override val title: String,
+            override val description: String?,
+            override val color: Int,
+            override val attendeeStatus: AttendeeStatus,
+        ) : CalendarEvent
+    }
+
     suspend fun getAvailableCalendars(): List<CalendarInfo>
     suspend fun getEventsForTimeRange(
         calendarIds: List<Long>,
@@ -56,14 +56,14 @@ interface CalendarRepository {
 
 class CalendarRepositoryImpl(private val context: Context) : CalendarRepository {
 
-    override suspend fun getAvailableCalendars(): List<CalendarInfo> {
+    override suspend fun getAvailableCalendars(): List<CalendarRepository.CalendarInfo> {
         return withContext(Dispatchers.IO) {
             val permissionChecker = PermissionChecker(context)
             if (!permissionChecker.hasCalendarReadPermission()) {
                 return@withContext emptyList()
             }
 
-            val calendars = mutableListOf<CalendarInfo>()
+            val calendars = mutableListOf<CalendarRepository.CalendarInfo>()
 
             val projection = arrayOf(
                 CalendarContract.Calendars._ID,
@@ -87,7 +87,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                     val accountName = c.getString(c.getColumnIndexOrThrow(CalendarContract.Calendars.ACCOUNT_NAME))
                     val color = c.getInt(c.getColumnIndexOrThrow(CalendarContract.Calendars.CALENDAR_COLOR))
 
-                    calendars.add(CalendarInfo(id, displayName, accountName, color))
+                    calendars.add(CalendarRepository.CalendarInfo(id, displayName, accountName, color))
                 }
             }
 
@@ -99,7 +99,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
         calendarIds: List<Long>,
         startTime: Instant,
         endTime: Instant,
-    ): List<CalendarEvent> {
+    ): List<CalendarRepository.CalendarEvent> {
         return withContext(Dispatchers.IO) {
             val permissionChecker = PermissionChecker(context)
             if (!permissionChecker.hasCalendarReadPermission()) {
@@ -149,8 +149,8 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
 
     private fun collectCalendarEvent(
         cursor: Cursor,
-    ): MutableList<CalendarEvent> {
-        val events = mutableListOf<CalendarEvent>()
+    ): MutableList<CalendarRepository.CalendarEvent> {
+        val events = mutableListOf<CalendarRepository.CalendarEvent>()
         cursor.use { c ->
             while (c.moveToNext()) {
                 val id = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events._ID))
@@ -180,7 +180,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                 }
                 events.add(
                     if (allDay) {
-                        CalendarEvent.AllDay(
+                        CalendarRepository.CalendarEvent.AllDay(
                             id = id,
                             title = title,
                             description = description,
@@ -188,7 +188,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                             attendeeStatus = attendeeStatus,
                         )
                     } else {
-                        CalendarEvent.Time(
+                        CalendarRepository.CalendarEvent.Time(
                             id = id,
                             title = title,
                             description = description,

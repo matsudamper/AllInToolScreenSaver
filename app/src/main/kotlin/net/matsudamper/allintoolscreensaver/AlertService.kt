@@ -23,10 +23,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import net.matsudamper.allintoolscreensaver.viewmodel.toDisplayText
+import net.matsudamper.allintoolscreensaver.CalendarRepository
 import net.matsudamper.allintoolscreensaver.ui.compose.AlertOverlayDialog
 import net.matsudamper.allintoolscreensaver.ui.state.AlertDialogUiState
 import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
+import net.matsudamper.allintoolscreensaver.viewmodel.toDisplayText
 import org.koin.core.context.GlobalContext
 
 class AlertService : Service() {
@@ -176,7 +177,7 @@ class AlertService : Service() {
     }
 
     data class AlertDialogInfo(
-        val event: CalendarEvent,
+        val event: CalendarRepository.CalendarEvent,
         val alertType: AlertManager.AlertType,
         val eventStartTime: LocalTime,
         val eventStartTimeText: String,

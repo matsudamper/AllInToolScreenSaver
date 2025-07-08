@@ -13,7 +13,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import java.time.Clock
 import dev.chrisbanes.haze.HazeState
 import net.matsudamper.allintoolscreensaver.ImageManager
-import net.matsudamper.allintoolscreensaver.viewmodel.EventAlertViewModel
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarDisplayScreen
 import net.matsudamper.allintoolscreensaver.ui.compose.ClockContent
 import net.matsudamper.allintoolscreensaver.ui.compose.EventAlertContent
@@ -21,6 +20,7 @@ import net.matsudamper.allintoolscreensaver.ui.compose.ScreenSaverScreen
 import net.matsudamper.allintoolscreensaver.ui.compose.SlideShowScreen
 import net.matsudamper.allintoolscreensaver.viewmodel.CalendarDisplayScreenViewModel
 import net.matsudamper.allintoolscreensaver.viewmodel.ClockViewModel
+import net.matsudamper.allintoolscreensaver.viewmodel.EventAlertViewModel
 import net.matsudamper.allintoolscreensaver.viewmodel.SlideshowScreenViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.context.GlobalContext

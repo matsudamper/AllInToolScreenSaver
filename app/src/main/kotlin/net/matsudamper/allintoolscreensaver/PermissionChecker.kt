@@ -29,4 +29,4 @@ class PermissionChecker(private val context: Context) {
     fun hasSystemAlertWindowPermission(): Boolean {
         return android.provider.Settings.canDrawOverlays(context)
     }
-} 
+}

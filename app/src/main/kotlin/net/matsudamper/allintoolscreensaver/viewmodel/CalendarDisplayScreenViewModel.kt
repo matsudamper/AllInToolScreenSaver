@@ -30,7 +30,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import net.matsudamper.allintoolscreensaver.CalendarEvent
 import net.matsudamper.allintoolscreensaver.CalendarRepository
 import net.matsudamper.allintoolscreensaver.SettingsRepository
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarDisplayScreenUiState
@@ -89,7 +88,7 @@ class CalendarDisplayScreenViewModel(
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         calendarUiState = CalendarLayoutUiState(
-                            events = viewModelState.events.filterIsInstance<CalendarEvent.Time>()
+                            events = viewModelState.events.filterIsInstance<CalendarRepository.CalendarEvent.Time>()
                                 .map { event ->
                                     CalendarLayoutUiState.Event.Time(
                                         startTime = LocalTime.ofInstant(event.startTime, ZoneId.systemDefault()),
@@ -101,7 +100,7 @@ class CalendarDisplayScreenViewModel(
                                         attendeeStatus = event.attendeeStatus,
                                     )
                                 },
-                            allDayEvents = viewModelState.events.filterIsInstance<CalendarEvent.AllDay>()
+                            allDayEvents = viewModelState.events.filterIsInstance<CalendarRepository.CalendarEvent.AllDay>()
                                 .map { event ->
                                     CalendarLayoutUiState.Event.AllDay(
                                         title = event.title,
@@ -187,7 +186,7 @@ class CalendarDisplayScreenViewModel(
     }
 
     private data class ViewModelState(
-        val events: List<CalendarEvent> = listOf(),
+        val events: List<CalendarRepository.CalendarEvent> = listOf(),
         val lastInteractionTime: Instant,
         val alertEnabled: Boolean = false,
     )
