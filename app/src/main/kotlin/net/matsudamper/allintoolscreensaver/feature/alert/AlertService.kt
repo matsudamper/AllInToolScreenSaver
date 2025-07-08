@@ -1,6 +1,5 @@
 package net.matsudamper.allintoolscreensaver.feature.alert
 
-import android.R
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
@@ -101,7 +100,7 @@ class AlertService : Service() {
     private fun createNotification() = NotificationCompat.Builder(this, CHANNEL_ID)
         .setContentTitle("アラート監視中")
         .setContentText("カレンダーアラートを監視しています")
-        .setSmallIcon(R.drawable.ic_dialog_info)
+        .setSmallIcon(android.R.drawable.ic_dialog_info)
         .setOngoing(true)
         .build()
 
