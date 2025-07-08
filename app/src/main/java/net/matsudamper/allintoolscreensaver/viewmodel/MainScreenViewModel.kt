@@ -51,6 +51,14 @@ class MainScreenViewModel(
             }
         }
 
+        override fun onNavigateToSlideShowPreview() {
+            viewModelScope.launch {
+                eventSender.send {
+                    it.onNavigateToSlideShowPreview()
+                }
+            }
+        }
+
         override fun onDirectorySelected(uri: Uri) {
             inMemoryCache.imageInfo = null
             viewModelScope.launch {
@@ -258,6 +266,7 @@ class MainScreenViewModel(
         suspend fun loadAvailableCalendars(): List<CalendarInfo>
         fun onNavigateToCalendarSelection()
         fun onNavigateToCalendarDisplay()
+        fun onNavigateToSlideShowPreview()
         fun onNavigateToAlertCalendarSelection()
         fun checkOverlayPermission(): Boolean
         fun onRequestOverlayPermission()

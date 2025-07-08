@@ -98,6 +98,7 @@ dependencies {
     implementation(libs.androidxDocumentfile)
     implementation(libs.androidxLifecycleViewmodelCompose)
     implementation(libs.androidxDatastore)
+    implementation(libs.haze)
 
     implementation(libs.protobufKotlinLite)
     implementation(libs.koinAndroid)

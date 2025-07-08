@@ -57,6 +57,11 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
 
     override suspend fun getAvailableCalendars(): List<CalendarInfo> {
         return withContext(Dispatchers.IO) {
+            val permissionChecker = PermissionChecker(context)
+            if (!permissionChecker.hasCalendarReadPermission()) {
+                return@withContext emptyList()
+            }
+
             val calendars = mutableListOf<CalendarInfo>()
 
             val projection = arrayOf(
@@ -95,6 +100,11 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
         endTime: Instant,
     ): List<CalendarEvent> {
         return withContext(Dispatchers.IO) {
+            val permissionChecker = PermissionChecker(context)
+            if (!permissionChecker.hasCalendarReadPermission()) {
+                return@withContext emptyList()
+            }
+
             val events = mutableListOf<CalendarEvent>()
 
             val projection = arrayOf(

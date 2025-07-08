@@ -22,21 +22,20 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import coil.compose.AsyncImage
-
-data class PagerItem(
-    val id: String,
-    val imageUri: String?,
-)
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeSource
+import net.matsudamper.allintoolscreensaver.ui.compose.component.SuspendLifecycleStartEffect
 
 @Composable
 fun SlideShowScreen(
-    pagerItems: List<PagerItem>,
-    onPageChange: (Int) -> Unit,
-    @Suppress("ParameterNaming") onPageChanged: () -> Unit,
-    imageSwitchIntervalSeconds: Int?,
+    uiState: SlideshowUiState,
+    hazeState: HazeState,
     modifier: Modifier = Modifier,
 ) {
-    if (pagerItems.isEmpty()) {
+    SuspendLifecycleStartEffect(uiState.listener) {
+        uiState.listener.onStart()
+    }
+    if (uiState.pagerItems.isEmpty()) {
         Box(
             modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
@@ -45,89 +44,88 @@ fun SlideShowScreen(
                 modifier = Modifier.size(48.dp),
             )
         }
-        return
-    }
+    } else {
+        val pagerState = rememberPagerState(
+            initialPage = 1,
+            pageCount = { 3 },
+        )
+        val coroutineScope = rememberCoroutineScope()
+        val listener by rememberUpdatedState(uiState.listener)
+        LaunchedEffect(pagerState) {
+            snapshotFlow {
+                pagerState.currentPage to pagerState.isScrollInProgress
+            }.collectLatest { (currentPage, isScrolling) ->
+                if (isScrolling) return@collectLatest
 
-    val pagerState = rememberPagerState(
-        initialPage = 1,
-        pageCount = { 3 },
-    )
-    val coroutineScope = rememberCoroutineScope()
-    val latestOnPageChange by rememberUpdatedState(onPageChange)
-    LaunchedEffect(pagerState) {
-        snapshotFlow {
-            pagerState.currentPage to pagerState.isScrollInProgress
-        }.collectLatest { (currentPage, isScrolling) ->
-            if (isScrolling) return@collectLatest
-
-            if (currentPage != 1) {
-                latestOnPageChange(currentPage)
-            }
-        }
-    }
-    val latestOnPageChanged by rememberUpdatedState(onPageChanged)
-    LaunchedEffect(pagerState) {
-        snapshotFlow {
-            listOf(
-                pagerState.currentPage,
-                pagerState.isScrollInProgress,
-                pagerState.targetPage,
-            )
-        }.collectLatest {
-            if (pagerState.isScrollInProgress) return@collectLatest
-
-            if (pagerState.targetPage == pagerState.currentPage) {
-                latestOnPageChanged()
-            }
-        }
-    }
-    LaunchedEffect(
-        imageSwitchIntervalSeconds,
-        // スクロールしたらintervalをリセットする為にcurrentPageを設定
-        pagerState.currentPage,
-    ) {
-        if (imageSwitchIntervalSeconds == null) return@LaunchedEffect
-
-        while (isActive) {
-            delay(imageSwitchIntervalSeconds.seconds)
-            val currentPage = pagerState.currentPage
-            if (currentPage == 1) {
-                latestOnPageChange(2)
-                coroutineScope.launch {
-                    pagerState.animateScrollToPage(2)
+                if (currentPage != 1) {
+                    listener.onPageChanged(currentPage)
                 }
-            } else {
-                latestOnPageChange(currentPage)
             }
         }
-    }
 
-    HorizontalPager(
-        state = pagerState,
-        modifier = modifier.fillMaxSize(),
-        key = { index -> pagerItems[index].id },
-    ) { page ->
-        val item = pagerItems[page]
+        LaunchedEffect(pagerState) {
+            snapshotFlow {
+                listOf(
+                    pagerState.currentPage,
+                    pagerState.isScrollInProgress,
+                    pagerState.targetPage,
+                )
+            }.collectLatest {
+                if (pagerState.isScrollInProgress) return@collectLatest
 
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
+                if (pagerState.targetPage == pagerState.currentPage) {
+                    listener.onPageChanged(pagerState.targetPage)
+                }
+            }
+        }
+        LaunchedEffect(
+            uiState.imageSwitchIntervalSeconds,
+            // スクロールしたらintervalをリセットする為にcurrentPageを設定
+            pagerState.currentPage,
         ) {
-            when {
-                item.imageUri == null -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(48.dp),
-                    )
+            while (isActive) {
+                delay(uiState.imageSwitchIntervalSeconds.seconds)
+                val currentPage = pagerState.currentPage
+                if (currentPage == 1) {
+                    listener.onPageChanged(2)
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(2)
+                    }
+                } else {
+                    listener.onPageChanged(currentPage)
                 }
+            }
+        }
 
-                else -> {
-                    AsyncImage(
-                        model = item.imageUri,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop,
-                        alignment = Alignment.TopCenter,
-                    )
+        HorizontalPager(
+            state = pagerState,
+            modifier = modifier
+                .fillMaxSize()
+                .hazeSource(hazeState),
+            key = { index -> uiState.pagerItems[index].id },
+        ) { page ->
+            val item = uiState.pagerItems[page]
+
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                when {
+                    item.imageUri == null -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(48.dp),
+                        )
+                    }
+
+                    else -> {
+                        AsyncImage(
+                            model = item.imageUri,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                            alignment = Alignment.TopCenter,
+                        )
+                    }
                 }
             }
         }

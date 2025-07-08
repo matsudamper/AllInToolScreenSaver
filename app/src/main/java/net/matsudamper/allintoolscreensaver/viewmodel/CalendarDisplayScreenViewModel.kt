@@ -33,8 +33,8 @@ import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.CalendarEvent
 import net.matsudamper.allintoolscreensaver.CalendarRepository
 import net.matsudamper.allintoolscreensaver.SettingsRepository
-import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreenUiState
-import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarLayoutUiState
+import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarDisplayScreenUiState
+import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarLayoutUiState
 
 class CalendarDisplayScreenViewModel(
     application: Application,

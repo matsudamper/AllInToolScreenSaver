@@ -1,44 +1,83 @@
 package net.matsudamper.allintoolscreensaver.ui.compose
 
-import androidx.compose.animation.animateColorAsState
+import android.graphics.Bitmap
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import dev.chrisbanes.haze.HazeStyle
-import dev.chrisbanes.haze.hazeEffect
-import dev.chrisbanes.haze.rememberHazeState
-import net.matsudamper.allintoolscreensaver.ui.compose.component.DreamAlertDialog
+import java.time.LocalTime
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.receiveAsFlow
+
+data class EventAlertUiState(
+    val currentAlert: DialogInfo?,
+    val listener: Listener,
+) {
+    data class DialogInfo(
+        val title: String,
+        val description: String,
+        val alertTypeDisplayText: String,
+        val eventStartTime: LocalTime,
+        val eventStartTimeText: String,
+        val isRepeatingAlert: Boolean,
+    )
+
+    interface Listener {
+        suspend fun onStart()
+        fun onAlertDismiss()
+    }
+}
 
 @Composable
 fun ScreenSaverScreen(
-    uiState: ScreenSaverScreenUiState,
-    onPageChange: (Int) -> Unit,
-    onPageChanged: () -> Unit,
-    onAlertDismiss: () -> Unit,
+    slideshowContent: @Composable () -> Unit,
+    eventAlertContent: @Composable () -> Unit,
     calendarContent: @Composable () -> Unit,
+    clockContent: @Composable () -> Unit,
+    updateIsDarkClockBackground: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val hazeState = rememberHazeState()
+    val graphicsLayer = rememberGraphicsLayer()
+    var clockRect by remember { mutableStateOf<Rect?>(null) }
+    val pageChanged = remember { Channel<Unit>(Channel.CONFLATED) }
+
+    LaunchedEffect(clockRect) {
+        snapshotFlow { clockRect }
+            .combine(pageChanged.receiveAsFlow()) { rect, _ -> rect }
+            .filterNotNull()
+            .collectLatest { rect ->
+                val imageBitmap = graphicsLayer.toImageBitmap()
+                updateIsDarkClockBackground(
+                    isWhite(
+                        rect = rect,
+                        imageBitmap = imageBitmap,
+                    ),
+                )
+            }
+    }
 
     Box(
         modifier = modifier
@@ -53,12 +92,7 @@ fun ScreenSaverScreen(
                     .fillMaxHeight()
                     .weight(0.1f),
             ) {
-                SlideShowContent(
-                    uiState = uiState.slideShowUiState,
-                    onPageChange = onPageChange,
-                    onPageChanged = onPageChanged,
-                    hazeState = hazeState,
-                )
+                slideshowContent()
 
                 Box(
                     modifier = Modifier
@@ -67,35 +101,11 @@ fun ScreenSaverScreen(
                             end = 12.dp,
                             bottom = 12.dp,
                         )
-                        .clip(RoundedCornerShape(8.dp))
-                        .hazeEffect(
-                            state = hazeState,
-                            style = HazeStyle.Unspecified.copy(
-                                blurRadius = 8.dp,
-                            ),
-                        ),
-                ) {
-                    val animatedBackgroundColor by animateColorAsState(
-                        targetValue = if (uiState.clockUiState.shouldShowDarkBackground) {
-                            Color.Black.copy(alpha = 0.4f)
-                        } else {
-                            Color.Transparent
+                        .onGloballyPositioned {
+                            clockRect = it.boundsInRoot()
                         },
-                        label = "clock_background_animation",
-                    )
-
-                    Column(
-                        modifier = Modifier
-                            .background(color = animatedBackgroundColor)
-                            .padding(
-                                horizontal = 12.dp,
-                                vertical = 12.dp,
-                            ),
-                    ) {
-                        Clock(
-                            uiState = uiState.clockUiState,
-                        )
-                    }
+                ) {
+                    clockContent()
                 }
             }
 
@@ -106,76 +116,47 @@ fun ScreenSaverScreen(
             ) {
                 calendarContent()
             }
-        }
 
-        val currentAlert = uiState.eventAlertUiState
-        if (currentAlert != null) {
-            DreamAlertDialog(
-                title = {
-                    Column {
-                        Text(
-                            text = currentAlert.title,
-                        )
-                        Text(
-                            text = "${currentAlert.alertTypeDisplayText}のアラート",
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                    }
-                },
-                dismissRequest = onAlertDismiss,
-                negativeButton = {
-                    Text(text = "CLOSE")
-                },
-                onClickNegative = onAlertDismiss,
-                positiveButton = null,
-            ) {
-                Column {
-                    Text(
-                        text = currentAlert.eventStartTimeText,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    if (currentAlert.isRepeatingAlert) {
-                        Text(
-                            text = "※ このアラートは10秒おきに5分間繰り返されます",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error,
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-
-                    Text(text = currentAlert.description)
-                }
-            }
+            eventAlertContent()
         }
     }
 }
 
-@Composable
-private fun Clock(
-    uiState: ClockUiState,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Text(
-            text = uiState.timeText,
-            color = Color.White,
-            fontSize = 48.sp,
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Bold,
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = uiState.dateText,
-            color = Color.White,
-            fontSize = 20.sp,
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Bold,
-        )
+private fun isWhite(
+    rect: Rect,
+    imageBitmap: ImageBitmap,
+): Boolean {
+    val bitmap = run {
+        val bitmap = imageBitmap.asAndroidBitmap()
+        if (bitmap.config == Bitmap.Config.HARDWARE) {
+            bitmap.copy(Bitmap.Config.ARGB_8888, true)
+        } else {
+            bitmap
+        }
     }
+
+    val step = 4
+    val colorArray = IntArray((rect.width).toInt() * (rect.height).toInt()).also { array ->
+        bitmap.getPixels(
+            array,
+            0,
+            rect.width.toInt(),
+            rect.left.toInt(),
+            rect.top.toInt(),
+            rect.width.toInt(),
+            rect.height.toInt(),
+        )
+    }.toList().windowed(size = step, step = step).map { it.first() }
+
+    val vList = run {
+        val hsvArray = FloatArray(3)
+        colorArray.map { color ->
+            android.graphics.Color.colorToHSV(color, hsvArray)
+            hsvArray[2]
+        }
+    }
+    val isWhiteCount = vList.count { it > 0.9f }
+
+    val whitePar = isWhiteCount / vList.size.toFloat()
+    return whitePar > 0.2f
 }

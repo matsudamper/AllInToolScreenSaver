@@ -13,7 +13,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import net.matsudamper.allintoolscreensaver.compose.eventalert.AlertType
 import net.matsudamper.allintoolscreensaver.ui.AttendeeStatus
 
 class AlertManager(
@@ -51,6 +50,11 @@ class AlertManager(
     }
 
     private suspend fun checkUpcomingEvents() {
+        val permissionChecker = PermissionChecker(application)
+        if (!permissionChecker.hasCalendarReadPermission()) {
+            return
+        }
+
         val alertCalendarIds = settingsRepository.settingsFlow.first().alertCalendarIdsList
         if (alertCalendarIds.isEmpty()) return
 
@@ -179,6 +183,12 @@ class AlertManager(
         val triggeredAt: Instant,
         val isRepeating: Boolean = false,
     )
+
+    enum class AlertType(val minutesBefore: Int) {
+        FIVE_MINUTES_BEFORE(5),
+        ONE_MINUTE_BEFORE(1),
+        EVENT_TIME(0),
+    }
 
     class AlertKey {
         fun create(event: CalendarEvent, alertType: AlertType): String {

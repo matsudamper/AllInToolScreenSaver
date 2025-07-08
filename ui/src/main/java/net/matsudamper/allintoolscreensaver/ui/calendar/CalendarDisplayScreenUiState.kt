@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.compose.calendar
+package net.matsudamper.allintoolscreensaver.ui.calendar
 
 import androidx.compose.runtime.Immutable
 import kotlinx.coroutines.channels.Channel
