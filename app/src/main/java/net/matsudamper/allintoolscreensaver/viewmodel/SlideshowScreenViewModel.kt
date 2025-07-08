@@ -4,15 +4,10 @@ import android.net.Uri
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import java.text.SimpleDateFormat
 import java.time.Clock
 import java.time.Instant
-import java.util.Date
-import java.util.Locale
 import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,15 +17,14 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.ImageManager
 import net.matsudamper.allintoolscreensaver.InMemoryCache
 import net.matsudamper.allintoolscreensaver.SettingsRepository
-import net.matsudamper.allintoolscreensaver.compose.DigitalClockScreenUiState
-import net.matsudamper.allintoolscreensaver.compose.PagerItem
+import net.matsudamper.allintoolscreensaver.ui.compose.PagerItem
+import net.matsudamper.allintoolscreensaver.ui.compose.SlideshowUiState
 
-class DigitalClockScreenViewModel(
+class SlideshowScreenViewModel(
     private val settingsRepositor: SettingsRepository,
     private val imageManager: ImageManager,
     private val inMemoryCache: InMemoryCache,
@@ -53,7 +47,7 @@ class DigitalClockScreenViewModel(
         },
     )
 
-    private val listener = object : DigitalClockScreenUiState.Listener {
+    private val listener = object : SlideshowUiState.Listener {
         override suspend fun onStart() {
             updateImages()
         }
@@ -66,43 +60,28 @@ class DigitalClockScreenViewModel(
         }
     }
 
-    val uiState: StateFlow<DigitalClockScreenUiState> = MutableStateFlow(
-        DigitalClockScreenUiState(
-            currentTime = getCurrentTime(),
-            currentDate = getCurrentDate(),
+    val uiState: StateFlow<SlideshowUiState> = MutableStateFlow(
+        SlideshowUiState(
             showAlertDialog = false,
-            currentAlert = null,
             imageUri = null,
             isLoading = true,
             pagerItems = listOf(),
-            imageSwitchIntervalSeconds = null,
+            imageSwitchIntervalSeconds = defaultSlideshowDuration.inWholeSeconds.toInt(),
             listener = listener,
         ),
     ).also { uiStateFlow ->
-        viewModelScope.launch {
-            while (isActive) {
-                uiStateFlow.update { uiState ->
-                    uiState.copy(
-                        currentTime = getCurrentTime(),
-                        currentDate = getCurrentDate(),
-                    )
-                }
-
-                val now = Instant.now(clock)
-                val delayTime = 1.seconds - (now.toEpochMilli() % 1000).milliseconds
-                delay(delayTime.coerceAtLeast(1.milliseconds))
-            }
-        }
         viewModelScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         imageUri = viewModelState.images.getOrNull(
-                            viewModelState.imagesShuffledIndex.getOrNull(viewModelState.currentIndex) ?: 0,
+                            viewModelState.imagesShuffledIndex.getOrNull(viewModelState.currentIndex)
+                                ?: 0,
                         ),
                         isLoading = viewModelState.isLoading,
                         pagerItems = createPagerItems(viewModelState),
-                        imageSwitchIntervalSeconds = viewModelState.imageSwitchIntervalSeconds,
+                        imageSwitchIntervalSeconds = viewModelState.imageSwitchIntervalSeconds
+                            ?: defaultSlideshowDuration.inWholeSeconds.toInt(),
                     )
                 }
             }
@@ -196,7 +175,9 @@ class DigitalClockScreenViewModel(
             return
         }
 
-        val directoryUri = settingsRepositor.settingsFlow.first().imageDirectoryUri.takeIf { it.isNotEmpty() }?.toUri() ?: return updateLoadingFalse()
+        val directoryUri =
+            settingsRepositor.settingsFlow.first().imageDirectoryUri.takeIf { it.isNotEmpty() }
+                ?.toUri() ?: return updateLoadingFalse()
 
         if (viewModelStateFlow.value.images.isEmpty()) {
             val uris = imageManager.getImageUrisFromDirectory(directoryUri)
@@ -217,7 +198,8 @@ class DigitalClockScreenViewModel(
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     images = firstList + secondList,
-                    imagesShuffledIndex = firstImagesShuffledIndex + secondList.indices.shuffled().map { firstImagesShuffledIndex.size + it },
+                    imagesShuffledIndex = firstImagesShuffledIndex + secondList.indices.shuffled()
+                        .map { firstImagesShuffledIndex.size + it },
                     imagesLastUpdate = Instant.now(clock),
                     isLoading = false,
                 )
@@ -243,16 +225,6 @@ class DigitalClockScreenViewModel(
         }
     }
 
-    private fun getCurrentTime(): String {
-        val formatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-        return formatter.format(Date())
-    }
-
-    private fun getCurrentDate(): String {
-        val formatter = SimpleDateFormat("yyyy年MM月dd日(E)", Locale.JAPANESE)
-        return formatter.format(Date())
-    }
-
     data class ViewModelState(
         val images: List<Uri> = listOf(),
         val imagesShuffledIndex: List<Int> = listOf(),
@@ -264,5 +236,9 @@ class DigitalClockScreenViewModel(
         fun getPagerImage(index: Int): Uri {
             return images[imagesShuffledIndex[index]]
         }
+    }
+
+    companion object {
+        val defaultSlideshowDuration = 30.seconds
     }
 }

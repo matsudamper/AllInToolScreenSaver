@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.compose.calendar
+package net.matsudamper.allintoolscreensaver.ui.calendar
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
@@ -32,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
@@ -39,7 +39,9 @@ import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
@@ -474,17 +476,17 @@ private fun EventCard(
                             AttendeeStatus.DECLINED -> buildAnnotatedString {
                                 append(title)
                                 addStyle(
-                                    style = androidx.compose.ui.text.SpanStyle(
-                                        textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough,
+                                    style = SpanStyle(
+                                        textDecoration = TextDecoration.LineThrough,
                                     ),
                                     start = 0,
                                     end = title.length,
                                 )
                                 // Add second line for thicker strikethrough
                                 addStyle(
-                                    style = androidx.compose.ui.text.SpanStyle(
-                                        textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough,
-                                        shadow = androidx.compose.ui.graphics.Shadow(
+                                    style = SpanStyle(
+                                        textDecoration = TextDecoration.LineThrough,
+                                        shadow = Shadow(
                                             offset = Offset(0f, 1f),
                                             blurRadius = 0f,
                                         ),
@@ -509,17 +511,17 @@ private fun EventCard(
                                 AttendeeStatus.DECLINED -> buildAnnotatedString {
                                     append(annotatedString)
                                     addStyle(
-                                        style = androidx.compose.ui.text.SpanStyle(
-                                            textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough,
+                                        style = SpanStyle(
+                                            textDecoration = TextDecoration.LineThrough,
                                         ),
                                         start = 0,
                                         end = annotatedString.length,
                                     )
                                     // Add second line for thicker strikethrough
                                     addStyle(
-                                        style = androidx.compose.ui.text.SpanStyle(
-                                            textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough,
-                                            shadow = androidx.compose.ui.graphics.Shadow(
+                                        style = SpanStyle(
+                                            textDecoration = TextDecoration.LineThrough,
+                                            shadow = Shadow(
                                                 offset = Offset(0f, 1f),
                                                 blurRadius = 0f,
                                             ),

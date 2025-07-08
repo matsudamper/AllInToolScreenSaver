@@ -17,19 +17,15 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.io.PlatformTestStorageRegistry
 import java.time.Clock
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.ZoneId
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
-import net.matsudamper.allintoolscreensaver.CalendarEvent
-import net.matsudamper.allintoolscreensaver.CalendarRepository
-import net.matsudamper.allintoolscreensaver.SettingsRepository
-import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreen
-import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreenUiState
-import net.matsudamper.allintoolscreensaver.compose.calendar.previewCalendarLayoutClock
 import net.matsudamper.allintoolscreensaver.ui.AttendeeStatus
-import net.matsudamper.allintoolscreensaver.waitUntilExactlyOne
+import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarDisplayScreen
+import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarDisplayScreenUiState
+import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarLayoutUiState
+import net.matsudamper.allintoolscreensaver.ui.calendar.previewCalendarLayoutClock
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -111,7 +107,7 @@ class CalendarDisplayScreenTest {
         calendarRepository.addEvent(event2)
 
         val testEvents = listOf(
-            net.matsudamper.allintoolscreensaver.compose.calendar.CalendarLayoutUiState.Event.Time(
+            CalendarLayoutUiState.Event.Time(
                 startTime = java.time.LocalTime.of(10, 0),
                 endTime = java.time.LocalTime.of(11, 0),
                 title = "会議A",
@@ -120,7 +116,7 @@ class CalendarDisplayScreenTest {
                 color = Color.Red,
                 attendeeStatus = AttendeeStatus.ACCEPTED,
             ),
-            net.matsudamper.allintoolscreensaver.compose.calendar.CalendarLayoutUiState.Event.Time(
+            CalendarLayoutUiState.Event.Time(
                 startTime = java.time.LocalTime.of(10, 30),
                 endTime = java.time.LocalTime.of(11, 30),
                 title = "会議B",
@@ -134,7 +130,7 @@ class CalendarDisplayScreenTest {
         composeTestRule.setContent {
             CalendarDisplayScreen(
                 uiState = CalendarDisplayScreenUiState(
-                    calendarUiState = net.matsudamper.allintoolscreensaver.compose.calendar.CalendarLayoutUiState(
+                    calendarUiState = CalendarLayoutUiState(
                         events = testEvents,
                         allDayEvents = listOf(),
                     ),

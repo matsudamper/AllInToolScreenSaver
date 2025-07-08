@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.AlertManager
 import net.matsudamper.allintoolscreensaver.CalendarEvent
+import net.matsudamper.allintoolscreensaver.ui.compose.EventAlertUiState
 
 class EventAlertViewModel(
     private val alertManager: AlertManager,
@@ -45,11 +46,12 @@ class EventAlertViewModel(
                     uiState.copy(
                         currentAlert = viewModelState.currentAlert?.let { alert ->
                             EventAlertUiState.DialogInfo(
-                                event = alert.event,
-                                alertType = alert.alertType,
+                                title = alert.event.title,
                                 eventStartTime = alert.eventStartTime,
                                 eventStartTimeText = "開始時刻: ${alert.eventStartTime.format(DateTimeFormatter.ofPattern("HH:mm"))}",
                                 isRepeatingAlert = alert.isRepeatingAlert,
+                                alertTypeDisplayText = alert.alertType.toDisplayText(),
+                                description = alert.event.description.orEmpty(),
                             )
                         },
                     )
@@ -80,8 +82,16 @@ class EventAlertViewModel(
 
     private data class AlertDialogInfo(
         val event: CalendarEvent,
-        val alertType: AlertType,
+        val alertType: AlertManager.AlertType,
         val eventStartTime: LocalTime,
         val isRepeatingAlert: Boolean,
     )
+}
+
+fun AlertManager.AlertType.toDisplayText(): String {
+    return when (this) {
+        AlertManager.AlertType.FIVE_MINUTES_BEFORE -> "5分前"
+        AlertManager.AlertType.ONE_MINUTE_BEFORE -> "1分前"
+        AlertManager.AlertType.EVENT_TIME -> "開始時刻"
+    }
 }

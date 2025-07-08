@@ -1,18 +1,14 @@
-package net.matsudamper.allintoolscreensaver.compose
+package net.matsudamper.allintoolscreensaver.ui.compose
 
 import android.net.Uri
 import androidx.compose.runtime.Immutable
-import net.matsudamper.allintoolscreensaver.CalendarEvent
 
-data class DigitalClockScreenUiState(
-    val currentTime: String,
-    val currentDate: String,
+data class SlideshowUiState(
     val showAlertDialog: Boolean,
-    val currentAlert: CalendarEvent?,
     val imageUri: Uri?,
     val isLoading: Boolean,
     val pagerItems: List<PagerItem>,
-    val imageSwitchIntervalSeconds: Int?,
+    val imageSwitchIntervalSeconds: Int,
     val listener: Listener,
 ) {
     @Immutable

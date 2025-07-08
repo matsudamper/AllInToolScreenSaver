@@ -2,7 +2,6 @@ package net.matsudamper.allintoolscreensaver
 
 import android.app.Application
 import android.content.Context
-
 import java.time.Clock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

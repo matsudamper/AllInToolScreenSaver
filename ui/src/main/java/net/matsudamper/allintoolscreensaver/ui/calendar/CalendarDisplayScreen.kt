@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.compose.calendar
+package net.matsudamper.allintoolscreensaver.ui.calendar
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -22,7 +22,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,33 +42,16 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.ui.TimeRangeSlider
 import net.matsudamper.allintoolscreensaver.ui.TimeRangeSliderItem
+import net.matsudamper.allintoolscreensaver.ui.compose.LocalClock
 import net.matsudamper.allintoolscreensaver.ui.rememberCalendarState
 import net.matsudamper.allintoolscreensaver.ui.rememberTimeRangeSlider
-import net.matsudamper.allintoolscreensaver.viewmodel.CalendarDisplayScreenViewModel
-import org.koin.androidx.compose.koinViewModel
-
-@Composable
-fun CalendarDisplayScreen(
-    contentWindowInsets: WindowInsets,
-    modifier: Modifier = Modifier,
-    viewModel: CalendarDisplayScreenViewModel = koinViewModel(),
-    clock: Clock = remember { Clock.systemDefaultZone() },
-) {
-    val uiState by viewModel.uiState.collectAsState()
-    CalendarDisplayScreen(
-        modifier = modifier,
-        uiState = uiState,
-        clock = clock,
-        contentWindowInsets = contentWindowInsets,
-    )
-}
 
 @Composable
 fun CalendarDisplayScreen(
     uiState: CalendarDisplayScreenUiState,
-    clock: Clock,
     contentWindowInsets: WindowInsets,
     modifier: Modifier = Modifier,
+    clock: Clock = LocalClock.current,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val calendarState = rememberCalendarState()

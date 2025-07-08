@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.graphics.PixelFormat
 import android.os.IBinder
-
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
@@ -24,7 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import net.matsudamper.allintoolscreensaver.compose.eventalert.AlertType
+import net.matsudamper.allintoolscreensaver.compose.eventalert.toDisplayText
 import net.matsudamper.allintoolscreensaver.ui.compose.AlertOverlayDialog
 import net.matsudamper.allintoolscreensaver.ui.state.AlertDialogUiState
 import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
@@ -84,7 +83,7 @@ class AlertService : Service() {
         if (!permissionChecker.hasPostNotificationsPermission()) {
             return
         }
-        
+
         val channel = NotificationChannel(
             CHANNEL_ID,
             "アラート監視サービス",
@@ -135,7 +134,7 @@ class AlertService : Service() {
                 AlertOverlayDialog(
                     alertInfo = AlertDialogUiState(
                         title = alert.event.title,
-                        alertTypeDisplayText = alert.alertType.displayText,
+                        alertTypeDisplayText = alert.alertType.toDisplayText(),
                         eventStartTimeText = alert.eventStartTimeText,
                         description = alert.event.description.orEmpty(),
                         isRepeatingAlert = alert.isRepeatingAlert,
@@ -176,11 +175,9 @@ class AlertService : Service() {
         hideOverlay()
     }
 
-
-
     data class AlertDialogInfo(
         val event: CalendarEvent,
-        val alertType: AlertType,
+        val alertType: AlertManager.AlertType,
         val eventStartTime: LocalTime,
         val eventStartTimeText: String,
         val isRepeatingAlert: Boolean,

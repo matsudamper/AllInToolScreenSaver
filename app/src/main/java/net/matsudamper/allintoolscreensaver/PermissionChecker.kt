@@ -11,7 +11,7 @@ class PermissionChecker(private val context: Context) {
     fun hasCalendarReadPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
             context,
-            Manifest.permission.READ_CALENDAR
+            Manifest.permission.READ_CALENDAR,
         ) == PackageManager.PERMISSION_GRANTED
     }
 
@@ -19,7 +19,7 @@ class PermissionChecker(private val context: Context) {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(
                 context,
-                Manifest.permission.POST_NOTIFICATIONS
+                Manifest.permission.POST_NOTIFICATIONS,
             ) == PackageManager.PERMISSION_GRANTED
         } else {
             true

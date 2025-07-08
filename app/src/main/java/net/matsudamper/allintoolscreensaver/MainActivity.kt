@@ -9,21 +9,18 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import net.matsudamper.allintoolscreensaver.compose.CalendarDisplayScreenAdapter
 import net.matsudamper.allintoolscreensaver.compose.CalendarSelectionMode
 import net.matsudamper.allintoolscreensaver.compose.CalendarSelectionScreen
 import net.matsudamper.allintoolscreensaver.compose.MainScreenAdapter
 import net.matsudamper.allintoolscreensaver.compose.ScreenSaverScreenAdapter
-import net.matsudamper.allintoolscreensaver.compose.calendar.CalendarDisplayScreen
 import net.matsudamper.allintoolscreensaver.navigation.CustomTwoPaneSceneStrategy
-import net.matsudamper.allintoolscreensaver.ui.compose.ScreenSaverScreen
-import net.matsudamper.allintoolscreensaver.ui.compose.SlideShowScreen
 import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
 import net.matsudamper.allintoolscreensaver.viewmodel.CalendarSelectionScreenViewModel
 import net.matsudamper.allintoolscreensaver.viewmodel.MainScreenViewModel
@@ -107,7 +104,7 @@ class MainActivity : ComponentActivity() {
                     entry<NavKeys.CalendarDisplay>(
                         metadata = CustomTwoPaneSceneStrategy.extendPane(),
                     ) { _ ->
-                        CalendarDisplayScreen(
+                        CalendarDisplayScreenAdapter(
                             contentWindowInsets = WindowInsets.systemBars,
                         )
                     }
