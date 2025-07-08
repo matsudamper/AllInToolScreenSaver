@@ -12,6 +12,7 @@ class CustomRuleSetProvider : RuleSetProvider {
             ruleSetId,
             listOf(
                 JavaTimeClockRule(),
+                UseKotlinDurationForDelayRule(),
             ),
         )
     }
