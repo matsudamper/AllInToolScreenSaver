@@ -19,6 +19,7 @@ import net.matsudamper.allintoolscreensaver.adapter.CalendarDisplayScreenAdapter
 import net.matsudamper.allintoolscreensaver.adapter.CalendarSelectionScreenAdapter
 import net.matsudamper.allintoolscreensaver.adapter.MainScreenAdapter
 import net.matsudamper.allintoolscreensaver.adapter.ScreenSaverScreenAdapter
+import net.matsudamper.allintoolscreensaver.adapter.SlideShowScreenAdapter
 import net.matsudamper.allintoolscreensaver.navigation.CustomTwoPaneSceneStrategy
 import net.matsudamper.allintoolscreensaver.navigation.NavKeys
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarSelectionMode
@@ -112,7 +113,7 @@ class MainActivity : ComponentActivity() {
                     entry<NavKeys.SlideShowPreview>(
                         metadata = CustomTwoPaneSceneStrategy.extendPane(),
                     ) { _ ->
-                        ScreenSaverScreenAdapter()
+                        SlideShowScreenAdapter()
                     }
                 },
             )

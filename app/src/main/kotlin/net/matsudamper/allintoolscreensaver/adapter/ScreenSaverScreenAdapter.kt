@@ -93,8 +93,8 @@ private fun ClockAdapter(
 }
 
 @Composable
-private fun SlideShowScreenAdapter(
-    hazeState: HazeState,
+fun SlideShowScreenAdapter(
+    hazeState: HazeState = remember { HazeState() },
 ) {
     val context = LocalContext.current
     val slideshowScreenViewModel: SlideshowScreenViewModel = viewModel(
