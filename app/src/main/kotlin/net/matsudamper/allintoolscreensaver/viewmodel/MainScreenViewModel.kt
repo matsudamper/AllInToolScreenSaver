@@ -16,7 +16,10 @@ import net.matsudamper.allintoolscreensaver.feature.InMemoryCache
 import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepository
 import net.matsudamper.allintoolscreensaver.feature.setting.SettingsRepository
 import net.matsudamper.allintoolscreensaver.lib.EventSender
-import net.matsudamper.allintoolscreensaver.ui.main.MainActivityUiState
+import net.matsudamper.allintoolscreensaver.ui.main.CalendarSectionUiState
+import net.matsudamper.allintoolscreensaver.ui.main.IntervalOption
+import net.matsudamper.allintoolscreensaver.ui.main.MainScreenUiState
+import net.matsudamper.allintoolscreensaver.ui.main.ScreenSaverSectionUiState
 
 class MainScreenViewModel(
     private val settingsRepository: SettingsRepository,
@@ -27,7 +30,7 @@ class MainScreenViewModel(
     private val eventSender = EventSender<Listener>()
     val eventHandler = eventSender.asHandler()
 
-    private val listener = object : MainActivityUiState.Listener {
+    private val listener = object : MainScreenUiState.Listener {
         override suspend fun onStart() {
             coroutineScope {
                 launch {
@@ -135,17 +138,19 @@ class MainScreenViewModel(
         }
     }
 
-    val uiState: StateFlow<MainActivityUiState> = MutableStateFlow(
-        MainActivityUiState(
-            selectedDirectoryPath = null,
-            availableCalendars = listOf(),
-            selectedCalendarIds = listOf(),
-            hasCalendarPermission = false,
-            imageSwitchIntervalSeconds = 30,
-            selectedCalendar = "",
-            hasOverlayPermission = false,
-            alertCalendarIds = listOf(),
-            selectedAlertCalendar = "",
+    val uiState: StateFlow<MainScreenUiState> = MutableStateFlow(
+        MainScreenUiState(
+            screenSaverSectionUiState = ScreenSaverSectionUiState(
+                selectedDirectoryPath = "",
+                imageSwitchIntervalSeconds = 30,
+                intervalOptions = listOf(),
+            ),
+            calendarSectionUiState = CalendarSectionUiState(
+                selectedCalendarDisplayName = "",
+                selectedAlertCalendarDisplayName = "",
+                hasOverlayPermission = false,
+                hasCalendarPermission = false,
+            ),
             listener = listener,
         ),
     ).also { uiStateFlow ->
@@ -155,36 +160,41 @@ class MainScreenViewModel(
                 settingsRepository.settingsFlow,
                 settingsRepository.getAlertCalendarIdsFlow(),
             ) { viewModelState, settings, alertCalendarIds ->
-                val availableCalendarItems = viewModelState.availableCalendars.map { calendarInfo ->
-                    createCalendarItem(calendarInfo, settings.selectedCalendarIdsList)
+                val intervalOptions = listOf(5, 15, 30, 60).map { seconds ->
+                    IntervalOption(
+                        seconds = seconds,
+                        displayText = "${seconds}秒",
+                        isSelected = (if (settings.imageSwitchIntervalSeconds == 0) 30 else settings.imageSwitchIntervalSeconds) == seconds,
+                    )
                 }
 
-                MainActivityUiState(
-                    selectedDirectoryPath = settings.imageDirectoryUri
-                        .ifEmpty { null },
-                    availableCalendars = availableCalendarItems,
-                    selectedCalendarIds = settings.selectedCalendarIdsList,
-                    hasCalendarPermission = viewModelState.hasCalendarPermission,
-                    imageSwitchIntervalSeconds = if (settings.imageSwitchIntervalSeconds == 0) {
-                        30
-                    } else {
-                        settings.imageSwitchIntervalSeconds
-                    },
-                    selectedCalendar = settings.selectedCalendarIdsList
-                        .mapNotNull { calendarId ->
-                            viewModelState.availableCalendars.find { it.id == calendarId }
-                                ?.displayName
-                        }
-                        .joinToString(", "),
-                    hasOverlayPermission = viewModelState.hasOverlayPermission,
-                    alertCalendarIds = alertCalendarIds,
-                    selectedAlertCalendar = alertCalendarIds
-                        .mapNotNull { calendarId ->
-                            viewModelState.availableCalendars.find { it.id == calendarId }
-                                ?.displayName
-                        }
-                        .takeIf { it.isNotEmpty() }
-                        ?.joinToString(", ") ?: "未選択",
+                MainScreenUiState(
+                    screenSaverSectionUiState = ScreenSaverSectionUiState(
+                        selectedDirectoryPath = settings.imageDirectoryUri.ifEmpty { null }.orEmpty(),
+                        imageSwitchIntervalSeconds = if (settings.imageSwitchIntervalSeconds == 0) {
+                            30
+                        } else {
+                            settings.imageSwitchIntervalSeconds
+                        },
+                        intervalOptions = intervalOptions,
+                    ),
+                    calendarSectionUiState = CalendarSectionUiState(
+                        selectedCalendarDisplayName = settings.selectedCalendarIdsList
+                            .mapNotNull { calendarId ->
+                                viewModelState.availableCalendars.find { it.id == calendarId }
+                                    ?.displayName
+                            }
+                            .joinToString(", "),
+                        selectedAlertCalendarDisplayName = alertCalendarIds
+                            .mapNotNull { calendarId ->
+                                viewModelState.availableCalendars.find { it.id == calendarId }
+                                    ?.displayName
+                            }
+                            .takeIf { it.isNotEmpty() }
+                            ?.joinToString(", ") ?: "未選択",
+                        hasOverlayPermission = viewModelState.hasOverlayPermission,
+                        hasCalendarPermission = viewModelState.hasCalendarPermission,
+                    ),
                     listener = listener,
                 )
             }.collectLatest { newUiState ->
@@ -192,24 +202,6 @@ class MainScreenViewModel(
             }
         }
     }.asStateFlow()
-
-    private fun createCalendarItem(
-        calendarInfo: CalendarRepository.CalendarInfo,
-        selectedCalendarIds: List<Long>,
-    ): MainActivityUiState.CalendarItem {
-        return MainActivityUiState.CalendarItem(
-            id = calendarInfo.id,
-            displayName = calendarInfo.displayName,
-            accountName = calendarInfo.accountName,
-            color = calendarInfo.color,
-            isSelected = calendarInfo.id in selectedCalendarIds,
-            listener = object : MainActivityUiState.CalendarItemListener {
-                override fun onSelectionChanged(isSelected: Boolean) {
-                    listener.onCalendarSelectionChanged(calendarInfo.id, isSelected)
-                }
-            },
-        )
-    }
 
     private fun checkCalendarPermission() {
         viewModelScope.launch {

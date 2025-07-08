@@ -29,6 +29,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import net.matsudamper.allintoolscreensaver.ui.component.SuspendLifecycleResumeEffect
+import net.matsudamper.allintoolscreensaver.ui.component.SuspendLifecycleStartEffect
 
 private val SectionHorizontalPadding = 12.dp
 private val SectionLargeRadiusSize = 16.dp
@@ -48,6 +50,14 @@ fun MainScreen(
     onRequestOverlayPermission: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    SuspendLifecycleResumeEffect(Unit) {
+        uiState.listener.onResume()
+    }
+
+    SuspendLifecycleStartEffect(Unit) {
+        uiState.listener.onStart()
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {

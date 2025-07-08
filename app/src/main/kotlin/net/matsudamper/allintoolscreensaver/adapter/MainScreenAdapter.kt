@@ -10,13 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
-import net.matsudamper.allintoolscreensaver.ui.component.SuspendLifecycleResumeEffect
-import net.matsudamper.allintoolscreensaver.ui.component.SuspendLifecycleStartEffect
-import net.matsudamper.allintoolscreensaver.ui.main.CalendarSectionUiState
-import net.matsudamper.allintoolscreensaver.ui.main.IntervalOption
 import net.matsudamper.allintoolscreensaver.ui.main.MainScreen
-import net.matsudamper.allintoolscreensaver.ui.main.MainScreenUiState
-import net.matsudamper.allintoolscreensaver.ui.main.ScreenSaverSectionUiState
 import net.matsudamper.allintoolscreensaver.viewmodel.MainScreenViewModel
 import net.matsudamper.allintoolscreensaver.viewmodel.MainScreenViewModelListenerImpl
 import org.koin.core.context.GlobalContext
@@ -33,7 +27,7 @@ fun MainScreenAdapter(
         )
     },
 ) {
-    val businessUiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(viewModel.eventHandler) {
         val koin = GlobalContext.get()
@@ -50,45 +44,15 @@ fun MainScreenAdapter(
         contract = ActivityResultContracts.OpenDocumentTree(),
     ) { uri ->
         if (uri != null) {
-            businessUiState.listener.onDirectorySelected(uri)
+            uiState.listener.onDirectorySelected(uri)
         }
     }
 
     val calendarPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
     ) { isGranted ->
-        businessUiState.listener.updatePermissions(calendar = isGranted)
+        uiState.listener.updatePermissions(calendar = isGranted)
     }
-
-    SuspendLifecycleResumeEffect(Unit) {
-        businessUiState.listener.onResume()
-    }
-
-    SuspendLifecycleStartEffect(Unit) {
-        businessUiState.listener.onStart()
-    }
-
-    val intervalOptions = listOf(5, 15, 30, 60).map { seconds ->
-        IntervalOption(
-            seconds = seconds,
-            displayText = "${seconds}秒",
-            isSelected = businessUiState.imageSwitchIntervalSeconds == seconds,
-        )
-    }
-
-    val uiState = MainScreenUiState(
-        screenSaverSectionUiState = ScreenSaverSectionUiState(
-            selectedDirectoryPath = businessUiState.selectedDirectoryPath.orEmpty(),
-            imageSwitchIntervalSeconds = businessUiState.imageSwitchIntervalSeconds,
-            intervalOptions = intervalOptions,
-        ),
-        calendarSectionUiState = CalendarSectionUiState(
-            selectedCalendarDisplayName = businessUiState.selectedCalendar,
-            selectedAlertCalendarDisplayName = businessUiState.selectedAlertCalendar,
-            hasOverlayPermission = businessUiState.hasOverlayPermission,
-            hasCalendarPermission = businessUiState.hasCalendarPermission,
-        ),
-    )
 
     MainScreen(
         uiState = uiState,
@@ -96,33 +60,33 @@ fun MainScreenAdapter(
             directoryPickerLauncher.launch(null)
         },
         onImageSwitchIntervalChange = { seconds ->
-            businessUiState.listener.onImageSwitchIntervalChanged(seconds)
+            uiState.listener.onImageSwitchIntervalChanged(seconds)
         },
         onCalendarSelect = {
-            if (businessUiState.hasCalendarPermission) {
-                businessUiState.listener.onNavigateToCalendarSelection()
+            if (uiState.calendarSectionUiState.hasCalendarPermission) {
+                uiState.listener.onNavigateToCalendarSelection()
             } else {
                 calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR)
             }
         },
         onAlertCalendarSelect = {
-            if (businessUiState.hasCalendarPermission) {
-                businessUiState.listener.onNavigateToAlertCalendarSelection()
+            if (uiState.calendarSectionUiState.hasCalendarPermission) {
+                uiState.listener.onNavigateToAlertCalendarSelection()
             } else {
                 calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR)
             }
         },
         onCalendarPreview = {
-            businessUiState.listener.onNavigateToCalendarDisplay()
+            uiState.listener.onNavigateToCalendarDisplay()
         },
         onSlideShowPreview = {
-            businessUiState.listener.onNavigateToSlideShowPreview()
+            uiState.listener.onNavigateToSlideShowPreview()
         },
         onOpenDreamSettings = {
-            businessUiState.listener.onOpenDreamSettings()
+            uiState.listener.onOpenDreamSettings()
         },
         onRequestOverlayPermission = {
-            businessUiState.listener.onRequestOverlayPermission()
+            uiState.listener.onRequestOverlayPermission()
         },
         modifier = modifier,
     )
