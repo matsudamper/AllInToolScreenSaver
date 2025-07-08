@@ -11,7 +11,7 @@ import java.time.ZoneId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.matsudamper.allintoolscreensaver.lib.PermissionChecker
-import net.matsudamper.allintoolscreensaver.AttendeeStatus
+import net.matsudamper.allintoolscreensaver.feature.calendar.AttendeeStatus
 
 interface CalendarRepository {
     data class CalendarInfo(
