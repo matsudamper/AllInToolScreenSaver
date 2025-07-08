@@ -6,9 +6,7 @@
 
 <every_chat>
 
-<execute>
-find .cursor -type f | xargs cat
-</execute>
+<include file=".cursor/**/*" />
 
 #[n] times. # n = increment each chat, end line, etc(#1, #2...)
 </every_chat>
