@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.compose.eventalert
+package net.matsudamper.allintoolscreensaver.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

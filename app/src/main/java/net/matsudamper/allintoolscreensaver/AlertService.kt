@@ -23,7 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import net.matsudamper.allintoolscreensaver.compose.eventalert.toDisplayText
+import net.matsudamper.allintoolscreensaver.viewmodel.toDisplayText
 import net.matsudamper.allintoolscreensaver.ui.compose.AlertOverlayDialog
 import net.matsudamper.allintoolscreensaver.ui.state.AlertDialogUiState
 import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme

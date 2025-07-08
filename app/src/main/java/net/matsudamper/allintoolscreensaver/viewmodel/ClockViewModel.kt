@@ -29,12 +29,10 @@ class ClockViewModel(
     ).also { uiStateFlow ->
         viewModelScope.launch {
             while (isActive) {
-                uiStateFlow.update { uiState ->
-                    ClockUiState(
-                        timeText = getCurrentTime(),
-                        dateText = getCurrentDate(),
-                    )
-                }
+                uiStateFlow.value = ClockUiState(
+                    timeText = getCurrentTime(),
+                    dateText = getCurrentDate(),
+                )
 
                 val now = Instant.now(clock)
                 val delayTime = 1.seconds - (now.toEpochMilli() % 1000).milliseconds

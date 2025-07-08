@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.compose
+package net.matsudamper.allintoolscreensaver.adapter
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.runtime.Composable
@@ -13,7 +13,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import java.time.Clock
 import dev.chrisbanes.haze.HazeState
 import net.matsudamper.allintoolscreensaver.ImageManager
-import net.matsudamper.allintoolscreensaver.compose.eventalert.EventAlertViewModel
+import net.matsudamper.allintoolscreensaver.viewmodel.EventAlertViewModel
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarDisplayScreen
 import net.matsudamper.allintoolscreensaver.ui.compose.ClockContent
 import net.matsudamper.allintoolscreensaver.ui.compose.EventAlertContent

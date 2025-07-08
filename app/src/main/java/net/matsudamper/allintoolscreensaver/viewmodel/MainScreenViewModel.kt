@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.CalendarInfo
 import net.matsudamper.allintoolscreensaver.InMemoryCache
 import net.matsudamper.allintoolscreensaver.SettingsRepository
-import net.matsudamper.allintoolscreensaver.compose.MainActivityUiState
+import net.matsudamper.allintoolscreensaver.ui.compose.MainActivityUiState
 import net.matsudamper.allintoolscreensaver.lib.EventSender
 
 class MainScreenViewModel(

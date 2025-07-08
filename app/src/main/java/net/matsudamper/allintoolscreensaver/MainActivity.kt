@@ -15,11 +15,11 @@ import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import net.matsudamper.allintoolscreensaver.compose.CalendarDisplayScreenAdapter
-import net.matsudamper.allintoolscreensaver.compose.CalendarSelectionMode
-import net.matsudamper.allintoolscreensaver.compose.CalendarSelectionScreen
-import net.matsudamper.allintoolscreensaver.compose.MainScreenAdapter
-import net.matsudamper.allintoolscreensaver.compose.ScreenSaverScreenAdapter
+import net.matsudamper.allintoolscreensaver.adapter.CalendarDisplayScreenAdapter
+import net.matsudamper.allintoolscreensaver.ui.compose.CalendarSelectionMode
+import net.matsudamper.allintoolscreensaver.adapter.CalendarSelectionScreenAdapter
+import net.matsudamper.allintoolscreensaver.adapter.MainScreenAdapter
+import net.matsudamper.allintoolscreensaver.adapter.ScreenSaverScreenAdapter
 import net.matsudamper.allintoolscreensaver.navigation.CustomTwoPaneSceneStrategy
 import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
 import net.matsudamper.allintoolscreensaver.viewmodel.CalendarSelectionScreenViewModel
@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
                     entry<NavKeys.CalendarSelection>(
                         metadata = CustomTwoPaneSceneStrategy.extendPane(),
                     ) {
-                        CalendarSelectionScreen(
+                        CalendarSelectionScreenAdapter(
                             backStack = backStack,
                             viewModel = viewModel(key = NavKeys.CalendarSelection::class.java.name) {
                                 val koin = GlobalContext.get()
@@ -89,7 +89,7 @@ class MainActivity : ComponentActivity() {
                     entry<NavKeys.AlertCalendarSelection>(
                         metadata = CustomTwoPaneSceneStrategy.extendPane(),
                     ) {
-                        CalendarSelectionScreen(
+                        CalendarSelectionScreenAdapter(
                             backStack = backStack,
                             viewModel = viewModel(key = NavKeys.AlertCalendarSelection::class.java.name) {
                                 val koin = GlobalContext.get()

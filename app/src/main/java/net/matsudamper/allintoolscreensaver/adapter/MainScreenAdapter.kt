@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.compose
+package net.matsudamper.allintoolscreensaver.adapter
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts

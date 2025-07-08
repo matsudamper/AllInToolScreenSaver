@@ -1,7 +1,5 @@
-package net.matsudamper.allintoolscreensaver.compose
+package net.matsudamper.allintoolscreensaver.ui.compose
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,62 +30,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation3.runtime.NavBackStack
-import net.matsudamper.allintoolscreensaver.ui.compose.component.SuspendLifecycleStartEffect
-import net.matsudamper.allintoolscreensaver.viewmodel.CalendarSelectionScreenViewModel
-import net.matsudamper.allintoolscreensaver.viewmodel.CalendarSelectionScreenViewModelEvent
-import org.koin.core.context.GlobalContext
-
-@Composable
-fun CalendarSelectionScreen(
-    backStack: NavBackStack,
-    modifier: Modifier = Modifier,
-    viewModel: CalendarSelectionScreenViewModel = viewModel {
-        val koin = GlobalContext.get()
-        CalendarSelectionScreenViewModel(
-            calendarRepository = koin.get(),
-            settingsRepository = koin.get(),
-        )
-    },
-) {
-    val uiState by viewModel.uiState.collectAsState()
-
-    val calendarPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-    ) { isGranted ->
-        uiState.listener.updateCalendarPermission(isGranted)
-    }
-
-    LaunchedEffect(viewModel.eventHandler) {
-        viewModel.eventHandler.collect(
-            CalendarSelectionScreenViewModelEvent(
-                calendarPermissionLauncher = calendarPermissionLauncher,
-                onBackRequested = { backStack.removeLastOrNull() },
-            ),
-        )
-    }
-    SuspendLifecycleStartEffect(uiState.listener) {
-        uiState.listener.onStart()
-    }
-
-    CalendarSelectionScreen(
-        uiState = uiState,
-        modifier = modifier,
-    )
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CalendarSelectionScreen(
+fun CalendarSelectionScreen(
     uiState: CalendarSelectionScreenUiState,
     modifier: Modifier = Modifier,
 ) {

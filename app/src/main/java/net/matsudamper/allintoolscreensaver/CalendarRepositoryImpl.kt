@@ -2,6 +2,7 @@ package net.matsudamper.allintoolscreensaver
 
 import android.content.ContentUris
 import android.content.Context
+import android.database.Cursor
 import android.provider.CalendarContract
 import java.time.Instant
 import java.time.LocalDate
@@ -105,8 +106,6 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                 return@withContext emptyList()
             }
 
-            val events = mutableListOf<CalendarEvent>()
-
             val projection = arrayOf(
                 CalendarContract.Instances._ID,
                 CalendarContract.Instances.TITLE,
@@ -142,60 +141,66 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                 selection,
                 null,
                 null,
-            )
+            ) ?: return@withContext listOf()
 
-            cursor?.use { c ->
-                while (c.moveToNext()) {
-                    val id = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events._ID))
-                    val title = c.getString(c.getColumnIndexOrThrow(CalendarContract.Events.TITLE)).orEmpty()
-                    val description = c.getString(c.getColumnIndexOrThrow(CalendarContract.Events.DESCRIPTION))
-                    val eventStartTime = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events.DTSTART))
-                    val eventEndTime = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events.DTEND))
-                    val allDay = c.getInt(c.getColumnIndexOrThrow(CalendarContract.Events.ALL_DAY)) == 1
-                    val color = run {
-                        val eventColorIndex = c.getColumnIndexOrThrow(CalendarContract.Instances.EVENT_COLOR)
-                        val calendarColorIndex = c.getColumnIndexOrThrow(CalendarContract.Instances.CALENDAR_COLOR)
-                        if (!c.isNull(eventColorIndex)) c.getInt(eventColorIndex) else c.getInt(calendarColorIndex)
-                    }
-                    val attendeeStatus = run {
-                        val statusIndex = c.getColumnIndexOrThrow(CalendarContract.Instances.SELF_ATTENDEE_STATUS)
-                        if (c.isNull(statusIndex)) {
-                            AttendeeStatus.NONE
-                        } else {
-                            when (c.getInt(statusIndex)) {
-                                CalendarContract.Attendees.ATTENDEE_STATUS_ACCEPTED -> AttendeeStatus.ACCEPTED
-                                CalendarContract.Attendees.ATTENDEE_STATUS_DECLINED -> AttendeeStatus.DECLINED
-                                CalendarContract.Attendees.ATTENDEE_STATUS_INVITED -> AttendeeStatus.INVITED
-                                CalendarContract.Attendees.ATTENDEE_STATUS_TENTATIVE -> AttendeeStatus.TENTATIVE
-                                else -> AttendeeStatus.NONE
-                            }
+            collectCalendarEvent(cursor)
+        }
+    }
+
+    private fun collectCalendarEvent(
+        cursor: Cursor,
+    ): MutableList<CalendarEvent> {
+        val events = mutableListOf<CalendarEvent>()
+        cursor.use { c ->
+            while (c.moveToNext()) {
+                val id = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events._ID))
+                val title = c.getString(c.getColumnIndexOrThrow(CalendarContract.Events.TITLE)).orEmpty()
+                val description = c.getString(c.getColumnIndexOrThrow(CalendarContract.Events.DESCRIPTION))
+                val eventStartTime = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events.DTSTART))
+                val eventEndTime = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events.DTEND))
+                val allDay = c.getInt(c.getColumnIndexOrThrow(CalendarContract.Events.ALL_DAY)) == 1
+                val color = run {
+                    val eventColorIndex = c.getColumnIndexOrThrow(CalendarContract.Instances.EVENT_COLOR)
+                    val calendarColorIndex = c.getColumnIndexOrThrow(CalendarContract.Instances.CALENDAR_COLOR)
+                    if (!c.isNull(eventColorIndex)) c.getInt(eventColorIndex) else c.getInt(calendarColorIndex)
+                }
+                val attendeeStatus = run {
+                    val statusIndex = c.getColumnIndexOrThrow(CalendarContract.Instances.SELF_ATTENDEE_STATUS)
+                    if (c.isNull(statusIndex)) {
+                        AttendeeStatus.NONE
+                    } else {
+                        when (c.getInt(statusIndex)) {
+                            CalendarContract.Attendees.ATTENDEE_STATUS_ACCEPTED -> AttendeeStatus.ACCEPTED
+                            CalendarContract.Attendees.ATTENDEE_STATUS_DECLINED -> AttendeeStatus.DECLINED
+                            CalendarContract.Attendees.ATTENDEE_STATUS_INVITED -> AttendeeStatus.INVITED
+                            CalendarContract.Attendees.ATTENDEE_STATUS_TENTATIVE -> AttendeeStatus.TENTATIVE
+                            else -> AttendeeStatus.NONE
                         }
                     }
-                    events.add(
-                        if (allDay) {
-                            CalendarEvent.AllDay(
-                                id = id,
-                                title = title,
-                                description = description,
-                                color = color,
-                                attendeeStatus = attendeeStatus,
-                            )
-                        } else {
-                            CalendarEvent.Time(
-                                id = id,
-                                title = title,
-                                description = description,
-                                startTime = Instant.ofEpochMilli(eventStartTime),
-                                endTime = Instant.ofEpochMilli(eventEndTime),
-                                color = color,
-                                attendeeStatus = attendeeStatus,
-                            )
-                        },
-                    )
                 }
+                events.add(
+                    if (allDay) {
+                        CalendarEvent.AllDay(
+                            id = id,
+                            title = title,
+                            description = description,
+                            color = color,
+                            attendeeStatus = attendeeStatus,
+                        )
+                    } else {
+                        CalendarEvent.Time(
+                            id = id,
+                            title = title,
+                            description = description,
+                            startTime = Instant.ofEpochMilli(eventStartTime),
+                            endTime = Instant.ofEpochMilli(eventEndTime),
+                            color = color,
+                            attendeeStatus = attendeeStatus,
+                        )
+                    },
+                )
             }
-
-            events
         }
+        return events
     }
 }

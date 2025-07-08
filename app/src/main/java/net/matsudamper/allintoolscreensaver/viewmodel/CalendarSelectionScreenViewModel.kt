@@ -11,8 +11,8 @@ import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.CalendarInfo
 import net.matsudamper.allintoolscreensaver.CalendarRepository
 import net.matsudamper.allintoolscreensaver.SettingsRepository
-import net.matsudamper.allintoolscreensaver.compose.CalendarSelectionMode
-import net.matsudamper.allintoolscreensaver.compose.CalendarSelectionScreenUiState
+import net.matsudamper.allintoolscreensaver.ui.compose.CalendarSelectionMode
+import net.matsudamper.allintoolscreensaver.ui.compose.CalendarSelectionScreenUiState
 import net.matsudamper.allintoolscreensaver.lib.EventSender
 
 class CalendarSelectionScreenViewModel(
