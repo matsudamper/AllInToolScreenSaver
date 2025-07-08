@@ -23,7 +23,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
 import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepository
 import net.matsudamper.allintoolscreensaver.feature.setting.SettingsRepository
-import net.matsudamper.allintoolscreensaver.ui.AttendeeStatus
+import net.matsudamper.allintoolscreensaver.AttendeeStatus
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarDisplayScreen
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarDisplayScreenUiState
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarLayoutUiState
@@ -116,7 +116,9 @@ class CalendarDisplayScreenTest {
                 displayTime = "10:00 - 11:00",
                 description = "重要な会議",
                 color = Color.Red,
-                attendeeStatus = AttendeeStatus.ACCEPTED,
+                isTransparent = false,
+                showBorder = false,
+                hasTextDecoration = false,
             ),
             CalendarLayoutUiState.Event.Time(
                 startTime = java.time.LocalTime.of(10, 30),
@@ -125,7 +127,9 @@ class CalendarDisplayScreenTest {
                 displayTime = "10:30 - 11:30",
                 description = "別の会議",
                 color = Color.Blue,
-                attendeeStatus = AttendeeStatus.ACCEPTED,
+                isTransparent = false,
+                showBorder = false,
+                hasTextDecoration = false,
             ),
         )
 

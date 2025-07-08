@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import net.matsudamper.allintoolscreensaver.AttendeeStatus
 import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepository
 import net.matsudamper.allintoolscreensaver.feature.setting.SettingsRepository
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarDisplayScreenUiState
@@ -97,7 +98,9 @@ class CalendarDisplayScreenViewModel(
                                         displayTime = createDisplayTime(event.startTime, event.endTime),
                                         color = Color(event.color),
                                         description = event.description,
-                                        attendeeStatus = event.attendeeStatus,
+                                        isTransparent = convertAttendeeStatusToTransparent(event.attendeeStatus),
+                                        showBorder = convertAttendeeStatusToShowBorder(event.attendeeStatus),
+                                        hasTextDecoration = convertAttendeeStatusToTextDecoration(event.attendeeStatus),
                                     )
                                 },
                             allDayEvents = viewModelState.events.filterIsInstance<CalendarRepository.CalendarEvent.AllDay>()
@@ -106,7 +109,9 @@ class CalendarDisplayScreenViewModel(
                                         title = event.title,
                                         description = event.description,
                                         color = Color(event.color),
-                                        attendeeStatus = event.attendeeStatus,
+                                        isTransparent = convertAttendeeStatusToTransparent(event.attendeeStatus),
+                                        showBorder = convertAttendeeStatusToShowBorder(event.attendeeStatus),
+                                        hasTextDecoration = convertAttendeeStatusToTextDecoration(event.attendeeStatus),
                                     )
                                 },
                         ),
@@ -190,4 +195,27 @@ class CalendarDisplayScreenViewModel(
         val lastInteractionTime: Instant,
         val alertEnabled: Boolean = false,
     )
+
+    private fun convertAttendeeStatusToTransparent(attendeeStatus: AttendeeStatus): Boolean {
+        return when (attendeeStatus) {
+            AttendeeStatus.TENTATIVE -> true
+            AttendeeStatus.DECLINED -> true
+            else -> false
+        }
+    }
+
+    private fun convertAttendeeStatusToShowBorder(attendeeStatus: AttendeeStatus): Boolean {
+        return when (attendeeStatus) {
+            AttendeeStatus.TENTATIVE -> true
+            AttendeeStatus.DECLINED -> true
+            else -> false
+        }
+    }
+
+    private fun convertAttendeeStatusToTextDecoration(attendeeStatus: AttendeeStatus): Boolean {
+        return when (attendeeStatus) {
+            AttendeeStatus.DECLINED -> true
+            else -> false
+        }
+    }
 }

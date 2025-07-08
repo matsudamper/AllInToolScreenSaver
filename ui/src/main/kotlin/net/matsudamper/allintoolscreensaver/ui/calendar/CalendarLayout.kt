@@ -62,7 +62,6 @@ import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import net.matsudamper.allintoolscreensaver.ui.AttendeeStatus
 import net.matsudamper.allintoolscreensaver.ui.LocalClock
 import net.matsudamper.allintoolscreensaver.ui.component.DreamAlertDialog
 
@@ -74,7 +73,9 @@ data class CalendarLayoutUiState(
         val title: String
         val description: String?
         val color: Color
-        val attendeeStatus: AttendeeStatus
+        val isTransparent: Boolean
+        val showBorder: Boolean
+        val hasTextDecoration: Boolean
 
         data class Time(
             val startTime: LocalTime,
@@ -83,14 +84,18 @@ data class CalendarLayoutUiState(
             override val title: String,
             override val description: String?,
             override val color: Color,
-            override val attendeeStatus: AttendeeStatus,
+            override val isTransparent: Boolean,
+            override val showBorder: Boolean,
+            override val hasTextDecoration: Boolean,
         ) : Event
 
         data class AllDay(
             override val title: String,
             override val description: String?,
             override val color: Color,
-            override val attendeeStatus: AttendeeStatus,
+            override val isTransparent: Boolean,
+            override val showBorder: Boolean,
+            override val hasTextDecoration: Boolean,
         ) : Event
     }
 }
@@ -413,7 +418,9 @@ private fun AllDayCard(
         title = event.title,
         displayTime = null,
         color = event.color,
-        attendeeStatus = event.attendeeStatus,
+        isTransparent = event.isTransparent,
+        showBorder = event.showBorder,
+        hasTextDecoration = event.hasTextDecoration,
         onClick = onClick,
     )
 }
@@ -430,7 +437,9 @@ private fun TimeCard(
         displayTime = event.uiState.displayTime,
         modifier = modifier,
         color = event.uiState.color,
-        attendeeStatus = event.uiState.attendeeStatus,
+        isTransparent = event.uiState.isTransparent,
+        showBorder = event.uiState.showBorder,
+        hasTextDecoration = event.uiState.hasTextDecoration,
         onClick = onClick,
     )
 }
@@ -440,7 +449,9 @@ private fun EventCard(
     title: String,
     displayTime: String?,
     color: Color,
-    attendeeStatus: AttendeeStatus,
+    isTransparent: Boolean,
+    showBorder: Boolean,
+    hasTextDecoration: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -451,27 +462,18 @@ private fun EventCard(
             modifier = modifier,
             shape = RoundedCornerShape(2.dp),
             colors = CardDefaults.cardColors(
-                containerColor = when (attendeeStatus) {
-                    AttendeeStatus.TENTATIVE -> Color.Transparent
-                    AttendeeStatus.DECLINED -> Color.Transparent
-                    else -> color
-                },
+                containerColor = if (isTransparent) Color.Transparent else color,
             ),
-            border = when (attendeeStatus) {
-                AttendeeStatus.TENTATIVE,
-                AttendeeStatus.DECLINED,
-                -> BorderStroke(2.dp, color)
-                else -> null
-            },
+            border = if (showBorder) BorderStroke(2.dp, color) else null,
             onClick = onClick,
         ) {
             Column(
                 modifier = Modifier.padding(4.dp),
             ) {
                 BasicText(
-                    text = remember(title, attendeeStatus) {
-                        when (attendeeStatus) {
-                            AttendeeStatus.DECLINED -> buildAnnotatedString {
+                    text = remember(title, hasTextDecoration) {
+                        if (hasTextDecoration) {
+                            buildAnnotatedString {
                                 append(title)
                                 addStyle(
                                     style = SpanStyle(
@@ -493,8 +495,8 @@ private fun EventCard(
                                     end = title.length,
                                 )
                             }
-
-                            else -> AnnotatedString(title)
+                        } else {
+                            AnnotatedString(title)
                         }
                     },
                     autoSize = TextAutoSize.StepBased(
@@ -503,10 +505,10 @@ private fun EventCard(
                 )
                 if (displayTime != null) {
                     BasicText(
-                        text = remember(displayTime, attendeeStatus) {
+                        text = remember(displayTime, hasTextDecoration) {
                             val annotatedString = htmlToAnnotatedString(displayTime)
-                            when (attendeeStatus) {
-                                AttendeeStatus.DECLINED -> buildAnnotatedString {
+                            if (hasTextDecoration) {
+                                buildAnnotatedString {
                                     append(annotatedString)
                                     addStyle(
                                         style = SpanStyle(
@@ -528,8 +530,8 @@ private fun EventCard(
                                         end = annotatedString.length,
                                     )
                                 }
-
-                                else -> annotatedString
+                            } else {
+                                annotatedString
                             }
                         },
                         autoSize = TextAutoSize.StepBased(
@@ -608,7 +610,9 @@ private fun PreviewEventDialogContent() {
             displayTime = "01:00 - 02:00",
             description = "This is a sample event description.",
             color = Color.Blue,
-            attendeeStatus = AttendeeStatus.ACCEPTED,
+            isTransparent = false,
+            showBorder = false,
+            hasTextDecoration = false,
         ),
         onDismissRequest = {},
     )
@@ -623,7 +627,9 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             displayTime = "00:00 - 01:00",
             description = "description",
             color = Color.Red,
-            attendeeStatus = AttendeeStatus.ACCEPTED,
+            isTransparent = false,
+            showBorder = false,
+            hasTextDecoration = false,
         ),
         CalendarLayoutUiState.Event.Time(
             startTime = LocalTime.of(1, 0),
@@ -632,7 +638,9 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             displayTime = "01:00 - 03:00",
             description = "description",
             color = Color.Blue,
-            attendeeStatus = AttendeeStatus.DECLINED,
+            isTransparent = true,
+            showBorder = true,
+            hasTextDecoration = true,
         ),
         CalendarLayoutUiState.Event.Time(
             startTime = LocalTime.of(1, 0),
@@ -641,7 +649,9 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             displayTime = "01:00 - 02:00",
             description = "description",
             color = Color.Yellow,
-            attendeeStatus = AttendeeStatus.TENTATIVE,
+            isTransparent = true,
+            showBorder = true,
+            hasTextDecoration = false,
         ),
         CalendarLayoutUiState.Event.Time(
             startTime = LocalTime.of(1, 30),
@@ -650,7 +660,9 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             displayTime = "01:30 - 03:00",
             description = "description",
             color = Color.Green,
-            attendeeStatus = AttendeeStatus.INVITED,
+            isTransparent = false,
+            showBorder = false,
+            hasTextDecoration = false,
         ),
         CalendarLayoutUiState.Event.Time(
             startTime = LocalTime.of(2, 0),
@@ -659,7 +671,9 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             displayTime = "02:00 - 03:00",
             description = "description",
             color = Color.Magenta,
-            attendeeStatus = AttendeeStatus.ACCEPTED,
+            isTransparent = false,
+            showBorder = false,
+            hasTextDecoration = false,
         ),
         CalendarLayoutUiState.Event.Time(
             startTime = LocalTime.of(3, 15),
@@ -668,7 +682,9 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             displayTime = "03:15 - 03:30",
             description = "description",
             color = Color.Cyan,
-            attendeeStatus = AttendeeStatus.NONE,
+            isTransparent = false,
+            showBorder = false,
+            hasTextDecoration = false,
         ),
     ),
     allDayEvents = listOf(
@@ -676,13 +692,17 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             title = "All Day Event",
             description = "Description",
             color = Color.Red,
-            attendeeStatus = AttendeeStatus.ACCEPTED,
+            isTransparent = false,
+            showBorder = false,
+            hasTextDecoration = false,
         ),
         CalendarLayoutUiState.Event.AllDay(
             title = "All Day Event 2",
             description = "Description",
             color = Color.Yellow,
-            attendeeStatus = AttendeeStatus.DECLINED,
+            isTransparent = true,
+            showBorder = true,
+            hasTextDecoration = true,
         ),
     ),
 )

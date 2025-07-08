@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.ui
+package net.matsudamper.allintoolscreensaver
 
 enum class AttendeeStatus {
     NONE,
