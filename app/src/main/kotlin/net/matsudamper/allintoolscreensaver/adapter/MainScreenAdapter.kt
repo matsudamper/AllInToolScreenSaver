@@ -1,5 +1,6 @@
 package net.matsudamper.allintoolscreensaver.adapter
 
+import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -9,13 +10,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
-import net.matsudamper.allintoolscreensaver.ui.compose.CalendarSectionUiState
-import net.matsudamper.allintoolscreensaver.ui.compose.IntervalOption
-import net.matsudamper.allintoolscreensaver.ui.compose.MainScreen
-import net.matsudamper.allintoolscreensaver.ui.compose.MainScreenUiState
-import net.matsudamper.allintoolscreensaver.ui.compose.ScreenSaverSectionUiState
-import net.matsudamper.allintoolscreensaver.ui.compose.component.SuspendLifecycleResumeEffect
-import net.matsudamper.allintoolscreensaver.ui.compose.component.SuspendLifecycleStartEffect
+import net.matsudamper.allintoolscreensaver.ui.component.SuspendLifecycleResumeEffect
+import net.matsudamper.allintoolscreensaver.ui.component.SuspendLifecycleStartEffect
+import net.matsudamper.allintoolscreensaver.ui.main.CalendarSectionUiState
+import net.matsudamper.allintoolscreensaver.ui.main.IntervalOption
+import net.matsudamper.allintoolscreensaver.ui.main.MainScreen
+import net.matsudamper.allintoolscreensaver.ui.main.MainScreenUiState
+import net.matsudamper.allintoolscreensaver.ui.main.ScreenSaverSectionUiState
 import net.matsudamper.allintoolscreensaver.viewmodel.MainScreenViewModel
 import net.matsudamper.allintoolscreensaver.viewmodel.MainScreenViewModelListenerImpl
 import org.koin.core.context.GlobalContext
@@ -101,14 +102,14 @@ fun MainScreenAdapter(
             if (businessUiState.hasCalendarPermission) {
                 businessUiState.listener.onNavigateToCalendarSelection()
             } else {
-                calendarPermissionLauncher.launch(android.Manifest.permission.READ_CALENDAR)
+                calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR)
             }
         },
         onAlertCalendarSelect = {
             if (businessUiState.hasCalendarPermission) {
                 businessUiState.listener.onNavigateToAlertCalendarSelection()
             } else {
-                calendarPermissionLauncher.launch(android.Manifest.permission.READ_CALENDAR)
+                calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR)
             }
         },
         onCalendarPreview = {

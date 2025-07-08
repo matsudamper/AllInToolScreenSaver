@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.ui.compose
+package net.matsudamper.allintoolscreensaver.ui.slideshow
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 import coil.compose.AsyncImage
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
-import net.matsudamper.allintoolscreensaver.ui.compose.component.SuspendLifecycleStartEffect
+import net.matsudamper.allintoolscreensaver.ui.component.SuspendLifecycleStartEffect
 
 @Composable
 fun SlideShowScreen(

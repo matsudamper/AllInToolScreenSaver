@@ -21,8 +21,8 @@ import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.feature.ImageManager
 import net.matsudamper.allintoolscreensaver.feature.InMemoryCache
 import net.matsudamper.allintoolscreensaver.feature.setting.SettingsRepository
-import net.matsudamper.allintoolscreensaver.ui.compose.PagerItem
-import net.matsudamper.allintoolscreensaver.ui.compose.SlideshowUiState
+import net.matsudamper.allintoolscreensaver.ui.slideshow.PagerItem
+import net.matsudamper.allintoolscreensaver.ui.slideshow.SlideshowUiState
 
 class SlideshowScreenViewModel(
     private val settingsRepositor: SettingsRepository,

@@ -26,8 +26,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepository
 import net.matsudamper.allintoolscreensaver.lib.PermissionChecker
-import net.matsudamper.allintoolscreensaver.ui.compose.AlertOverlayDialog
-import net.matsudamper.allintoolscreensaver.ui.state.AlertDialogUiState
+import net.matsudamper.allintoolscreensaver.ui.alert.AlertDialogUiState
+import net.matsudamper.allintoolscreensaver.ui.alert.AlertOverlayDialog
 import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
 import net.matsudamper.allintoolscreensaver.viewmodel.toDisplayText
 import org.koin.core.context.GlobalContext

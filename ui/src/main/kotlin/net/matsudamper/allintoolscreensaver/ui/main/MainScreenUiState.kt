@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.ui.compose
+package net.matsudamper.allintoolscreensaver.ui.main
 
 data class MainScreenUiState(
     val screenSaverSectionUiState: ScreenSaverSectionUiState,

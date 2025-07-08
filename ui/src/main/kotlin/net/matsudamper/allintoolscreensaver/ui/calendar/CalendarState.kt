@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.ui
+package net.matsudamper.allintoolscreensaver.ui.calendar
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.rememberScrollState
@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.times
 import java.time.Clock
 import java.time.LocalTime
 import kotlin.math.roundToInt
-import net.matsudamper.allintoolscreensaver.ui.compose.LocalClock
+import net.matsudamper.allintoolscreensaver.ui.LocalClock
 
 @Stable
 class CalendarState internal constructor(

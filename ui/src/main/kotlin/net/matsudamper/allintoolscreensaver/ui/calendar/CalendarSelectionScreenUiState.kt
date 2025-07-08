@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.ui.compose
+package net.matsudamper.allintoolscreensaver.ui.calendar
 import androidx.compose.runtime.Immutable
 
 enum class CalendarSelectionMode {

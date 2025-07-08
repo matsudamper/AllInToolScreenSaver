@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.ui.compose
+package net.matsudamper.allintoolscreensaver.ui
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import java.time.Clock

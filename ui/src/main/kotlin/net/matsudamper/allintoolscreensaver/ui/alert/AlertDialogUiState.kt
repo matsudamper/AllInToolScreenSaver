@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.ui.state
+package net.matsudamper.allintoolscreensaver.ui.alert
 
 data class AlertDialogUiState(
     val title: String,

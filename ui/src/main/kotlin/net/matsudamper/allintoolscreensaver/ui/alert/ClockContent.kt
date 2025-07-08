@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.ui.compose
+package net.matsudamper.allintoolscreensaver.ui.alert
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background

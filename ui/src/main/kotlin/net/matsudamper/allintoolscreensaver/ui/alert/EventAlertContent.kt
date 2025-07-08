@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.ui.compose
+package net.matsudamper.allintoolscreensaver.ui.alert
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,8 +8,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import net.matsudamper.allintoolscreensaver.ui.compose.component.DreamAlertDialog
-import net.matsudamper.allintoolscreensaver.ui.compose.component.SuspendLifecycleStartEffect
+import net.matsudamper.allintoolscreensaver.ui.component.DreamAlertDialog
+import net.matsudamper.allintoolscreensaver.ui.component.SuspendLifecycleStartEffect
+import net.matsudamper.allintoolscreensaver.ui.screensaver.EventAlertUiState
 
 @Composable
 fun EventAlertContent(

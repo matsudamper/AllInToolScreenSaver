@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.ui.compose.component
+package net.matsudamper.allintoolscreensaver.ui.component
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.LifecycleResumeEffect

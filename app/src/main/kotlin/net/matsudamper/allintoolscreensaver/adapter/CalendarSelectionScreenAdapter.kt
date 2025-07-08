@@ -9,8 +9,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
-import net.matsudamper.allintoolscreensaver.ui.compose.CalendarSelectionScreen
-import net.matsudamper.allintoolscreensaver.ui.compose.component.SuspendLifecycleStartEffect
+import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarSelectionScreen
+import net.matsudamper.allintoolscreensaver.ui.component.SuspendLifecycleStartEffect
 import net.matsudamper.allintoolscreensaver.viewmodel.CalendarSelectionScreenViewModel
 import net.matsudamper.allintoolscreensaver.viewmodel.CalendarSelectionScreenViewModelEvent
 import org.koin.core.context.GlobalContext

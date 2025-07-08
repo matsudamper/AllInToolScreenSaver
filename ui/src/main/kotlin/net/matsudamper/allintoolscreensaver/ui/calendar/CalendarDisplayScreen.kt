@@ -22,7 +22,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -40,11 +39,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import net.matsudamper.allintoolscreensaver.ui.TimeRangeSlider
-import net.matsudamper.allintoolscreensaver.ui.TimeRangeSliderItem
-import net.matsudamper.allintoolscreensaver.ui.compose.LocalClock
-import net.matsudamper.allintoolscreensaver.ui.rememberCalendarState
-import net.matsudamper.allintoolscreensaver.ui.rememberTimeRangeSlider
+import net.matsudamper.allintoolscreensaver.ui.LocalClock
 
 @Composable
 fun CalendarDisplayScreen(

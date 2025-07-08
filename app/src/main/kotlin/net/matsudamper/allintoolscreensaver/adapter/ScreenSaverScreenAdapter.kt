@@ -13,11 +13,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import java.time.Clock
 import dev.chrisbanes.haze.HazeState
 import net.matsudamper.allintoolscreensaver.feature.ImageManager
+import net.matsudamper.allintoolscreensaver.ui.alert.ClockContent
+import net.matsudamper.allintoolscreensaver.ui.alert.EventAlertContent
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarDisplayScreen
-import net.matsudamper.allintoolscreensaver.ui.compose.ClockContent
-import net.matsudamper.allintoolscreensaver.ui.compose.EventAlertContent
-import net.matsudamper.allintoolscreensaver.ui.compose.ScreenSaverScreen
-import net.matsudamper.allintoolscreensaver.ui.compose.SlideShowScreen
+import net.matsudamper.allintoolscreensaver.ui.screensaver.ScreenSaverScreen
+import net.matsudamper.allintoolscreensaver.ui.slideshow.SlideShowScreen
 import net.matsudamper.allintoolscreensaver.viewmodel.CalendarDisplayScreenViewModel
 import net.matsudamper.allintoolscreensaver.viewmodel.ClockViewModel
 import net.matsudamper.allintoolscreensaver.viewmodel.EventAlertViewModel

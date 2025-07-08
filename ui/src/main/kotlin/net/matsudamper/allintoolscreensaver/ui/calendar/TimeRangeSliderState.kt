@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.ui
+package net.matsudamper.allintoolscreensaver.ui.calendar
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -32,7 +32,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import net.matsudamper.allintoolscreensaver.ui.CalendarState
 
 class TimeRangeSliderState(
     private val density: Density,

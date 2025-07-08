@@ -63,10 +63,8 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import net.matsudamper.allintoolscreensaver.ui.AttendeeStatus
-import net.matsudamper.allintoolscreensaver.ui.CalendarState
-import net.matsudamper.allintoolscreensaver.ui.compose.LocalClock
-import net.matsudamper.allintoolscreensaver.ui.compose.component.DreamAlertDialog
-import net.matsudamper.allintoolscreensaver.ui.rememberCalendarState
+import net.matsudamper.allintoolscreensaver.ui.LocalClock
+import net.matsudamper.allintoolscreensaver.ui.component.DreamAlertDialog
 
 data class CalendarLayoutUiState(
     val events: List<Event.Time>,

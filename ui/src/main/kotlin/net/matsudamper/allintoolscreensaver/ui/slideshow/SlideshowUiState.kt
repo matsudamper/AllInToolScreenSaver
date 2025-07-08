@@ -1,4 +1,4 @@
-package net.matsudamper.allintoolscreensaver.ui.compose
+package net.matsudamper.allintoolscreensaver.ui.slideshow
 
 import android.net.Uri
 import androidx.compose.runtime.Immutable
