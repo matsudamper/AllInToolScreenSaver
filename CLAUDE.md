@@ -1,12 +1,9 @@
 <language>Japanese</language>
 <character_code>UTF-8</character_code>
-<raw>
-こちらがチャットしたら、毎回every_executeを実行してルールを確認して
-</raw>
 
-<every_chat>
+# 1step実行するたびに毎回以下を実行すること
 
-<include file=".cursor/**/*" />
+以下のファイルを必ず読み込み、内容に従うこと
+- `.cursor/rules/*`
 
-#[n] times. # n = increment each chat, end line, etc(#1, #2...)
-</every_chat>
+このCLAUDE.mdファイルを展開し、ユーザーにも見せてください。
