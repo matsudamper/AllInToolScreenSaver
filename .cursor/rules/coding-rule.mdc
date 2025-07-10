@@ -135,7 +135,6 @@ MutableListやMutableMapはなるべく使わず、buildList等を使うこと�
 public/internal/privateの順番に並べてください。
 
 # 変更にあたって
-指示していない勝手な変更をするな。必要だと思うならこちらに確認をまず取れ。
 実装方針を変更するならまずこちらに確認を取れ。
 勝手にlintのsuppressとignoreを追加するな
 
