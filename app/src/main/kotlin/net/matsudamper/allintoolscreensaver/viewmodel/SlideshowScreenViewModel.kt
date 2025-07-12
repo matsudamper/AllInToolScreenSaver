@@ -193,6 +193,7 @@ class SlideshowScreenViewModel(
                     isLoading = false,
                 )
             }
+            updateInMemoryCache()
 
             val secondList = uris.drop(firstSize).toList()
             viewModelStateFlow.update { viewModelState ->
@@ -204,12 +205,7 @@ class SlideshowScreenViewModel(
                     isLoading = false,
                 )
             }
-            val state = viewModelStateFlow.value
-            inMemoryCache.imageInfo = InMemoryCache.ImageInfo(
-                imageUris = state.images,
-                imagesShuffledIndex = state.imagesShuffledIndex,
-                currentIndex = state.currentIndex,
-            )
+            updateInMemoryCache()
         } else {
             val uris = imageManager.getImageUrisFromDirectory(directoryUri).toList()
 
@@ -223,6 +219,15 @@ class SlideshowScreenViewModel(
                 )
             }
         }
+    }
+
+    private fun updateInMemoryCache() {
+        val state = viewModelStateFlow.value
+        inMemoryCache.imageInfo = InMemoryCache.ImageInfo(
+            imageUris = state.images,
+            imagesShuffledIndex = state.imagesShuffledIndex,
+            currentIndex = state.currentIndex,
+        )
     }
 
     data class ViewModelState(
