@@ -1,4 +1,6 @@
 custom-rules:
   active: true
   JavaTimeClockRule:
-    active: true 
+    active: true
+  UseKotlinDurationForDelayRule:
+    active: true
