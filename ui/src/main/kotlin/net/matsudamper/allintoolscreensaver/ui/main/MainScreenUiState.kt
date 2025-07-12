@@ -6,6 +6,7 @@ import androidx.compose.runtime.Immutable
 data class MainScreenUiState(
     val screenSaverSectionUiState: ScreenSaverSectionUiState,
     val calendarSectionUiState: CalendarSectionUiState,
+    val notificationSectionUiState: NotificationSectionUiState,
     val listener: Listener,
 ) {
     @Immutable
@@ -43,3 +44,14 @@ data class CalendarSectionUiState(
     val hasOverlayPermission: Boolean,
     val hasCalendarPermission: Boolean,
 )
+
+data class NotificationSectionUiState(
+    val hasNotificationPermission: Boolean,
+    val hasNotificationListenerPermission: Boolean,
+    val listener: Listener,
+) {
+    interface Listener {
+        fun onClickSendTestNotification()
+        fun onOpenNotificationListenerSettings()
+    }
+}

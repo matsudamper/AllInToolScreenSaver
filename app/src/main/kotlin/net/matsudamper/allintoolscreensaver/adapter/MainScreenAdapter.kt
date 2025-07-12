@@ -1,15 +1,19 @@
 package net.matsudamper.allintoolscreensaver.adapter
 
 import android.Manifest
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
+import net.matsudamper.allintoolscreensaver.ActivityResultRequest
 import net.matsudamper.allintoolscreensaver.ui.main.MainScreen
 import net.matsudamper.allintoolscreensaver.viewmodel.MainScreenViewModel
 import net.matsudamper.allintoolscreensaver.viewmodel.MainScreenViewModelListenerImpl
@@ -29,17 +33,6 @@ fun MainScreenAdapter(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(viewModel.eventHandler) {
-        val koin = GlobalContext.get()
-        viewModel.eventHandler.collect(
-            MainScreenViewModelListenerImpl(
-                application = koin.get(),
-                calendarManager = koin.get(),
-                backStack = backStack,
-            ),
-        )
-    }
-
     val directoryPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree(),
     ) { uri ->
@@ -52,6 +45,38 @@ fun MainScreenAdapter(
         contract = ActivityResultContracts.RequestPermission(),
     ) { isGranted ->
         uiState.listener.updatePermissions(calendar = isGranted)
+    }
+
+    val requestState = remember {
+        mutableStateOf<ActivityResultRequest<Any, Any>?>(null)
+    }
+    run {
+        val request = requestState.value
+        if (request != null) {
+            val notificationPermissionLauncher = rememberLauncherForActivityResult(
+                contract = request.contract,
+            ) {
+                request.result(it)
+            }
+            LaunchedEffect(Unit) {
+                Log.d("LOG", "launch")
+                notificationPermissionLauncher.launch(request.input)
+            }
+        }
+    }
+
+    LaunchedEffect(viewModel.eventHandler) {
+        val koin = GlobalContext.get()
+        viewModel.eventHandler.collect(
+            MainScreenViewModelListenerImpl(
+                application = koin.get(),
+                calendarManager = koin.get(),
+                backStack = backStack,
+                activityResultRequest = {
+                    requestState.value = it
+                },
+            ),
+        )
     }
 
     MainScreen(

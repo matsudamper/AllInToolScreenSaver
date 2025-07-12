@@ -13,6 +13,7 @@ import net.matsudamper.allintoolscreensaver.feature.alert.AlertManager
 import net.matsudamper.allintoolscreensaver.feature.alert.AlertService
 import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepository
 import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepositoryImpl
+import net.matsudamper.allintoolscreensaver.feature.notification.NotificationRepository
 import net.matsudamper.allintoolscreensaver.feature.setting.SettingsRepository
 import net.matsudamper.allintoolscreensaver.feature.setting.SettingsRepositoryImpl
 import net.matsudamper.allintoolscreensaver.lib.PermissionChecker
@@ -34,6 +35,7 @@ class MyApp : Application() {
                     single<PermissionChecker> { PermissionChecker(get()) }
                     single<SettingsRepository> { SettingsRepositoryImpl(get()) }
                     single<CalendarRepository> { CalendarRepositoryImpl(get()) }
+                    single<NotificationRepository> { NotificationRepository() }
                     single<AlertManager> {
                         AlertManager(
                             calendarRepository = get(),

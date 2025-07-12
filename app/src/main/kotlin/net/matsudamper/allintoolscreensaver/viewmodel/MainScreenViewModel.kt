@@ -1,9 +1,14 @@
 package net.matsudamper.allintoolscreensaver.viewmodel
 
+import android.Manifest
 import android.net.Uri
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,6 +24,7 @@ import net.matsudamper.allintoolscreensaver.lib.EventSender
 import net.matsudamper.allintoolscreensaver.ui.main.CalendarSectionUiState
 import net.matsudamper.allintoolscreensaver.ui.main.IntervalOption
 import net.matsudamper.allintoolscreensaver.ui.main.MainScreenUiState
+import net.matsudamper.allintoolscreensaver.ui.main.NotificationSectionUiState
 import net.matsudamper.allintoolscreensaver.ui.main.ScreenSaverSectionUiState
 
 class MainScreenViewModel(
@@ -36,6 +42,7 @@ class MainScreenViewModel(
                 launch {
                     loadAvailableCalendars()
                     updateOverlayPermissionState()
+                    updateNotificationPermissionState()
                 }
             }
         }
@@ -43,6 +50,7 @@ class MainScreenViewModel(
         override suspend fun onResume() {
             coroutineScope {
                 checkCalendarPermission()
+                updateNotificationPermissionState()
             }
         }
 
@@ -138,6 +146,41 @@ class MainScreenViewModel(
         }
     }
 
+    val notificationSettingListener = object : NotificationSectionUiState.Listener {
+        override fun onClickSendTestNotification() {
+            viewModelScope.launch {
+                suspend fun sendTestNotification() {
+                    delay(5.seconds)
+                    eventSender.send {
+                        it.onSendNotification()
+                    }
+                }
+                if (viewModelStateFlow.value.hasNotificationPermission) {
+                    sendTestNotification()
+                } else {
+                    val result = eventSender.send {
+                        it.requestPermission(
+                            ActivityResultContracts.RequestPermission(),
+                            Manifest.permission.POST_NOTIFICATIONS,
+                        )
+                    }
+                    updateNotificationPermissionState()
+                    if (result) {
+                        sendTestNotification()
+                    }
+                }
+            }
+        }
+
+        override fun onOpenNotificationListenerSettings() {
+            viewModelScope.launch {
+                eventSender.send {
+                    it.onOpenNotificationListenerSettings()
+                }
+            }
+        }
+    }
+
     val uiState: StateFlow<MainScreenUiState> = MutableStateFlow(
         MainScreenUiState(
             screenSaverSectionUiState = ScreenSaverSectionUiState(
@@ -150,6 +193,11 @@ class MainScreenViewModel(
                 selectedAlertCalendarDisplayName = "",
                 hasOverlayPermission = false,
                 hasCalendarPermission = false,
+            ),
+            notificationSectionUiState = NotificationSectionUiState(
+                hasNotificationPermission = false,
+                hasNotificationListenerPermission = false,
+                listener = notificationSettingListener,
             ),
             listener = listener,
         ),
@@ -194,6 +242,11 @@ class MainScreenViewModel(
                             ?.joinToString(", ") ?: "未選択",
                         hasOverlayPermission = viewModelState.hasOverlayPermission,
                         hasCalendarPermission = viewModelState.hasCalendarPermission,
+                    ),
+                    notificationSectionUiState = NotificationSectionUiState(
+                        hasNotificationPermission = viewModelState.hasNotificationPermission,
+                        hasNotificationListenerPermission = viewModelState.hasNotificationListenerPermission,
+                        listener = notificationSettingListener,
                     ),
                     listener = listener,
                 )
@@ -245,10 +298,29 @@ class MainScreenViewModel(
         }
     }
 
+    private fun updateNotificationPermissionState() {
+        viewModelScope.launch {
+            val hasNotificationPermission = eventSender.send {
+                it.checkNotificationPermission()
+            }
+            val hasNotificationListenerPermission = eventSender.send {
+                it.checkNotificationListenerPermission()
+            }
+            viewModelStateFlow.update { state ->
+                state.copy(
+                    hasNotificationPermission = hasNotificationPermission,
+                    hasNotificationListenerPermission = hasNotificationListenerPermission,
+                )
+            }
+        }
+    }
+
     private data class ViewModelState(
         val availableCalendars: List<CalendarRepository.CalendarInfo> = listOf(),
         val hasCalendarPermission: Boolean = false,
         val hasOverlayPermission: Boolean = false,
+        val hasNotificationPermission: Boolean = false,
+        val hasNotificationListenerPermission: Boolean = false,
     )
 
     interface Listener {
@@ -262,5 +334,13 @@ class MainScreenViewModel(
         fun onNavigateToAlertCalendarSelection()
         fun checkOverlayPermission(): Boolean
         fun onRequestOverlayPermission()
+        fun onSendNotification()
+        fun onOpenNotificationListenerSettings()
+        fun checkNotificationPermission(): Boolean
+        fun checkNotificationListenerPermission(): Boolean
+        suspend fun <I, O> requestPermission(
+            contract: ActivityResultContract<I, O>,
+            input: I,
+        ): O
     }
 }
