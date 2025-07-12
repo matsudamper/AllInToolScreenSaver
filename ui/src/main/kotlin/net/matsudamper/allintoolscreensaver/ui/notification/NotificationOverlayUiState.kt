@@ -8,8 +8,7 @@ data class NotificationOverlayUiState(
     val listener: Listener,
 ) {
     @Immutable
-    interface Listener {
-    }
+    interface Listener
 
     data class NotificationItem(
         val id: String,

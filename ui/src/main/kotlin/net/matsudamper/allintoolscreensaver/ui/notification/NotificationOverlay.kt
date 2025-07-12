@@ -15,12 +15,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun NotificationOverlay(
@@ -55,9 +57,10 @@ private fun NotificationItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val dismissRequestUpdated = rememberUpdatedState(dismissRequest)
     LaunchedEffect(notification.id) {
-        delay(5000) // 5秒後に自動で消す
-        dismissRequest()
+        delay(5.seconds)
+        dismissRequestUpdated.value()
     }
 
     Box(
