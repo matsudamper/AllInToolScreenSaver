@@ -1,5 +1,6 @@
 package net.matsudamper.allintoolscreensaver.feature.notification
 
+import android.app.Notification
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import java.util.concurrent.atomic.AtomicReference
@@ -22,6 +23,12 @@ class NotificationListenerService : NotificationListenerService() {
         super.onNotificationPosted(sbn)
 
         val notification = sbn.notification
+        
+        // 消せない通知等をフィルター
+        if ((notification.flags and Notification.FLAG_FOREGROUND_SERVICE) != 0) return
+        if ((notification.flags and Notification.FLAG_ONGOING_EVENT) != 0) return
+        if ((notification.flags and Notification.FLAG_NO_CLEAR) != 0) return
+
         val title = notification.extras.getString("android.title").orEmpty()
         val text = notification.extras.getString("android.text").orEmpty()
         val packageName = sbn.packageName
