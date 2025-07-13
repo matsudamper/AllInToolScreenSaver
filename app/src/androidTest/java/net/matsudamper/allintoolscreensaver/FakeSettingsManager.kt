@@ -1,6 +1,8 @@
 package net.matsudamper.allintoolscreensaver
 
 import android.net.Uri
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,6 +13,7 @@ class FakeSettingsManager : SettingsRepository {
     private val imageSwitchIntervalSecondsFlow = MutableStateFlow<Int>(30)
     private val alertEnabledFlow = MutableStateFlow<Boolean>(false)
     private val alertCalendarIdsFlow = MutableStateFlow<List<Long>>(listOf())
+    private val notificationDisplayDurationFlow = MutableStateFlow<Duration>(5.seconds)
     private var imageDirectoryUri: Uri? = null
 
     override val settingsFlow: Flow<Settings> = MutableStateFlow(Settings.getDefaultInstance())
@@ -53,5 +56,13 @@ class FakeSettingsManager : SettingsRepository {
 
     override fun getAlertCalendarIdsFlow(): Flow<List<Long>> {
         return alertCalendarIdsFlow.asStateFlow()
+    }
+
+    override suspend fun saveNotificationDisplayDuration(duration: Duration) {
+        notificationDisplayDurationFlow.value = duration
+    }
+
+    override fun getNotificationDisplayDurationFlow(): Flow<Duration> {
+        return notificationDisplayDurationFlow.asStateFlow()
     }
 }
