@@ -21,8 +21,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.delay
 
 @Composable
 fun NotificationOverlay(
@@ -39,7 +39,7 @@ fun NotificationOverlay(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(16.dp),
         ) {
-            uiState.notifications.filter { it.isVisible }.forEach { notification ->
+            uiState.notifications.forEach { notification ->
                 NotificationItem(
                     notification = notification,
                     dismissRequest = notification.listener::dismissRequest,
@@ -58,7 +58,7 @@ private fun NotificationItem(
     modifier: Modifier = Modifier,
 ) {
     val dismissRequestUpdated = rememberUpdatedState(dismissRequest)
-    LaunchedEffect(notification.id) {
+    LaunchedEffect(Unit) {
         delay(5.seconds)
         dismissRequestUpdated.value()
     }
