@@ -32,7 +32,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import dev.chrisbanes.haze.HazeState
@@ -79,6 +78,7 @@ fun NotificationOverlay(
                 NotificationItem(
                     notification = notification,
                     hazeState = hazeState,
+                    uiState = uiState,
                     dismissRequest = {
                         coroutineScope.launch {
                             dismissState.dismiss(SwipeToDismissBoxValue.StartToEnd)
@@ -121,14 +121,17 @@ internal class DerivedOffsetAnimationSpec(private val boundsSpec: FiniteAnimatio
 private fun NotificationItem(
     notification: NotificationOverlayUiState.NotificationItem,
     hazeState: HazeState,
+    uiState: NotificationOverlayUiState,
     dismissRequest: () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val dismissRequestUpdated = rememberUpdatedState(dismissRequest)
-    LaunchedEffect(Unit) {
-        delay(5.seconds)
-        dismissRequestUpdated.value()
+    LaunchedEffect(uiState.displayDuration) {
+        if (uiState.displayDuration.isInfinite().not()) {
+            delay(uiState.displayDuration)
+            dismissRequestUpdated.value()
+        }
     }
 
     Box(

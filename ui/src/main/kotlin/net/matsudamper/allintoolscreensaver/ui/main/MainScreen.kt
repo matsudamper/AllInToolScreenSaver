@@ -42,6 +42,7 @@ fun MainScreen(
     uiState: MainScreenUiState,
     onDirectorySelect: () -> Unit,
     onImageSwitchIntervalChange: (Int) -> Unit,
+    onNotificationDisplayDurationChange: (kotlin.time.Duration) -> Unit,
     onCalendarSelect: () -> Unit,
     onAlertCalendarSelect: () -> Unit,
     onCalendarPreview: () -> Unit,
@@ -104,6 +105,7 @@ fun MainScreen(
                 NotificationSection(
                     modifier = Modifier.fillMaxWidth(),
                     uiState = uiState.notificationSectionUiState,
+                    onNotificationDisplayDurationChange = onNotificationDisplayDurationChange,
                 )
             }
 
@@ -404,6 +406,7 @@ private fun ImageSwitchIntervalSelector(
 @Composable
 private fun NotificationSection(
     uiState: NotificationSectionUiState,
+    onNotificationDisplayDurationChange: (kotlin.time.Duration) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Section(
@@ -460,6 +463,21 @@ private fun NotificationSection(
                             "許可されていません"
                         },
                         style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            },
+            { paddingValues ->
+                Column(
+                    modifier = Modifier.padding(paddingValues),
+                ) {
+                    Text(
+                        text = "通知表示時間",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    NotificationDisplayDurationSelector(
+                        durationOptions = uiState.displayDurationOptions,
+                        onDurationSelect = onNotificationDisplayDurationChange,
                     )
                 }
             },

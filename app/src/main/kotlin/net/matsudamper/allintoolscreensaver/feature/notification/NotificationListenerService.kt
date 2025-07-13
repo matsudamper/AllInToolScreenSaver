@@ -23,7 +23,7 @@ class NotificationListenerService : NotificationListenerService() {
         super.onNotificationPosted(sbn)
 
         val notification = sbn.notification
-        
+
         // 消せない通知等をフィルター
         if ((notification.flags and Notification.FLAG_FOREGROUND_SERVICE) != 0) return
         if ((notification.flags and Notification.FLAG_ONGOING_EVENT) != 0) return

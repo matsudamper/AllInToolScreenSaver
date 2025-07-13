@@ -87,6 +87,9 @@ fun MainScreenAdapter(
         onImageSwitchIntervalChange = { seconds ->
             uiState.listener.onImageSwitchIntervalChanged(seconds)
         },
+        onNotificationDisplayDurationChange = { duration ->
+            uiState.listener.onNotificationDisplayDurationChanged(duration)
+        },
         onCalendarSelect = {
             if (uiState.calendarSectionUiState.hasCalendarPermission) {
                 uiState.listener.onNavigateToCalendarSelection()

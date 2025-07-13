@@ -8,6 +8,9 @@ import androidx.datastore.core.Serializer
 import androidx.datastore.dataStore
 import java.io.InputStream
 import java.io.OutputStream
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import com.google.protobuf.InvalidProtocolBufferException
@@ -24,6 +27,8 @@ interface SettingsRepository {
     fun getAlertEnabledFlow(): Flow<Boolean>
     suspend fun saveAlertCalendarIds(calendarIds: List<Long>)
     fun getAlertCalendarIdsFlow(): Flow<List<Long>>
+    suspend fun saveNotificationDisplayDuration(duration: Duration)
+    fun getNotificationDisplayDurationFlow(): Flow<Duration>
 }
 
 object SettingsSerializer : Serializer<Settings> {
@@ -110,5 +115,21 @@ class SettingsRepositoryImpl(private val context: Context) : SettingsRepository 
 
     override fun getAlertCalendarIdsFlow(): Flow<List<Long>> = dataStore.data.map { settings ->
         settings.alertCalendarIdsList
+    }
+
+    override suspend fun saveNotificationDisplayDuration(duration: Duration) {
+        dataStore.updateData { currentSettings ->
+            currentSettings.toBuilder()
+                .setNotificationDisplayDurationMillis(duration.inWholeMilliseconds)
+                .build()
+        }
+    }
+
+    override fun getNotificationDisplayDurationFlow(): Flow<Duration> = dataStore.data.map { settings ->
+        when (settings.notificationDisplayDurationMillis) {
+            0L -> 5.seconds
+            Long.MAX_VALUE -> Duration.INFINITE
+            else -> settings.notificationDisplayDurationMillis.milliseconds
+        }
     }
 }

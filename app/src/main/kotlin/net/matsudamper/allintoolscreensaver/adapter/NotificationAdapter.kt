@@ -18,6 +18,7 @@ fun NotificationAdapter(
         val koin = GlobalContext.get()
         NotificationViewModel(
             notificationRepository = koin.get(),
+            settingsRepository = koin.get(),
         )
     },
 ) {

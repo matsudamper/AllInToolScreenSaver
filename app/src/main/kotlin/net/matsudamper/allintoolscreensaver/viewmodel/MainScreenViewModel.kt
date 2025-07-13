@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -97,6 +98,12 @@ class MainScreenViewModel(
         override fun onImageSwitchIntervalChanged(seconds: Int) {
             viewModelScope.launch {
                 settingsRepository.saveImageSwitchIntervalSeconds(seconds)
+            }
+        }
+
+        override fun onNotificationDisplayDurationChanged(duration: Duration) {
+            viewModelScope.launch {
+                settingsRepository.saveNotificationDisplayDuration(duration)
             }
         }
 
@@ -197,6 +204,7 @@ class MainScreenViewModel(
             notificationSectionUiState = NotificationSectionUiState(
                 hasNotificationPermission = false,
                 hasNotificationListenerPermission = false,
+                displayDurationOptions = listOf(),
                 listener = notificationSettingListener,
             ),
             listener = listener,
@@ -207,12 +215,26 @@ class MainScreenViewModel(
                 viewModelStateFlow,
                 settingsRepository.settingsFlow,
                 settingsRepository.getAlertCalendarIdsFlow(),
-            ) { viewModelState, settings, alertCalendarIds ->
+                settingsRepository.getNotificationDisplayDurationFlow(),
+            ) { viewModelState, settings, alertCalendarIds, notificationDisplayDuration ->
                 val intervalOptions = listOf(5, 15, 30, 60).map { seconds ->
                     IntervalOption(
                         seconds = seconds,
                         displayText = "${seconds}秒",
                         isSelected = (if (settings.imageSwitchIntervalSeconds == 0) 30 else settings.imageSwitchIntervalSeconds) == seconds,
+                    )
+                }
+
+                val durationOptions = listOf(
+                    5.seconds to "5秒",
+                    10.seconds to "10秒",
+                    15.seconds to "15秒",
+                    Duration.INFINITE to "無制限",
+                ).map { (duration, text) ->
+                    NotificationSectionUiState.DurationOption(
+                        duration = duration,
+                        displayText = text,
+                        isSelected = notificationDisplayDuration == duration,
                     )
                 }
 
@@ -246,6 +268,7 @@ class MainScreenViewModel(
                     notificationSectionUiState = NotificationSectionUiState(
                         hasNotificationPermission = viewModelState.hasNotificationPermission,
                         hasNotificationListenerPermission = viewModelState.hasNotificationListenerPermission,
+                        displayDurationOptions = durationOptions,
                         listener = notificationSettingListener,
                     ),
                     listener = listener,

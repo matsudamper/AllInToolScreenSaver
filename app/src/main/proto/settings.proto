@@ -9,4 +9,5 @@ message Settings {
   int32 image_switch_interval_seconds = 3;
   bool alert_enabled = 4;
   repeated int64 alert_calendar_ids = 5;
+  int64 notification_display_duration_millis = 6;
 } 

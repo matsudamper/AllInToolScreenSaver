@@ -2,6 +2,7 @@ package net.matsudamper.allintoolscreensaver.ui.main
 
 import android.net.Uri
 import androidx.compose.runtime.Immutable
+import kotlin.time.Duration
 
 data class MainScreenUiState(
     val screenSaverSectionUiState: ScreenSaverSectionUiState,
@@ -15,6 +16,7 @@ data class MainScreenUiState(
         fun onDirectorySelected(uri: Uri)
         fun onCalendarSelectionChanged(calendarId: Long, isSelected: Boolean)
         fun onImageSwitchIntervalChanged(seconds: Int)
+        fun onNotificationDisplayDurationChanged(duration: Duration)
         fun onOpenDreamSettings()
         fun onNavigateToCalendarSelection()
         fun onNavigateToAlertCalendarSelection()
@@ -48,10 +50,17 @@ data class CalendarSectionUiState(
 data class NotificationSectionUiState(
     val hasNotificationPermission: Boolean,
     val hasNotificationListenerPermission: Boolean,
+    val displayDurationOptions: List<DurationOption>,
     val listener: Listener,
 ) {
     interface Listener {
         fun onClickSendTestNotification()
         fun onOpenNotificationListenerSettings()
     }
+
+    data class DurationOption(
+        val duration: Duration,
+        val displayText: String,
+        val isSelected: Boolean,
+    )
 }
