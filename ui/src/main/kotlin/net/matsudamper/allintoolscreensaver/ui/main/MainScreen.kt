@@ -75,11 +75,12 @@ fun MainScreen(
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = paddingValues,
+            contentPadding = paddingValues
+                .plus(PaddingValues(horizontal = 16.dp))
+                .plus(PaddingValues(top = 16.dp)),
         ) {
             item {
                 ScreenSaverSection(
