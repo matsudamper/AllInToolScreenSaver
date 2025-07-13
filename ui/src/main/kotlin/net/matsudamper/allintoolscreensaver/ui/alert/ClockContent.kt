@@ -35,7 +35,7 @@ fun ClockContent(
         targetValue = if (isDarkBackground) {
             Color.Black.copy(alpha = 0.4f)
         } else {
-            Color.Transparent
+            Color.Black.copy(alpha = 0.1f)
         },
         label = "clock_background_animation",
     )
