@@ -101,6 +101,13 @@ fun MainScreen(
             }
 
             item {
+                NotificationSection(
+                    modifier = Modifier.fillMaxWidth(),
+                    uiState = uiState.notificationSectionUiState,
+                )
+            }
+
+            item {
                 Section(
                     modifier = Modifier.fillMaxWidth(),
                     title = null,
@@ -392,4 +399,70 @@ private fun ImageSwitchIntervalSelector(
             }
         }
     }
+}
+
+@Composable
+private fun NotificationSection(
+    uiState: NotificationSectionUiState,
+    modifier: Modifier = Modifier,
+) {
+    Section(
+        modifier = modifier,
+        title = "通知",
+        contents = listOf(
+            { paddingValues ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable {
+                            uiState.listener.onOpenNotificationListenerSettings()
+                        }
+                        .padding(paddingValues),
+                ) {
+                    Text(
+                        text = "通知アクセス権限設定",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = if (uiState.hasNotificationListenerPermission) {
+                            "権限が許可されています"
+                        } else {
+                            "通知アクセス権限が必要です"
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (uiState.hasNotificationListenerPermission) {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        } else {
+                            MaterialTheme.colorScheme.error
+                        },
+                    )
+                }
+            },
+            { paddingValues ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable {
+                            uiState.listener.onClickSendTestNotification()
+                        }
+                        .padding(paddingValues),
+                ) {
+                    Text(
+                        text = "テスト通知を送信",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = if (uiState.hasNotificationPermission) {
+                            "5秒後に送信"
+                        } else {
+                            "許可されていません"
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            },
+        ),
+    )
 }

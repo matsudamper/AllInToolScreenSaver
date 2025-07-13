@@ -13,8 +13,9 @@
       "Bash(cat:*)",
       "Bash(tail:*)",
       "Bash(pwd:*)",
-      "Bash(git:log:*)",
-      "Bash(git:status:*)",
+      "Bash(git log:*)",
+      "Bash(git status:*)",
+      "Bash(git mv:*)",
       "Bash(rg:*)"
     ],
     "deny": [

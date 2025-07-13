@@ -18,7 +18,7 @@ class UseKotlinDurationForDelayRule : Rule() {
 
     override val issue = Issue(
         id = "UseKotlinDurationForDelay",
-        severity = Severity.Warning,
+        severity = Severity.CodeSmell,
         description = "delay() should use Kotlin Duration instead of numeric literals (milliseconds)",
         debt = Debt.FIVE_MINS,
     )

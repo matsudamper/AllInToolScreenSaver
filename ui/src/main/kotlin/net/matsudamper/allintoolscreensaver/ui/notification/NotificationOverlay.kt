@@ -1,0 +1,167 @@
+package net.matsudamper.allintoolscreensaver.ui.notification
+
+import androidx.compose.animation.core.AnimationVector
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.TwoWayConverter
+import androidx.compose.animation.core.VectorizedFiniteAnimationSpec
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.dp
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+@Composable
+fun NotificationOverlay(
+    uiState: NotificationOverlayUiState,
+    modifier: Modifier = Modifier,
+) {
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+    LazyColumn(
+        modifier = modifier,
+        state = listState,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(
+            top = 16.dp,
+            start = 16.dp,
+            end = 16.dp,
+        ),
+        userScrollEnabled = false,
+    ) {
+        items(
+            items = uiState.notifications,
+            key = { notification -> notification.id },
+        ) { notification ->
+            val dismissState = rememberSwipeToDismissBoxState(
+                confirmValueChange = { value ->
+                    if (value != SwipeToDismissBoxValue.Settled) {
+                        notification.listener.dismissRequest()
+                        true
+                    } else {
+                        false
+                    }
+                },
+            )
+            val itemContent = remember(notification) {
+                movableContentOf {
+                    NotificationItem(
+                        notification = notification,
+                        dismissRequest = {
+                            coroutineScope.launch {
+                                dismissState.dismiss(SwipeToDismissBoxValue.StartToEnd)
+                                notification.listener.dismissRequest()
+                            }
+                        },
+                        onClick = notification.listener::onClick,
+                    )
+                }
+            }
+            SwipeToDismissBox(
+                state = dismissState,
+                backgroundContent = {},
+            ) {
+                itemContent()
+            }
+        }
+    }
+}
+
+internal class DerivedOffsetAnimationSpec(private val boundsSpec: FiniteAnimationSpec<IntRect>) :
+    FiniteAnimationSpec<IntOffset> {
+    override fun <V : AnimationVector> vectorize(
+        converter: TwoWayConverter<IntOffset, V>,
+    ): VectorizedFiniteAnimationSpec<V> =
+        boundsSpec.vectorize(
+            object : TwoWayConverter<IntRect, V> {
+                override val convertFromVector: (V) -> IntRect = { vector ->
+                    with(converter.convertFromVector(vector)) { IntRect(x, y, x, y) }
+                }
+                override val convertToVector: (IntRect) -> V = { bounds ->
+                    converter.convertToVector(bounds.topLeft)
+                }
+            },
+        )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DerivedOffsetAnimationSpec) return false
+        return boundsSpec == other.boundsSpec
+    }
+
+    override fun hashCode(): Int = boundsSpec.hashCode()
+}
+
+@Composable
+private fun NotificationItem(
+    notification: NotificationOverlayUiState.NotificationItem,
+    dismissRequest: () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val dismissRequestUpdated = rememberUpdatedState(dismissRequest)
+    LaunchedEffect(Unit) {
+        delay(5.seconds)
+        dismissRequestUpdated.value()
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
+            .clickable { onClick() }
+            .padding(16.dp),
+    ) {
+        Column {
+            if (notification.title.isNotEmpty()) {
+                Text(
+                    text = notification.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+            if (notification.text.isNotEmpty()) {
+                Text(
+                    text = notification.text,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
