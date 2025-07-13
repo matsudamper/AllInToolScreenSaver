@@ -10,7 +10,7 @@ data class NotificationOverlayUiState(
     interface Listener
 
     data class NotificationItem(
-        val id : String,
+        val id: String,
         val title: String,
         val text: String,
         val listener: ItemListener,

@@ -1,6 +1,5 @@
 package net.matsudamper.allintoolscreensaver.ui.notification
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.AnimationVector
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.TwoWayConverter
@@ -23,11 +22,9 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
@@ -39,9 +36,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun NotificationOverlay(
@@ -102,7 +99,7 @@ fun NotificationOverlay(
 internal class DerivedOffsetAnimationSpec(private val boundsSpec: FiniteAnimationSpec<IntRect>) :
     FiniteAnimationSpec<IntOffset> {
     override fun <V : AnimationVector> vectorize(
-        converter: TwoWayConverter<IntOffset, V>
+        converter: TwoWayConverter<IntOffset, V>,
     ): VectorizedFiniteAnimationSpec<V> =
         boundsSpec.vectorize(
             object : TwoWayConverter<IntRect, V> {
@@ -112,7 +109,7 @@ internal class DerivedOffsetAnimationSpec(private val boundsSpec: FiniteAnimatio
                 override val convertToVector: (IntRect) -> V = { bounds ->
                     converter.convertToVector(bounds.topLeft)
                 }
-            }
+            },
         )
 
     override fun equals(other: Any?): Boolean {

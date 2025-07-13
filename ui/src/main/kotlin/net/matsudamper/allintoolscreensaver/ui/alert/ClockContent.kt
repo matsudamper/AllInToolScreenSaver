@@ -3,9 +3,11 @@ package net.matsudamper.allintoolscreensaver.ui.alert
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,8 +39,7 @@ fun ClockContent(
         },
         label = "clock_background_animation",
     )
-
-    Column(
+    Box(
         modifier = modifier
             .background(animatedBackgroundColor)
             .clip(RoundedCornerShape(8.dp))
@@ -48,23 +49,27 @@ fun ClockContent(
                     blurRadius = 8.dp,
                 ),
             ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
     ) {
-        Text(
-            text = uiState.timeText,
-            color = Color.White,
-            fontSize = 48.sp,
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Bold,
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = uiState.dateText,
-            color = Color.White,
-            fontSize = 20.sp,
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Bold,
-        )
+        Column(
+            modifier = Modifier.padding(4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = uiState.timeText,
+                color = Color.White,
+                fontSize = 48.sp,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.Bold,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = uiState.dateText,
+                color = Color.White,
+                fontSize = 20.sp,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.Bold,
+            )
+        }
     }
 }
