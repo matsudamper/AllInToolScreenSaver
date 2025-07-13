@@ -63,6 +63,10 @@ class MainScreenViewModelListenerImpl(
         backStack.addLast(NavKeys.SlideShowPreview)
     }
 
+    override fun onNavigateToNotificationPreview() {
+        backStack.addLast(NavKeys.NotificationPreview)
+    }
+
     override fun onNavigateToAlertCalendarSelection() {
         backStack.addLast(NavKeys.AlertCalendarSelection)
     }

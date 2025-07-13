@@ -71,6 +71,14 @@ class MainScreenViewModel(
             }
         }
 
+        override fun onNavigateToNotificationPreview() {
+            viewModelScope.launch {
+                eventSender.send {
+                    it.onNavigateToNotificationPreview()
+                }
+            }
+        }
+
         override fun onDirectorySelected(uri: Uri) {
             inMemoryCache.imageInfo = null
             viewModelScope.launch {
@@ -354,6 +362,7 @@ class MainScreenViewModel(
         fun onNavigateToCalendarSelection()
         fun onNavigateToCalendarDisplay()
         fun onNavigateToSlideShowPreview()
+        fun onNavigateToNotificationPreview()
         fun onNavigateToAlertCalendarSelection()
         fun checkOverlayPermission(): Boolean
         fun onRequestOverlayPermission()

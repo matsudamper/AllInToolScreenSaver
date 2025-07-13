@@ -18,4 +18,7 @@ object NavKeys {
 
     @Serializable
     data object SlideShowPreview : NavKey
+
+    @Serializable
+    data object NotificationPreview : NavKey
 }

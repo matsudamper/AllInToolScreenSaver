@@ -4,20 +4,29 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 import net.matsudamper.allintoolscreensaver.adapter.CalendarDisplayScreenAdapter
 import net.matsudamper.allintoolscreensaver.adapter.CalendarSelectionScreenAdapter
 import net.matsudamper.allintoolscreensaver.adapter.MainScreenAdapter
+import net.matsudamper.allintoolscreensaver.adapter.NotificationAdapter
 import net.matsudamper.allintoolscreensaver.adapter.SlideShowScreenAdapter
 import net.matsudamper.allintoolscreensaver.navigation.CustomTwoPaneSceneStrategy
 import net.matsudamper.allintoolscreensaver.navigation.NavKeys
@@ -113,6 +122,24 @@ class MainActivity : ComponentActivity() {
                         metadata = CustomTwoPaneSceneStrategy.extendPane(),
                     ) { _ ->
                         SlideShowScreenAdapter()
+                    }
+                    entry<NavKeys.NotificationPreview>(
+                        metadata = CustomTwoPaneSceneStrategy.extendPane(),
+                    ) { _ ->
+                        val hazeState = rememberHazeState()
+                        NotificationAdapter(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .windowInsetsPadding(
+                                    WindowInsets.safeDrawing
+                                        .only(
+                                            WindowInsetsSides.Top + WindowInsetsSides.Bottom + WindowInsetsSides.Right,
+                                        ),
+                                )
+                                .background(Color.Gray)
+                                .hazeSource(hazeState),
+                            hazeState = hazeState,
+                        )
                     }
                 },
             )

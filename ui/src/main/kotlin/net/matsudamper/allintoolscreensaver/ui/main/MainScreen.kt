@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.matsudamper.allintoolscreensaver.ui.component.SuspendLifecycleResumeEffect
 import net.matsudamper.allintoolscreensaver.ui.component.SuspendLifecycleStartEffect
+import net.matsudamper.allintoolscreensaver.ui.ext.plus
 
 private val SectionHorizontalPadding = 12.dp
 private val SectionLargeRadiusSize = 16.dp
@@ -47,6 +48,7 @@ fun MainScreen(
     onAlertCalendarSelect: () -> Unit,
     onCalendarPreview: () -> Unit,
     onSlideShowPreview: () -> Unit,
+    onNotificationPreview: () -> Unit,
     onOpenDreamSettings: () -> Unit,
     onRequestOverlayPermission: () -> Unit,
     modifier: Modifier = Modifier,
@@ -107,6 +109,7 @@ fun MainScreen(
                     modifier = Modifier.fillMaxWidth(),
                     uiState = uiState.notificationSectionUiState,
                     onNotificationDisplayDurationChange = onNotificationDisplayDurationChange,
+                    onNotificationPreview = onNotificationPreview,
                 )
             }
 
@@ -408,6 +411,7 @@ private fun ImageSwitchIntervalSelector(
 private fun NotificationSection(
     uiState: NotificationSectionUiState,
     onNotificationDisplayDurationChange: (kotlin.time.Duration) -> Unit,
+    onNotificationPreview: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Section(
@@ -481,6 +485,18 @@ private fun NotificationSection(
                         onDurationSelect = onNotificationDisplayDurationChange,
                     )
                 }
+            },
+            { paddingValues ->
+                Text(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable {
+                            onNotificationPreview()
+                        }
+                        .padding(paddingValues),
+                    text = "プレビュー",
+                    style = MaterialTheme.typography.titleMedium,
+                )
             },
         ),
     )

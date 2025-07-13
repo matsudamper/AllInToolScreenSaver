@@ -22,6 +22,7 @@ data class MainScreenUiState(
         fun onNavigateToAlertCalendarSelection()
         fun onNavigateToCalendarDisplay()
         fun onNavigateToSlideShowPreview()
+        fun onNavigateToNotificationPreview()
         fun onRequestOverlayPermission()
         fun updatePermissions(calendar: Boolean? = null, overlay: Boolean? = null)
         suspend fun onResume()

@@ -110,6 +110,9 @@ fun MainScreenAdapter(
         onSlideShowPreview = {
             uiState.listener.onNavigateToSlideShowPreview()
         },
+        onNotificationPreview = {
+            uiState.listener.onNavigateToNotificationPreview()
+        },
         onOpenDreamSettings = {
             uiState.listener.onOpenDreamSettings()
         },
