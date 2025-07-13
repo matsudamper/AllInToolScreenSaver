@@ -72,25 +72,20 @@ fun NotificationOverlay(
                     }
                 },
             )
-            val itemContent = remember(notification) {
-                movableContentOf {
-                    NotificationItem(
-                        notification = notification,
-                        dismissRequest = {
-                            coroutineScope.launch {
-                                dismissState.dismiss(SwipeToDismissBoxValue.StartToEnd)
-                                notification.listener.dismissRequest()
-                            }
-                        },
-                        onClick = notification.listener::onClick,
-                    )
-                }
-            }
             SwipeToDismissBox(
                 state = dismissState,
                 backgroundContent = {},
             ) {
-                itemContent()
+                NotificationItem(
+                    notification = notification,
+                    dismissRequest = {
+                        coroutineScope.launch {
+                            dismissState.dismiss(SwipeToDismissBoxValue.StartToEnd)
+                            notification.listener.dismissRequest()
+                        }
+                    },
+                    onClick = notification.listener::onClick,
+                )
             }
         }
     }
