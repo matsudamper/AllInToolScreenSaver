@@ -41,8 +41,8 @@ fun ClockContent(
     )
     Box(
         modifier = modifier
-            .background(animatedBackgroundColor)
             .clip(RoundedCornerShape(8.dp))
+            .background(animatedBackgroundColor)
             .hazeEffect(
                 state = hazeState,
                 style = HazeStyle.Unspecified.copy(
