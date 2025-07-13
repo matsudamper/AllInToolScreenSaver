@@ -2,6 +2,7 @@ package net.matsudamper.allintoolscreensaver.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import java.util.Random
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +26,12 @@ class NotificationViewModel(
             notificationRepository.notificationFlow.collect { newNotification ->
                 viewModelStateFlow.update { state ->
                     state.copy(
-                        notifications = state.notifications.plus(newNotification),
+                        notifications = state.notifications.plus(
+                            ViewModelState.NotificationItem(
+                                id = Random().nextDouble(),
+                                item = newNotification,
+                            ),
+                        ),
                     )
                 }
             }
@@ -35,7 +41,6 @@ class NotificationViewModel(
     val uiState: StateFlow<NotificationOverlayUiState> = MutableStateFlow(
         NotificationOverlayUiState(
             notifications = listOf(),
-            isVisible = false,
             listener = listener,
         ),
     ).also { uiStateFlow ->
@@ -45,24 +50,12 @@ class NotificationViewModel(
                     NotificationOverlayUiState(
                         notifications = viewModelState.notifications.map { notification ->
                             NotificationOverlayUiState.NotificationItem(
-                                title = notification.title,
-                                text = notification.text,
-                                listener = object : NotificationOverlayUiState.NotificationItem.ItemListener {
-                                    override fun dismissRequest() {
-                                        viewModelStateFlow.update { currentState ->
-                                            currentState.copy(
-                                                notifications = currentState.notifications.filter { n ->
-                                                    n != notification
-                                                },
-                                            )
-                                        }
-                                    }
-
-                                    override fun onClick() = Unit
-                                },
+                                id = notification.id.toString(),
+                                title = notification.item.title,
+                                text = notification.item.text,
+                                listener = ItemListener(notification = notification),
                             )
                         },
-                        isVisible = viewModelState.notifications.isNotEmpty(),
                         listener = listener,
                     )
                 }
@@ -70,8 +63,29 @@ class NotificationViewModel(
         }
     }.asStateFlow()
 
+    private inner class ItemListener(
+        private val notification: ViewModelState.NotificationItem,
+    ) : NotificationOverlayUiState.NotificationItem.ItemListener {
+        override fun dismissRequest() {
+            viewModelStateFlow.update { currentState ->
+                currentState.copy(
+                    notifications = currentState.notifications.filter { n ->
+                        n != notification
+                    },
+                )
+            }
+        }
+
+        override fun onClick() = Unit
+    }
+
     private data class ViewModelState(
-        val notifications: List<NotificationInfo> = listOf(),
+        val notifications: List<NotificationItem> = listOf(),
         val isServiceConnected: Boolean = false,
-    )
+    ) {
+        data class NotificationItem(
+            val id: Double,
+            val item: NotificationInfo,
+        )
+    }
 }
