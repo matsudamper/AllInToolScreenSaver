@@ -50,7 +50,7 @@ fun ScreenSaverScreenAdapter() {
             )
         },
         notificationOverlayContent = {
-            NotificationAdapter()
+            NotificationAdapter(hazeState = hazeState)
         },
         updateIsDarkClockBackground = {
             isDarkBackground = it

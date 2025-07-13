@@ -23,12 +23,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.movableContentOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
@@ -39,10 +35,14 @@ import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.hazeEffect
 
 @Composable
 fun NotificationOverlay(
     uiState: NotificationOverlayUiState,
+    hazeState: HazeState,
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
@@ -78,6 +78,7 @@ fun NotificationOverlay(
             ) {
                 NotificationItem(
                     notification = notification,
+                    hazeState = hazeState,
                     dismissRequest = {
                         coroutineScope.launch {
                             dismissState.dismiss(SwipeToDismissBoxValue.StartToEnd)
@@ -119,6 +120,7 @@ internal class DerivedOffsetAnimationSpec(private val boundsSpec: FiniteAnimatio
 @Composable
 private fun NotificationItem(
     notification: NotificationOverlayUiState.NotificationItem,
+    hazeState: HazeState,
     dismissRequest: () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -133,7 +135,13 @@ private fun NotificationItem(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
+            .hazeEffect(
+                state = hazeState,
+                style = HazeStyle.Unspecified.copy(
+                    blurRadius = 8.dp,
+                ),
+            )
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.4f))
             .clickable { onClick() }
             .padding(16.dp),
     ) {
@@ -154,7 +162,7 @@ private fun NotificationItem(
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
