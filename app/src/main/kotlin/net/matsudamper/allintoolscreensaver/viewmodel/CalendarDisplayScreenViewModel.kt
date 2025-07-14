@@ -13,12 +13,14 @@ import androidx.lifecycle.viewModelScope
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,6 +37,8 @@ import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepository
 import net.matsudamper.allintoolscreensaver.feature.setting.SettingsRepository
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarDisplayScreenUiState
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarLayoutUiState
+import java.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 class CalendarDisplayScreenViewModel(
     application: Application,
@@ -57,6 +61,7 @@ class CalendarDisplayScreenViewModel(
                 }
                 launch { observeCalendarChanges() }
                 launch { observeAlertSettings() }
+                launch { observeDateChanges() }
             }
         }
 
@@ -187,6 +192,19 @@ class CalendarDisplayScreenViewModel(
                 }
                 context.contentResolver.unregisterContentObserver(observer)
             }
+        }
+    }
+
+    private suspend fun observeDateChanges() {
+        while (currentCoroutineContext().isActive) {
+            val now = LocalDateTime.now(clock.withZone(ZoneId.systemDefault()))
+            val nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay()
+            val delayUntilMidnight = Duration.between(now, nextMidnight)
+
+            delay(delayUntilMidnight.toMillis())
+            delay(1.seconds)
+
+            fetchEvent()
         }
     }
 
