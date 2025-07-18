@@ -10,7 +10,6 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.matsudamper.allintoolscreensaver.feature.calendar.AttendeeStatus
 import net.matsudamper.allintoolscreensaver.lib.PermissionChecker
 
 interface CalendarRepository {
@@ -168,14 +167,14 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                 val attendeeStatus = run {
                     val statusIndex = c.getColumnIndexOrThrow(CalendarContract.Instances.SELF_ATTENDEE_STATUS)
                     if (c.isNull(statusIndex)) {
-                        AttendeeStatus.NONE
+                        AttendeeStatus.UNKNOWN
                     } else {
                         when (c.getInt(statusIndex)) {
                             CalendarContract.Attendees.ATTENDEE_STATUS_ACCEPTED -> AttendeeStatus.ACCEPTED
                             CalendarContract.Attendees.ATTENDEE_STATUS_DECLINED -> AttendeeStatus.DECLINED
                             CalendarContract.Attendees.ATTENDEE_STATUS_INVITED -> AttendeeStatus.INVITED
                             CalendarContract.Attendees.ATTENDEE_STATUS_TENTATIVE -> AttendeeStatus.TENTATIVE
-                            else -> AttendeeStatus.NONE
+                            else -> AttendeeStatus.UNKNOWN
                         }
                     }
                 }

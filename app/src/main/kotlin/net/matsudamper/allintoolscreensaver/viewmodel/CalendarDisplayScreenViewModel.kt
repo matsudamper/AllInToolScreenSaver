@@ -220,7 +220,7 @@ class CalendarDisplayScreenViewModel(
             AttendeeStatus.DECLINED,
             -> true
 
-            AttendeeStatus.NONE,
+            AttendeeStatus.UNKNOWN,
             AttendeeStatus.ACCEPTED,
             AttendeeStatus.INVITED,
             -> false
@@ -233,7 +233,7 @@ class CalendarDisplayScreenViewModel(
             AttendeeStatus.DECLINED,
             -> true
 
-            AttendeeStatus.NONE,
+            AttendeeStatus.UNKNOWN,
             AttendeeStatus.ACCEPTED,
             AttendeeStatus.INVITED,
             -> false
@@ -246,7 +246,7 @@ class CalendarDisplayScreenViewModel(
             -> true
 
             AttendeeStatus.TENTATIVE,
-            AttendeeStatus.NONE,
+            AttendeeStatus.UNKNOWN,
             AttendeeStatus.ACCEPTED,
             AttendeeStatus.INVITED,
             -> false

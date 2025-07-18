@@ -1,7 +1,7 @@
 package net.matsudamper.allintoolscreensaver.feature.calendar
 
 enum class AttendeeStatus {
-    NONE,
+    UNKNOWN,
     ACCEPTED,
     DECLINED,
     INVITED,
