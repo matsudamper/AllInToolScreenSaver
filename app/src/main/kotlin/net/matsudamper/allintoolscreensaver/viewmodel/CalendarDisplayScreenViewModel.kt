@@ -11,12 +11,14 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import java.time.Clock
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
@@ -37,8 +39,6 @@ import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepository
 import net.matsudamper.allintoolscreensaver.feature.setting.SettingsRepository
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarDisplayScreenUiState
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarLayoutUiState
-import java.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 class CalendarDisplayScreenViewModel(
     application: Application,
@@ -218,12 +218,12 @@ class CalendarDisplayScreenViewModel(
         return when (attendeeStatus) {
             AttendeeStatus.TENTATIVE,
             AttendeeStatus.DECLINED,
-                -> true
+            -> true
 
             AttendeeStatus.NONE,
             AttendeeStatus.ACCEPTED,
             AttendeeStatus.INVITED,
-                -> false
+            -> false
         }
     }
 
@@ -231,25 +231,25 @@ class CalendarDisplayScreenViewModel(
         return when (attendeeStatus) {
             AttendeeStatus.TENTATIVE,
             AttendeeStatus.DECLINED,
-                -> true
+            -> true
 
             AttendeeStatus.NONE,
             AttendeeStatus.ACCEPTED,
             AttendeeStatus.INVITED,
-                -> false
+            -> false
         }
     }
 
     private fun convertAttendeeStatusToTextDecoration(attendeeStatus: AttendeeStatus): Boolean {
         return when (attendeeStatus) {
             AttendeeStatus.DECLINED,
-                -> true
+            -> true
 
             AttendeeStatus.TENTATIVE,
             AttendeeStatus.NONE,
             AttendeeStatus.ACCEPTED,
             AttendeeStatus.INVITED,
-                -> false
+            -> false
         }
     }
 }
