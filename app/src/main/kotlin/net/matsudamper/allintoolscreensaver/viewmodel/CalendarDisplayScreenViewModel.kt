@@ -216,11 +216,11 @@ class CalendarDisplayScreenViewModel(
         return when (this) {
             AttendeeStatus.TENTATIVE,
             AttendeeStatus.DECLINED,
+            AttendeeStatus.INVITED,
             -> true
 
             AttendeeStatus.UNKNOWN,
             AttendeeStatus.ACCEPTED,
-            AttendeeStatus.INVITED,
             -> false
         }
     }
