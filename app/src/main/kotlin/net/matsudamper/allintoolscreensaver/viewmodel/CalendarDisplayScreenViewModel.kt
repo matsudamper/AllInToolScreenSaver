@@ -103,9 +103,9 @@ class CalendarDisplayScreenViewModel(
                                         displayTime = createDisplayTime(event.startTime, event.endTime),
                                         color = Color(event.color),
                                         description = event.description,
-                                        isTransparent = convertAttendeeStatusToTransparent(event.attendeeStatus),
-                                        showBorder = convertAttendeeStatusToShowBorder(event.attendeeStatus),
-                                        hasTextDecoration = convertAttendeeStatusToTextDecoration(event.attendeeStatus),
+                                        isTransparent = event.attendeeStatus.toDisplayTransparent(),
+                                        showBorder = event.attendeeStatus.toIsDisplayBorderVisible(),
+                                        hasTextDecoration = event.attendeeStatus.toIsDisplayDecorationVisible(),
                                     )
                                 },
                             allDayEvents = viewModelState.events.filterIsInstance<CalendarRepository.CalendarEvent.AllDay>()
@@ -114,9 +114,9 @@ class CalendarDisplayScreenViewModel(
                                         title = event.title,
                                         description = event.description,
                                         color = Color(event.color),
-                                        isTransparent = convertAttendeeStatusToTransparent(event.attendeeStatus),
-                                        showBorder = convertAttendeeStatusToShowBorder(event.attendeeStatus),
-                                        hasTextDecoration = convertAttendeeStatusToTextDecoration(event.attendeeStatus),
+                                        isTransparent = event.attendeeStatus.toDisplayTransparent(),
+                                        showBorder = event.attendeeStatus.toIsDisplayBorderVisible(),
+                                        hasTextDecoration = event.attendeeStatus.toIsDisplayDecorationVisible(),
                                     )
                                 },
                         ),
@@ -214,8 +214,8 @@ class CalendarDisplayScreenViewModel(
         val alertEnabled: Boolean = false,
     )
 
-    private fun convertAttendeeStatusToTransparent(attendeeStatus: AttendeeStatus): Boolean {
-        return when (attendeeStatus) {
+    private fun AttendeeStatus.toDisplayTransparent(): Boolean {
+        return when (this) {
             AttendeeStatus.TENTATIVE,
             AttendeeStatus.DECLINED,
             -> true
@@ -227,8 +227,8 @@ class CalendarDisplayScreenViewModel(
         }
     }
 
-    private fun convertAttendeeStatusToShowBorder(attendeeStatus: AttendeeStatus): Boolean {
-        return when (attendeeStatus) {
+    private fun AttendeeStatus.toIsDisplayBorderVisible(): Boolean {
+        return when (this) {
             AttendeeStatus.TENTATIVE,
             AttendeeStatus.DECLINED,
             -> true
@@ -240,8 +240,8 @@ class CalendarDisplayScreenViewModel(
         }
     }
 
-    private fun convertAttendeeStatusToTextDecoration(attendeeStatus: AttendeeStatus): Boolean {
-        return when (attendeeStatus) {
+    private fun AttendeeStatus.toIsDisplayDecorationVisible(): Boolean {
+        return when (this) {
             AttendeeStatus.DECLINED,
             -> true
 
