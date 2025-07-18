@@ -3,12 +3,6 @@ plugins {
     alias(libs.plugins.detekt)
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
-    }
-}
-
 dependencies {
     compileOnly("io.gitlab.arturbosch.detekt:detekt-api:1.23.8")
     compileOnly("io.gitlab.arturbosch.detekt:detekt-psi-utils:1.23.8")
