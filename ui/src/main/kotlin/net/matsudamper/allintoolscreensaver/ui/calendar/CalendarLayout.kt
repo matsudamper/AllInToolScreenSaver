@@ -73,8 +73,7 @@ data class CalendarLayoutUiState(
         val title: String
         val description: String?
         val color: Color
-        val isTransparent: Boolean
-        val showBorder: Boolean
+        val isBorderDisplayType: Boolean
         val hasTextDecoration: Boolean
 
         data class Time(
@@ -84,8 +83,7 @@ data class CalendarLayoutUiState(
             override val title: String,
             override val description: String?,
             override val color: Color,
-            override val isTransparent: Boolean,
-            override val showBorder: Boolean,
+            override val isBorderDisplayType: Boolean,
             override val hasTextDecoration: Boolean,
         ) : Event
 
@@ -93,8 +91,7 @@ data class CalendarLayoutUiState(
             override val title: String,
             override val description: String?,
             override val color: Color,
-            override val isTransparent: Boolean,
-            override val showBorder: Boolean,
+            override val isBorderDisplayType: Boolean,
             override val hasTextDecoration: Boolean,
         ) : Event
     }
@@ -418,8 +415,7 @@ private fun AllDayCard(
         title = event.title,
         displayTime = null,
         color = event.color,
-        isTransparent = event.isTransparent,
-        showBorder = event.showBorder,
+        isBorderDisplayType = event.isBorderDisplayType,
         hasTextDecoration = event.hasTextDecoration,
         onClick = onClick,
     )
@@ -437,8 +433,7 @@ private fun TimeCard(
         displayTime = event.uiState.displayTime,
         modifier = modifier,
         color = event.uiState.color,
-        isTransparent = event.uiState.isTransparent,
-        showBorder = event.uiState.showBorder,
+        isBorderDisplayType = event.uiState.isBorderDisplayType,
         hasTextDecoration = event.uiState.hasTextDecoration,
         onClick = onClick,
     )
@@ -449,8 +444,7 @@ private fun EventCard(
     title: String,
     displayTime: String?,
     color: Color,
-    isTransparent: Boolean,
-    showBorder: Boolean,
+    isBorderDisplayType: Boolean,
     hasTextDecoration: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -462,9 +456,9 @@ private fun EventCard(
             modifier = modifier,
             shape = RoundedCornerShape(2.dp),
             colors = CardDefaults.cardColors(
-                containerColor = if (isTransparent) Color.Transparent else color,
+                containerColor = if (isBorderDisplayType) Color.Transparent else color,
             ),
-            border = if (showBorder) BorderStroke(2.dp, color) else null,
+            border = if (isBorderDisplayType) BorderStroke(2.dp, color) else null,
             onClick = onClick,
         ) {
             Column(
@@ -610,8 +604,7 @@ private fun PreviewEventDialogContent() {
             displayTime = "01:00 - 02:00",
             description = "This is a sample event description.",
             color = Color.Blue,
-            isTransparent = false,
-            showBorder = false,
+            isBorderDisplayType = false,
             hasTextDecoration = false,
         ),
         onDismissRequest = {},
@@ -627,8 +620,7 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             displayTime = "00:00 - 01:00",
             description = "description",
             color = Color.Red,
-            isTransparent = false,
-            showBorder = false,
+            isBorderDisplayType = false,
             hasTextDecoration = false,
         ),
         CalendarLayoutUiState.Event.Time(
@@ -638,8 +630,7 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             displayTime = "01:00 - 03:00",
             description = "description",
             color = Color.Blue,
-            isTransparent = true,
-            showBorder = true,
+            isBorderDisplayType = true,
             hasTextDecoration = true,
         ),
         CalendarLayoutUiState.Event.Time(
@@ -649,8 +640,7 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             displayTime = "01:00 - 02:00",
             description = "description",
             color = Color.Yellow,
-            isTransparent = true,
-            showBorder = true,
+            isBorderDisplayType = true,
             hasTextDecoration = false,
         ),
         CalendarLayoutUiState.Event.Time(
@@ -660,8 +650,7 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             displayTime = "01:30 - 03:00",
             description = "description",
             color = Color.Green,
-            isTransparent = false,
-            showBorder = false,
+            isBorderDisplayType = false,
             hasTextDecoration = false,
         ),
         CalendarLayoutUiState.Event.Time(
@@ -671,8 +660,7 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             displayTime = "02:00 - 03:00",
             description = "description",
             color = Color.Magenta,
-            isTransparent = false,
-            showBorder = false,
+            isBorderDisplayType = false,
             hasTextDecoration = false,
         ),
         CalendarLayoutUiState.Event.Time(
@@ -682,8 +670,7 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             displayTime = "03:15 - 03:30",
             description = "description",
             color = Color.Cyan,
-            isTransparent = false,
-            showBorder = false,
+            isBorderDisplayType = false,
             hasTextDecoration = false,
         ),
     ),
@@ -692,16 +679,14 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             title = "All Day Event",
             description = "Description",
             color = Color.Red,
-            isTransparent = false,
-            showBorder = false,
+            isBorderDisplayType = false,
             hasTextDecoration = false,
         ),
         CalendarLayoutUiState.Event.AllDay(
             title = "All Day Event 2",
             description = "Description",
             color = Color.Yellow,
-            isTransparent = true,
-            showBorder = true,
+            isBorderDisplayType = true,
             hasTextDecoration = true,
         ),
     ),
