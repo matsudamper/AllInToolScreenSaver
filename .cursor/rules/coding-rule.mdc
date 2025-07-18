@@ -160,7 +160,7 @@ public/internal/privateの順番に並べてください。
 ```sh
 ./gradlew assembleDebug
 ./gradlew assembleDebugAndroidTest
-./gradlew detekt
+./gradlew detekt detektMain
 ./gradlew :app:lintDebug
 ```
 
