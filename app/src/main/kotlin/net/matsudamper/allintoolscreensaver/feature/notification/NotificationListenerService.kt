@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicReference
 import org.koin.core.context.GlobalContext
 
 class NotificationListenerService : NotificationListenerService() {
-    private val notificationRepository: NotificationRepository by GlobalContext.get().inject()
+    private val notificationRepository: NotificationRepository get() = GlobalContext.get().get()
 
     override fun onListenerConnected() {
         super.onListenerConnected()
