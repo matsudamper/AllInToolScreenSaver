@@ -51,17 +51,6 @@ fun SlideShowScreen(
         )
         val coroutineScope = rememberCoroutineScope()
         val listener by rememberUpdatedState(uiState.listener)
-        LaunchedEffect(pagerState) {
-            snapshotFlow {
-                pagerState.currentPage to pagerState.isScrollInProgress
-            }.collectLatest { (currentPage, isScrolling) ->
-                if (isScrolling) return@collectLatest
-
-                if (currentPage != 1) {
-                    listener.onPageChanged(currentPage)
-                }
-            }
-        }
 
         LaunchedEffect(pagerState) {
             snapshotFlow {
