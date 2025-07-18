@@ -216,24 +216,40 @@ class CalendarDisplayScreenViewModel(
 
     private fun convertAttendeeStatusToTransparent(attendeeStatus: AttendeeStatus): Boolean {
         return when (attendeeStatus) {
-            AttendeeStatus.TENTATIVE -> true
-            AttendeeStatus.DECLINED -> true
-            else -> false
+            AttendeeStatus.TENTATIVE,
+            AttendeeStatus.DECLINED,
+                -> true
+
+            AttendeeStatus.NONE,
+            AttendeeStatus.ACCEPTED,
+            AttendeeStatus.INVITED,
+                -> false
         }
     }
 
     private fun convertAttendeeStatusToShowBorder(attendeeStatus: AttendeeStatus): Boolean {
         return when (attendeeStatus) {
-            AttendeeStatus.TENTATIVE -> true
-            AttendeeStatus.DECLINED -> true
-            else -> false
+            AttendeeStatus.TENTATIVE,
+            AttendeeStatus.DECLINED,
+                -> true
+
+            AttendeeStatus.NONE,
+            AttendeeStatus.ACCEPTED,
+            AttendeeStatus.INVITED,
+                -> false
         }
     }
 
     private fun convertAttendeeStatusToTextDecoration(attendeeStatus: AttendeeStatus): Boolean {
         return when (attendeeStatus) {
-            AttendeeStatus.DECLINED -> true
-            else -> false
+            AttendeeStatus.DECLINED,
+                -> true
+
+            AttendeeStatus.TENTATIVE,
+            AttendeeStatus.NONE,
+            AttendeeStatus.ACCEPTED,
+            AttendeeStatus.INVITED,
+                -> false
         }
     }
 }
