@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
@@ -30,6 +31,7 @@ import net.matsudamper.allintoolscreensaver.ui.component.SuspendLifecycleStartEf
 fun SlideShowScreen(
     uiState: SlideshowUiState,
     hazeState: HazeState,
+    updatedPagerState: (PagerState) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     SuspendLifecycleStartEffect(uiState.listener) {
@@ -49,6 +51,9 @@ fun SlideShowScreen(
             initialPage = 1,
             pageCount = { 3 },
         )
+        LaunchedEffect(updatedPagerState) {
+            updatedPagerState(pagerState)
+        }
         val coroutineScope = rememberCoroutineScope()
         val listener by rememberUpdatedState(uiState.listener)
 

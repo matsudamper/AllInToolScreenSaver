@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -18,19 +19,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.receiveAsFlow
 
 @Composable
 fun ScreenSaverScreen(
@@ -40,17 +41,17 @@ fun ScreenSaverScreen(
     clockContent: @Composable () -> Unit,
     notificationOverlayContent: @Composable () -> Unit,
     updateIsDarkClockBackground: (Boolean) -> Unit,
+    slideShowPagerState: PagerState?,
     modifier: Modifier = Modifier,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
     var clockRect by remember { mutableStateOf<Rect?>(null) }
-    val pageChanged = remember { Channel<Unit>(Channel.CONFLATED) }
     val currentUpdateIsDarkClockBackground by rememberUpdatedState(updateIsDarkClockBackground)
 
-    LaunchedEffect(clockRect) {
+    LaunchedEffect(clockRect, slideShowPagerState) {
         snapshotFlow { clockRect }
-            .combine(pageChanged.receiveAsFlow()) { rect, _ -> rect }
             .filterNotNull()
+            .combine(snapshotFlow { slideShowPagerState?.currentPage }.filterNotNull()) { rect, _ -> rect }
             .collectLatest { rect ->
                 val imageBitmap = graphicsLayer.toImageBitmap()
                 currentUpdateIsDarkClockBackground(
@@ -75,7 +76,18 @@ fun ScreenSaverScreen(
                     .fillMaxHeight()
                     .weight(1f),
             ) {
-                slideshowContent()
+                Box(
+                    modifier = Modifier.drawWithCache {
+                        onDrawWithContent {
+                            graphicsLayer.record {
+                                this@onDrawWithContent.drawContent()
+                            }
+                            drawLayer(graphicsLayer)
+                        }
+                    },
+                ) {
+                    slideshowContent()
+                }
 
                 Box(
                     modifier = Modifier

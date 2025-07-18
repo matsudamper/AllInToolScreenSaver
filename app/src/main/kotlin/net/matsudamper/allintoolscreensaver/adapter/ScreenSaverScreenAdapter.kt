@@ -1,6 +1,7 @@
 package net.matsudamper.allintoolscreensaver.adapter
 
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -29,10 +30,14 @@ import org.koin.core.context.GlobalContext
 fun ScreenSaverScreenAdapter() {
     val hazeState = remember { HazeState() }
     var isDarkBackground by remember { mutableStateOf(false) }
+    var slideShowPagerState: PagerState? by remember { mutableStateOf(null) }
     ScreenSaverScreen(
         slideshowContent = {
             SlideShowScreenAdapter(
                 hazeState = hazeState,
+                updatedPagerState = { pagerState ->
+                    slideShowPagerState = pagerState
+                },
             )
         },
         eventAlertContent = {
@@ -55,6 +60,7 @@ fun ScreenSaverScreenAdapter() {
         updateIsDarkClockBackground = {
             isDarkBackground = it
         },
+        slideShowPagerState = slideShowPagerState,
     )
 }
 
@@ -98,6 +104,7 @@ private fun ClockAdapter(
 @Composable
 fun SlideShowScreenAdapter(
     hazeState: HazeState = remember { HazeState() },
+    updatedPagerState: (PagerState) -> Unit = {},
 ) {
     val context = LocalContext.current
     val slideshowScreenViewModel: SlideshowScreenViewModel = viewModel(
@@ -115,6 +122,9 @@ fun SlideShowScreenAdapter(
     SlideShowScreen(
         uiState = slideshowUiState,
         hazeState = hazeState,
+        updatedPagerState = { pagerState ->
+            updatedPagerState(pagerState)
+        },
     )
 }
 

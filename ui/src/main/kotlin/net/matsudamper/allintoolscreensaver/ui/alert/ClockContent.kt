@@ -42,13 +42,13 @@ fun ClockContent(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
-            .background(animatedBackgroundColor)
             .hazeEffect(
                 state = hazeState,
                 style = HazeStyle.Unspecified.copy(
                     blurRadius = 8.dp,
                 ),
-            ),
+            )
+            .background(animatedBackgroundColor),
     ) {
         Column(
             modifier = Modifier.padding(4.dp),
