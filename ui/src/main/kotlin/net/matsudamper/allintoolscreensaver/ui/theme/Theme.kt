@@ -12,8 +12,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import java.time.Clock
-import kotlinx.coroutines.flow.MutableStateFlow
 import net.matsudamper.allintoolscreensaver.ui.LocalClock
+import kotlinx.coroutines.flow.MutableStateFlow
 import net.matsudamper.allintoolscreensaver.ui.component.DreamDialogHost
 import net.matsudamper.allintoolscreensaver.ui.component.LocalDreamDialogContentHolder
 
@@ -44,7 +44,7 @@ private val LightColorScheme = lightColorScheme(
 fun AllInToolScreenSaverTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
-    clock: Clock = Clock.systemDefaultZone(),
+    clock: Clock = LocalClock.current,
     content: @Composable () -> Unit,
 ) {
     val colorScheme = when {

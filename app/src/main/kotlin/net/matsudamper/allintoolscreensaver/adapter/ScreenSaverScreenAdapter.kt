@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.time.Clock
+import net.matsudamper.allintoolscreensaver.ui.LocalClock
 import dev.chrisbanes.haze.HazeState
 import net.matsudamper.allintoolscreensaver.feature.ImageManager
 import net.matsudamper.allintoolscreensaver.ui.alert.ClockContent
@@ -133,7 +134,7 @@ fun CalendarDisplayScreenAdapter(
     contentWindowInsets: WindowInsets,
     modifier: Modifier = Modifier,
     viewModel: CalendarDisplayScreenViewModel = koinViewModel(),
-    clock: Clock = remember { Clock.systemDefaultZone() },
+    clock: Clock = LocalClock.current,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     CalendarDisplayScreen(
