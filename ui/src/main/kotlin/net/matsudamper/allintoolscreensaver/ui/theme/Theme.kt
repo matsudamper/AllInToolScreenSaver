@@ -12,8 +12,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import java.time.Clock
-import net.matsudamper.allintoolscreensaver.ui.LocalClock
 import kotlinx.coroutines.flow.MutableStateFlow
+import net.matsudamper.allintoolscreensaver.ui.LocalClock
 import net.matsudamper.allintoolscreensaver.ui.component.DreamDialogHost
 import net.matsudamper.allintoolscreensaver.ui.component.LocalDreamDialogContentHolder
 

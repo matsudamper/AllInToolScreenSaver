@@ -12,9 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.time.Clock
-import net.matsudamper.allintoolscreensaver.ui.LocalClock
 import dev.chrisbanes.haze.HazeState
 import net.matsudamper.allintoolscreensaver.feature.ImageManager
+import net.matsudamper.allintoolscreensaver.ui.LocalClock
 import net.matsudamper.allintoolscreensaver.ui.alert.ClockContent
 import net.matsudamper.allintoolscreensaver.ui.alert.EventAlertDialog
 import net.matsudamper.allintoolscreensaver.ui.calendar.CalendarDisplayScreen
