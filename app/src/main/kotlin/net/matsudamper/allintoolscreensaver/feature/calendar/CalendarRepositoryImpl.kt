@@ -130,6 +130,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
             val selection = listOf(
                 "${CalendarContract.Events.CALENDAR_ID} IN (${calendarIds.joinToString(",")})",
                 "(${CalendarContract.Events.ALL_DAY} = 0) OR (${CalendarContract.Events.ALL_DAY} = 1 AND ${CalendarContract.Events.DTSTART} = ${minDayStartUTC.toEpochMilli()})",
+                "${CalendarContract.Events.DTSTART} < ${endTime.toEpochMilli()}",
             ).joinToString(" AND ") { "($it) " }
 
             val cursor = context.contentResolver.query(
