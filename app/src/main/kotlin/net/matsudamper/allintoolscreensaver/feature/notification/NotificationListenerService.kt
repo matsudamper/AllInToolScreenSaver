@@ -30,11 +30,15 @@ class NotificationListenerService : NotificationListenerService() {
         if ((notification.flags and Notification.FLAG_NO_CLEAR) != 0) return
 
         val title = notification.extras.getString(Notification.EXTRA_TITLE)
+            ?:  notification.extras.getString(Notification.EXTRA_TITLE_BIG)
             ?: notification.tickerText?.toString()
             ?: packageManager.getApplicationLabel(packageManager.getApplicationInfo(sbn.packageName, 0)).toString()
 
         val text = notification.extras.getString(Notification.EXTRA_TEXT)
-            ?: notification.extras.keySet().toList()
+            ?:  notification.extras.getString(Notification.EXTRA_BIG_TEXT)
+            ?:  notification.extras.getString(Notification.EXTRA_SUMMARY_TEXT)
+            ?:  notification.extras.getString(Notification.EXTRA_INFO_TEXT)
+            ?: notification.extras.keySet().joinToString(",")
 
         val packageName = sbn.packageName
 
