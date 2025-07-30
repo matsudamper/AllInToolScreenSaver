@@ -34,11 +34,7 @@ class NotificationListenerService : NotificationListenerService() {
             ?: packageManager.getApplicationLabel(packageManager.getApplicationInfo(sbn.packageName, 0)).toString()
 
         val text = notification.extras.getString("android.text")
-            ?: notification.extras.getString("android.bigText")
-            ?: notification.extras.getString("android.subText")
-            ?: notification.extras.getString("android.summaryText")
-            ?: notification.extras.getString("android.infoText")
-            ?: ""
+            ?: notification.extras.keySet().toList()
 
         val packageName = sbn.packageName
 
