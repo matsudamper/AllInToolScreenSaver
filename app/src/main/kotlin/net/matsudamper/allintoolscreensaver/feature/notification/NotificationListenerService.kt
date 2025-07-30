@@ -31,7 +31,7 @@ class NotificationListenerService : NotificationListenerService() {
 
         val title = notification.extras.getString("android.title")
             ?: notification.tickerText?.toString()
-            ?: packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, 0)).toString()
+            ?: packageManager.getApplicationLabel(packageManager.getApplicationInfo(sbn.packageName, 0)).toString()
 
         val text = notification.extras.getString("android.text")
             ?: notification.extras.getString("android.bigText")
