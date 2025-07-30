@@ -29,11 +29,11 @@ class NotificationListenerService : NotificationListenerService() {
         if ((notification.flags and Notification.FLAG_ONGOING_EVENT) != 0) return
         if ((notification.flags and Notification.FLAG_NO_CLEAR) != 0) return
 
-        val title = notification.extras.getString("android.title")
+        val title = notification.extras.getString(Notification.EXTRA_TITLE)
             ?: notification.tickerText?.toString()
             ?: packageManager.getApplicationLabel(packageManager.getApplicationInfo(sbn.packageName, 0)).toString()
 
-        val text = notification.extras.getString("android.text")
+        val text = notification.extras.getString(Notification.EXTRA_TEXT)
             ?: notification.extras.keySet().toList()
 
         val packageName = sbn.packageName
