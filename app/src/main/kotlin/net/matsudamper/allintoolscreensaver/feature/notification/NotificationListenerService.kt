@@ -36,6 +36,7 @@ class NotificationListenerService : NotificationListenerService() {
 
         val text = notification.extras.getString(Notification.EXTRA_TEXT)
             ?: notification.extras.getString(Notification.EXTRA_BIG_TEXT)
+            ?: notification.extras.getString(Notification.EXTRA_SUB_TEXT)
             ?: notification.extras.getString(Notification.EXTRA_SUMMARY_TEXT)
             ?: notification.extras.getString(Notification.EXTRA_INFO_TEXT)
             ?: notification.extras.keySet().joinToString(",")
