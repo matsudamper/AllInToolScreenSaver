@@ -39,7 +39,15 @@ class NotificationListenerService : NotificationListenerService() {
             ?: notification.extras.getString(Notification.EXTRA_SUB_TEXT)
             ?: notification.extras.getString(Notification.EXTRA_SUMMARY_TEXT)
             ?: notification.extras.getString(Notification.EXTRA_INFO_TEXT)
-            ?: notification.extras.keySet().joinToString(",")
+            ?: notification.extras.keySet()
+                .filter { it != Notification.EXTRA_TITLE }
+                .filter { it != Notification.EXTRA_TITLE_BIG }
+                .filter { it != Notification.EXTRA_TEXT }
+                .filter { it != Notification.EXTRA_BIG_TEXT }
+                .filter { it != Notification.EXTRA_SUB_TEXT }
+                .filter { it != Notification.EXTRA_SUMMARY_TEXT }
+                .filter { it != Notification.EXTRA_INFO_TEXT }
+                .joinToString(",")
 
         val packageName = sbn.packageName
 
