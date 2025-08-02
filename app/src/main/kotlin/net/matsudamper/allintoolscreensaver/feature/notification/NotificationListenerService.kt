@@ -25,20 +25,20 @@ class NotificationListenerService : NotificationListenerService() {
         val notification = sbn.notification
 
         // 消せない通知等をフィルター
-        if ((notification.flags and Notification.FLAG_FOREGROUND_SERVICE) != 0) return
-        if ((notification.flags and Notification.FLAG_ONGOING_EVENT) != 0) return
-        if ((notification.flags and Notification.FLAG_NO_CLEAR) != 0) return
+        if ((notification.flags and NotificationCompat.FLAG_FOREGROUND_SERVICE) != 0) return
+        if ((notification.flags and NotificationCompat.FLAG_ONGOING_EVENT) != 0) return
+        if ((notification.flags and NotificationCompat.FLAG_NO_CLEAR) != 0) return
 
-        val title = notification.extras.getString(Notification.EXTRA_TITLE)
-            ?: notification.extras.getString(Notification.EXTRA_TITLE_BIG)
+        val title = notification.extras.getString(NotificationCompat.EXTRA_TITLE)
+            ?: notification.extras.getString(NotificationCompat.EXTRA_TITLE_BIG)
             ?: notification.tickerText?.toString()
             ?: packageManager.getApplicationLabel(packageManager.getApplicationInfo(sbn.packageName, 0)).toString()
 
-        val text = notification.extras.getString(Notification.EXTRA_TEXT)
-            ?: notification.extras.getString(Notification.EXTRA_BIG_TEXT)
-            ?: notification.extras.getString(Notification.EXTRA_SUB_TEXT)
-            ?: notification.extras.getString(Notification.EXTRA_SUMMARY_TEXT)
-            ?: notification.extras.getString(Notification.EXTRA_INFO_TEXT)
+        val text = notification.extras.getString(NotificationCompat.EXTRA_TEXT)
+            ?: notification.extras.getString(NotificationCompat.EXTRA_BIG_TEXT)
+            ?: notification.extras.getString(NotificationCompat.EXTRA_SUB_TEXT)
+            ?: notification.extras.getString(NotificationCompat.EXTRA_SUMMARY_TEXT)
+            ?: notification.extras.getString(NotificationCompat.EXTRA_INFO_TEXT)
             ?: notification.extras.keySet()
                 .filter { it != Notification.EXTRA_TITLE }
                 .filter { it != Notification.EXTRA_TITLE_BIG }
