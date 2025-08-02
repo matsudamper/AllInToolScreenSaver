@@ -5,7 +5,7 @@ detektVersion = "0.4.22"
 documentfile = "1.1.0"
 datastore = "1.1.7"
 kotlin = "2.2.0"
-coreKtx = "1.16.0"
+coreKtx = "1.17.0-rc01"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -37,7 +37,7 @@ ktlintGradle = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGrad
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 
 [libraries]
-androidxCoreKtx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidxCoreKtx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 androidxDatastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidxDocumentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
 coilCompose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }

@@ -39,6 +39,7 @@ class NotificationListenerService : NotificationListenerService() {
             ?: notification.extras.getString(NotificationCompat.EXTRA_SUB_TEXT)
             ?: notification.extras.getString(NotificationCompat.EXTRA_SUMMARY_TEXT)
             ?: notification.extras.getString(NotificationCompat.EXTRA_INFO_TEXT)
+            ?: notification.extras.getString(NotificationCompat.EXTRA_SHORT_CRITICAL_TEXT)
             ?: notification.extras.keySet()
                 .filter { it != Notification.EXTRA_TITLE }
                 .filter { it != Notification.EXTRA_TITLE_BIG }
