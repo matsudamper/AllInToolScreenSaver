@@ -1,8 +1,8 @@
 package net.matsudamper.allintoolscreensaver.feature.notification
 
-import android.app.Notification
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import androidx.core.app.NotificationCompat
 import java.util.concurrent.atomic.AtomicReference
 import org.koin.core.context.GlobalContext
 
@@ -34,21 +34,21 @@ class NotificationListenerService : NotificationListenerService() {
             ?: notification.tickerText?.toString()
             ?: packageManager.getApplicationLabel(packageManager.getApplicationInfo(sbn.packageName, 0)).toString()
 
-        val text = notification.extras.getString(NotificationCompat.EXTRA_TEXT)
-            ?: notification.extras.getString(NotificationCompat.EXTRA_BIG_TEXT)
-            ?: notification.extras.getString(NotificationCompat.EXTRA_SUB_TEXT)
-            ?: notification.extras.getString(NotificationCompat.EXTRA_SUMMARY_TEXT)
-            ?: notification.extras.getString(NotificationCompat.EXTRA_INFO_TEXT)
-            ?: notification.extras.getString(NotificationCompat.EXTRA_SHORT_CRITICAL_TEXT)
+        val textKeys = listOf(
+            NotificationCompat.EXTRA_TEXT,
+            NotificationCompat.EXTRA_BIG_TEXT,
+            NotificationCompat.EXTRA_SUB_TEXT,
+            NotificationCompat.EXTRA_SUMMARY_TEXT,
+            NotificationCompat.EXTRA_INFO_TEXT,
+            NotificationCompat.EXTRA_SHORT_CRITICAL_TEXT,
+        )
+        val text = textKeys.firstNotNullOfOrNull { notification.extras.getString(it) }
             ?: notification.extras.keySet()
-                .filter { it != Notification.EXTRA_TITLE }
-                .filter { it != Notification.EXTRA_TITLE_BIG }
-                .filter { it != Notification.EXTRA_TEXT }
-                .filter { it != Notification.EXTRA_BIG_TEXT }
-                .filter { it != Notification.EXTRA_SUB_TEXT }
-                .filter { it != Notification.EXTRA_SUMMARY_TEXT }
-                .filter { it != Notification.EXTRA_INFO_TEXT }
-                .joinToString(",")
+                .filterNot { it in textKeys }
+                .associateWith { notification.extras.getString(it) }
+                .filterValues { it != null }
+                .toList()
+                .joinToString(", ") { "${it.first} to ${it.second}" }
 
         val packageName = sbn.packageName
 
