@@ -29,10 +29,14 @@ class NotificationListenerService : NotificationListenerService() {
         if ((notification.flags and NotificationCompat.FLAG_ONGOING_EVENT) != 0) return
         if ((notification.flags and NotificationCompat.FLAG_NO_CLEAR) != 0) return
 
-        val title = notification.extras.getString(NotificationCompat.EXTRA_TITLE)
-            ?: notification.extras.getString(NotificationCompat.EXTRA_TITLE_BIG)
-            ?: notification.tickerText?.toString()
-            ?: packageManager.getApplicationLabel(packageManager.getApplicationInfo(sbn.packageName, 0)).toString()
+        val applicationName = packageManager.getApplicationLabel(packageManager.getApplicationInfo(sbn.packageName, 0)).toString()
+        val title = run {
+            val base = notification.extras.getString(NotificationCompat.EXTRA_TITLE)
+                ?: notification.extras.getString(NotificationCompat.EXTRA_TITLE_BIG)
+                ?: notification.tickerText?.toString()
+
+            "${base.orEmpty()}・$applicationName"
+        }
 
         val textKeys = listOf(
             NotificationCompat.EXTRA_TEXT,
