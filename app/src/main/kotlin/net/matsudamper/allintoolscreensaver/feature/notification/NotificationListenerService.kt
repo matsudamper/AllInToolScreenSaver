@@ -2,6 +2,7 @@ package net.matsudamper.allintoolscreensaver.feature.notification
 
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import android.text.SpannableString
 import androidx.core.app.NotificationCompat
 import java.util.concurrent.atomic.AtomicReference
 import org.koin.core.context.GlobalContext
@@ -29,11 +30,19 @@ class NotificationListenerService : NotificationListenerService() {
         if ((notification.flags and NotificationCompat.FLAG_ONGOING_EVENT) != 0) return
         if ((notification.flags and NotificationCompat.FLAG_NO_CLEAR) != 0) return
 
-        val applicationName = packageManager.getApplicationLabel(packageManager.getApplicationInfo(sbn.packageName, 0)).toString()
         val title = run {
-            val base = notification.extras.getString(NotificationCompat.EXTRA_TITLE)
-                ?: notification.extras.getString(NotificationCompat.EXTRA_TITLE_BIG)
-                ?: notification.tickerText?.toString()
+            val applicationName = packageManager.getApplicationLabel(
+                packageManager.getApplicationInfo(sbn.packageName, 0),
+            ).toString()
+            val keys = listOf(
+                NotificationCompat.EXTRA_TITLE,
+                NotificationCompat.EXTRA_TITLE_BIG,
+            )
+
+            val base = keys.firstNotNullOfOrNull {
+                notification.extras.getString(it)
+                    ?: notification.extras.getParcelable(it, SpannableString::class.java).toString()
+            } ?: notification.tickerText?.toString()
 
             "${base.orEmpty()}・$applicationName"
         }
@@ -46,13 +55,16 @@ class NotificationListenerService : NotificationListenerService() {
             NotificationCompat.EXTRA_INFO_TEXT,
             NotificationCompat.EXTRA_SHORT_CRITICAL_TEXT,
         )
-        val text = textKeys.firstNotNullOfOrNull { notification.extras.getString(it) }
+        val text = textKeys.firstNotNullOfOrNull {
+            notification.extras.getString(it)
+                ?: notification.extras.getParcelable(it, SpannableString::class.java)?.toString()
+        }
             ?: notification.extras.keySet()
                 .filterNot { it in textKeys }
-                .associateWith { notification.extras.getString(it) }
+                .associateWith { notification.extras.get(it) }
                 .filterValues { it != null }
                 .toList()
-                .joinToString(", ") { "${it.first} to ${it.second}" }
+                .joinToString(", ") { "${it.first} to ${it.second?.let { it::class.java.name }}" }
 
         val packageName = sbn.packageName
 
