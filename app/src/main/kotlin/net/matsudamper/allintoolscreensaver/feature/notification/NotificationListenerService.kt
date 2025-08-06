@@ -1,11 +1,9 @@
 package net.matsudamper.allintoolscreensaver.feature.notification
 
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.text.SpannableString
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import java.util.concurrent.atomic.AtomicReference
 import org.koin.core.context.GlobalContext

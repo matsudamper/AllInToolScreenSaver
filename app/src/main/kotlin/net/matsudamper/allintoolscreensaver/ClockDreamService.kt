@@ -16,7 +16,6 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import net.matsudamper.allintoolscreensaver.adapter.ScreenSaverScreenAdapter
 import net.matsudamper.allintoolscreensaver.feature.alert.AlertManager
-import net.matsudamper.allintoolscreensaver.feature.alert.AlertService
 import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
 import org.koin.core.context.GlobalContext
 
@@ -78,7 +77,6 @@ class ClockDreamService :
     override fun onDreamingStarted() {
         super.onDreamingStarted()
         lifecycleRegistry.currentState = Lifecycle.State.STARTED
-        AlertService.Companion.notifyDreamStateChanged(this, true)
 
         alertManager.setDreamServiceActive(true)
     }
@@ -86,7 +84,6 @@ class ClockDreamService :
     override fun onDreamingStopped() {
         super.onDreamingStopped()
         lifecycleRegistry.currentState = Lifecycle.State.CREATED
-        AlertService.Companion.notifyDreamStateChanged(this, false)
 
         alertManager.setDreamServiceActive(false)
     }
