@@ -168,6 +168,15 @@ private fun NotificationItem(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
             }
+            if (notification.appName.isNotEmpty()) {
+                Text(
+                    text = "・${notification.appName}",
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                )
+            }
         }
     }
 }

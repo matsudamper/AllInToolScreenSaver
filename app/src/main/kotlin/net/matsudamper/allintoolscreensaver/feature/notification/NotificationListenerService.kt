@@ -1,8 +1,11 @@
 package net.matsudamper.allintoolscreensaver.feature.notification
 
+import android.content.pm.PackageManager
+import android.os.Bundle
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.text.SpannableString
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import java.util.concurrent.atomic.AtomicReference
 import org.koin.core.context.GlobalContext
@@ -31,9 +34,6 @@ class NotificationListenerService : NotificationListenerService() {
         if ((notification.flags and NotificationCompat.FLAG_NO_CLEAR) != 0) return
 
         val title = run {
-            val applicationName = packageManager.getApplicationLabel(
-                packageManager.getApplicationInfo(sbn.packageName, 0),
-            ).toString()
             val keys = listOf(
                 NotificationCompat.EXTRA_TITLE,
                 NotificationCompat.EXTRA_TITLE_BIG,
@@ -43,7 +43,7 @@ class NotificationListenerService : NotificationListenerService() {
                 notification.extras.getText(it)
             } ?: notification.tickerText?.toString()
 
-            "${base.orEmpty()}・$applicationName"
+            base.orEmpty()
         }
 
         val textKeys = listOf(
@@ -62,14 +62,16 @@ class NotificationListenerService : NotificationListenerService() {
                 .associateWith { notification.extras.getText(it) }
                 .filterValues { it != null }
                 .toList()
-                .joinToString(", ") { "${it.first} to ${it.second?.let { it::class.java.name }}" }
+                .joinToString(", ") { "${it.first} to ${it.second?.let { value -> value::class.java.name }}" }
 
-        val packageName = sbn.packageName
+        val appName = packageManager.getApplicationLabel(
+            packageManager.getApplicationInfo(sbn.packageName, 0),
+        ).toString()
 
         val notificationInfo = NotificationInfo(
             title = title,
             text = text,
-            packageName = packageName,
+            appName = appName,
             timestamp = sbn.postTime,
         )
 
@@ -88,6 +90,6 @@ class NotificationListenerService : NotificationListenerService() {
 data class NotificationInfo(
     val title: String,
     val text: String,
-    val packageName: String,
+    val appName: String,
     val timestamp: Long,
 )

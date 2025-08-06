@@ -15,6 +15,7 @@ data class NotificationOverlayUiState(
         val id: String,
         val title: String,
         val text: String,
+        val appName: String,
         val listener: ItemListener,
     ) {
         @Immutable

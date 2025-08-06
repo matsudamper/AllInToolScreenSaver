@@ -66,6 +66,7 @@ class NotificationViewModel(
                                 id = notification.id.toString(),
                                 title = notification.item.title,
                                 text = notification.item.text,
+                                appName = notification.item.appName,
                                 listener = ItemListener(notification = notification),
                             )
                         },
