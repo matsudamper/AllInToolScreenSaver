@@ -10,6 +10,9 @@ import java.time.ZoneId
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -30,9 +33,8 @@ class AlertManager(
     private val dismissedAlerts = mutableSetOf<String>()
     private val alertKey = AlertKey()
 
-    var onAlertTriggered: ((CalendarRepository.CalendarEvent, AlertType, LocalTime, Boolean) -> Unit)? = null
-    var onScreenSaverAlertTriggered: ((CalendarRepository.CalendarEvent, AlertType, LocalTime, Boolean) -> Unit)? = null
-    private var isDreamServiceActive = false
+    private val _screenSaverAlertFlow = MutableSharedFlow<ScreenSaverAlert>()
+    val calendarAlertFlow: SharedFlow<ScreenSaverAlert> = _screenSaverAlertFlow.asSharedFlow()
 
     suspend fun startAlertMonitoring() {
         coroutineScope {
@@ -160,15 +162,14 @@ class AlertManager(
 
         val eventStartTime = (event as CalendarRepository.CalendarEvent.Time).startTime.atZone(ZoneId.systemDefault()).toLocalTime()
 
-        if (isDreamServiceActive) {
-            onScreenSaverAlertTriggered?.invoke(event, alertType, eventStartTime, isRepeating)
-        } else {
-            onAlertTriggered?.invoke(event, alertType, eventStartTime, isRepeating)
-        }
-    }
-
-    fun setDreamServiceActive(isActive: Boolean) {
-        isDreamServiceActive = isActive
+        _screenSaverAlertFlow.tryEmit(
+            ScreenSaverAlert(
+                event = event,
+                alertType = alertType,
+                eventStartTime = eventStartTime,
+                isRepeating = isRepeating,
+            ),
+        )
     }
 
     fun dismissAlert(event: CalendarRepository.CalendarEvent, alertType: AlertType) {
@@ -178,7 +179,7 @@ class AlertManager(
         dismissedAlerts.add(alertKeyValue)
     }
 
-    data class AlertInfo(
+    private data class AlertInfo(
         val event: CalendarRepository.CalendarEvent,
         val alertType: AlertType,
         val triggeredAt: Instant,
@@ -200,4 +201,11 @@ class AlertManager(
             return alertKey.split("_")[0].toLongOrNull()
         }
     }
+
+    data class ScreenSaverAlert(
+        val event: CalendarRepository.CalendarEvent,
+        val alertType: AlertType,
+        val eventStartTime: LocalTime,
+        val isRepeating: Boolean,
+    )
 }

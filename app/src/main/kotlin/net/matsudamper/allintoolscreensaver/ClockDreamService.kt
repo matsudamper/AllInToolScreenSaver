@@ -77,15 +77,11 @@ class ClockDreamService :
     override fun onDreamingStarted() {
         super.onDreamingStarted()
         lifecycleRegistry.currentState = Lifecycle.State.STARTED
-
-        alertManager.setDreamServiceActive(true)
     }
 
     override fun onDreamingStopped() {
         super.onDreamingStopped()
         lifecycleRegistry.currentState = Lifecycle.State.CREATED
-
-        alertManager.setDreamServiceActive(false)
     }
 
     override fun onDetachedFromWindow() {

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -61,19 +62,26 @@ class EventAlertViewModel(
     }.asStateFlow()
 
     private suspend fun collectAlertMonitoring() {
-        alertManager.onScreenSaverAlertTriggered = { event, alertType, eventStartTime, isRepeating ->
-            viewModelStateFlow.update { state ->
-                state.copy(
-                    currentAlert = AlertDialogInfo(
-                        event = event,
-                        alertType = alertType,
-                        eventStartTime = eventStartTime,
-                        isRepeatingAlert = isRepeating,
-                    ),
-                )
+        coroutineScope {
+            launch {
+                alertManager.calendarAlertFlow
+                    .collect { alert ->
+                        viewModelStateFlow.update { state ->
+                            state.copy(
+                                currentAlert = AlertDialogInfo(
+                                    event = alert.event,
+                                    alertType = alert.alertType,
+                                    eventStartTime = alert.eventStartTime,
+                                    isRepeatingAlert = alert.isRepeating,
+                                ),
+                            )
+                        }
+                    }
+            }
+            launch {
+                alertManager.startAlertMonitoring()
             }
         }
-        alertManager.startAlertMonitoring()
     }
 
     private data class ViewModelState(
