@@ -40,8 +40,7 @@ class NotificationListenerService : NotificationListenerService() {
             )
 
             val base = keys.firstNotNullOfOrNull {
-                notification.extras.getString(it)
-                    ?: notification.extras.getParcelable(it, SpannableString::class.java).toString()
+                notification.extras.getText(it)
             } ?: notification.tickerText?.toString()
 
             "${base.orEmpty()}・$applicationName"
@@ -56,12 +55,11 @@ class NotificationListenerService : NotificationListenerService() {
             NotificationCompat.EXTRA_SHORT_CRITICAL_TEXT,
         )
         val text = textKeys.firstNotNullOfOrNull {
-            notification.extras.getString(it)
-                ?: notification.extras.getParcelable(it, SpannableString::class.java)?.toString()
+            notification.extras.getText(it)
         }
             ?: notification.extras.keySet()
                 .filterNot { it in textKeys }
-                .associateWith { notification.extras.get(it) }
+                .associateWith { notification.extras.getText(it) }
                 .filterValues { it != null }
                 .toList()
                 .joinToString(", ") { "${it.first} to ${it.second?.let { it::class.java.name }}" }
@@ -76,6 +74,10 @@ class NotificationListenerService : NotificationListenerService() {
         )
 
         notificationRepository.addNotification(notificationInfo)
+    }
+
+    private fun Bundle.getText(key: String): String? {
+        return getString(key) ?: getParcelable(key, SpannableString::class.java)?.toString()
     }
 
     companion object {
