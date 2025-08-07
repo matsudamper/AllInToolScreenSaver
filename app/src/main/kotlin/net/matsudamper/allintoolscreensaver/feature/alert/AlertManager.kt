@@ -33,8 +33,8 @@ class AlertManager(
     private val dismissedAlerts = mutableSetOf<String>()
     private val alertKey = AlertKey()
 
-    private val _screenSaverAlertFlow = MutableSharedFlow<ScreenSaverAlert>()
-    val calendarAlertFlow: SharedFlow<ScreenSaverAlert> = _screenSaverAlertFlow.asSharedFlow()
+    private val _calendarAlertFlow = MutableSharedFlow<ScreenSaverAlert>()
+    val calendarAlertFlow: SharedFlow<ScreenSaverAlert> = _calendarAlertFlow.asSharedFlow()
 
     suspend fun startAlertMonitoring() {
         coroutineScope {
@@ -162,7 +162,7 @@ class AlertManager(
 
         val eventStartTime = (event as CalendarRepository.CalendarEvent.Time).startTime.atZone(ZoneId.systemDefault()).toLocalTime()
 
-        _screenSaverAlertFlow.tryEmit(
+        _calendarAlertFlow.tryEmit(
             ScreenSaverAlert(
                 event = event,
                 alertType = alertType,
