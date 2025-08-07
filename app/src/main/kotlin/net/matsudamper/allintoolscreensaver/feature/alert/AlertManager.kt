@@ -33,7 +33,10 @@ class AlertManager(
     private val dismissedAlerts = mutableSetOf<String>()
     private val alertKey = AlertKey()
 
-    private val _calendarAlertFlow = MutableSharedFlow<ScreenSaverAlert>()
+    private val _calendarAlertFlow = MutableSharedFlow<ScreenSaverAlert>(
+        replay = 0,
+        extraBufferCapacity = Int.MAX_VALUE,
+    )
     val calendarAlertFlow: SharedFlow<ScreenSaverAlert> = _calendarAlertFlow.asSharedFlow()
 
     suspend fun startAlertMonitoring() {
