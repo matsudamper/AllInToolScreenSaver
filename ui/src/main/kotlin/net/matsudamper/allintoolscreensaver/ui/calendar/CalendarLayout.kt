@@ -2,18 +2,23 @@ package net.matsudamper.allintoolscreensaver.ui.calendar
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -85,6 +90,7 @@ data class CalendarLayoutUiState(
             override val color: Color,
             override val isBorderDisplayType: Boolean,
             override val hasTextDecoration: Boolean,
+            val isAlertTarget: Boolean,
         ) : Event
 
         data class AllDay(
@@ -417,6 +423,7 @@ private fun AllDayCard(
         color = event.color,
         isBorderDisplayType = event.isBorderDisplayType,
         hasTextDecoration = event.hasTextDecoration,
+        isAlertTarget = false,
         onClick = onClick,
     )
 }
@@ -435,6 +442,7 @@ private fun TimeCard(
         color = event.uiState.color,
         isBorderDisplayType = event.uiState.isBorderDisplayType,
         hasTextDecoration = event.uiState.hasTextDecoration,
+        isAlertTarget = event.uiState.isAlertTarget,
         onClick = onClick,
     )
 }
@@ -446,6 +454,7 @@ private fun EventCard(
     color: Color,
     isBorderDisplayType: Boolean,
     hasTextDecoration: Boolean,
+    isAlertTarget: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -461,55 +470,23 @@ private fun EventCard(
             border = if (isBorderDisplayType) BorderStroke(2.dp, color) else null,
             onClick = onClick,
         ) {
-            Column(
+            Box(
                 modifier = Modifier.padding(4.dp),
             ) {
-                BasicText(
-                    text = remember(title, hasTextDecoration) {
-                        if (hasTextDecoration) {
-                            buildAnnotatedString {
-                                append(title)
-                                addStyle(
-                                    style = SpanStyle(
-                                        textDecoration = TextDecoration.LineThrough,
-                                    ),
-                                    start = 0,
-                                    end = title.length,
-                                )
-                                // Add second line for thicker strikethrough
-                                addStyle(
-                                    style = SpanStyle(
-                                        textDecoration = TextDecoration.LineThrough,
-                                        shadow = Shadow(
-                                            offset = Offset(0f, 1f),
-                                            blurRadius = 0f,
-                                        ),
-                                    ),
-                                    start = 0,
-                                    end = title.length,
-                                )
-                            }
-                        } else {
-                            AnnotatedString(title)
-                        }
-                    },
-                    autoSize = TextAutoSize.StepBased(
-                        maxFontSize = MaterialTheme.typography.labelMedium.fontSize,
-                    ),
-                )
-                if (displayTime != null) {
+                Column(
+                    modifier = if (isAlertTarget) Modifier.padding(end = 12.dp) else Modifier,
+                ) {
                     BasicText(
-                        text = remember(displayTime, hasTextDecoration) {
-                            val annotatedString = htmlToAnnotatedString(displayTime)
+                        text = remember(title, hasTextDecoration) {
                             if (hasTextDecoration) {
                                 buildAnnotatedString {
-                                    append(annotatedString)
+                                    append(title)
                                     addStyle(
                                         style = SpanStyle(
                                             textDecoration = TextDecoration.LineThrough,
                                         ),
                                         start = 0,
-                                        end = annotatedString.length,
+                                        end = title.length,
                                     )
                                     // Add second line for thicker strikethrough
                                     addStyle(
@@ -521,17 +498,63 @@ private fun EventCard(
                                             ),
                                         ),
                                         start = 0,
-                                        end = annotatedString.length,
+                                        end = title.length,
                                     )
                                 }
                             } else {
-                                annotatedString
+                                AnnotatedString(title)
                             }
                         },
                         autoSize = TextAutoSize.StepBased(
-                            maxFontSize = MaterialTheme.typography.labelSmall.fontSize,
+                            maxFontSize = MaterialTheme.typography.labelMedium.fontSize,
                         ),
-                        overflow = TextOverflow.Ellipsis,
+                    )
+                    if (displayTime != null) {
+                        BasicText(
+                            text = remember(displayTime, hasTextDecoration) {
+                                val annotatedString = htmlToAnnotatedString(displayTime)
+                                if (hasTextDecoration) {
+                                    buildAnnotatedString {
+                                        append(annotatedString)
+                                        addStyle(
+                                            style = SpanStyle(
+                                                textDecoration = TextDecoration.LineThrough,
+                                            ),
+                                            start = 0,
+                                            end = annotatedString.length,
+                                        )
+                                        // Add second line for thicker strikethrough
+                                        addStyle(
+                                            style = SpanStyle(
+                                                textDecoration = TextDecoration.LineThrough,
+                                                shadow = Shadow(
+                                                    offset = Offset(0f, 1f),
+                                                    blurRadius = 0f,
+                                                ),
+                                            ),
+                                            start = 0,
+                                            end = annotatedString.length,
+                                        )
+                                    }
+                                } else {
+                                    annotatedString
+                                }
+                            },
+                            autoSize = TextAutoSize.StepBased(
+                                maxFontSize = MaterialTheme.typography.labelSmall.fontSize,
+                            ),
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+                if (isAlertTarget) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = "アラート対象",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .size(10.dp),
                     )
                 }
             }
@@ -606,6 +629,7 @@ private fun PreviewEventDialogContent() {
             color = Color.Blue,
             isBorderDisplayType = false,
             hasTextDecoration = false,
+            isAlertTarget = true,
         ),
         onDismissRequest = {},
     )
@@ -622,6 +646,7 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             color = Color.Red,
             isBorderDisplayType = false,
             hasTextDecoration = false,
+            isAlertTarget = true,
         ),
         CalendarLayoutUiState.Event.Time(
             startTime = LocalTime.of(1, 0),
@@ -632,6 +657,7 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             color = Color.Blue,
             isBorderDisplayType = true,
             hasTextDecoration = true,
+            isAlertTarget = false,
         ),
         CalendarLayoutUiState.Event.Time(
             startTime = LocalTime.of(1, 0),
@@ -642,6 +668,7 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             color = Color.Yellow,
             isBorderDisplayType = true,
             hasTextDecoration = false,
+            isAlertTarget = true,
         ),
         CalendarLayoutUiState.Event.Time(
             startTime = LocalTime.of(1, 30),
@@ -652,6 +679,7 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             color = Color.Green,
             isBorderDisplayType = false,
             hasTextDecoration = false,
+            isAlertTarget = false,
         ),
         CalendarLayoutUiState.Event.Time(
             startTime = LocalTime.of(2, 0),
@@ -662,6 +690,7 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             color = Color.Magenta,
             isBorderDisplayType = false,
             hasTextDecoration = false,
+            isAlertTarget = false,
         ),
         CalendarLayoutUiState.Event.Time(
             startTime = LocalTime.of(3, 15),
@@ -672,6 +701,7 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             color = Color.Cyan,
             isBorderDisplayType = false,
             hasTextDecoration = false,
+            isAlertTarget = true,
         ),
     ),
     allDayEvents = listOf(

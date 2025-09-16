@@ -87,6 +87,7 @@ class CalendarDisplayScreenTest {
 
         val event1 = CalendarRepository.CalendarEvent.Time(
             id = 1L,
+            calendarId = 1L,
             title = "会議A",
             description = "重要な会議",
             color = Color.Red.hashCode(),
@@ -97,6 +98,7 @@ class CalendarDisplayScreenTest {
 
         val event2 = CalendarRepository.CalendarEvent.Time(
             id = 2L,
+            calendarId = 2L,
             title = "会議B",
             description = "別の会議",
             color = Color.Blue.hashCode(),
@@ -116,9 +118,9 @@ class CalendarDisplayScreenTest {
                 displayTime = "10:00 - 11:00",
                 description = "重要な会議",
                 color = Color.Red,
-                isTransparent = false,
-                showBorder = false,
+                isBorderDisplayType = false,
                 hasTextDecoration = false,
+                isAlertTarget = true,
             ),
             CalendarLayoutUiState.Event.Time(
                 startTime = java.time.LocalTime.of(10, 30),
@@ -127,9 +129,9 @@ class CalendarDisplayScreenTest {
                 displayTime = "10:30 - 11:30",
                 description = "別の会議",
                 color = Color.Blue,
-                isTransparent = false,
-                showBorder = false,
+                isBorderDisplayType = false,
                 hasTextDecoration = false,
+                isAlertTarget = false,
             ),
         )
 

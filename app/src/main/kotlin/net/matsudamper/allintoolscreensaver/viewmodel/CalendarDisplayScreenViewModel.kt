@@ -105,6 +105,7 @@ class CalendarDisplayScreenViewModel(
                                         description = event.description,
                                         isBorderDisplayType = event.attendeeStatus.toDisplayIsBorderDisplayType(),
                                         hasTextDecoration = event.attendeeStatus.toDisplayIsDecorationVisible(),
+                                        isAlertTarget = event.calendarId in viewModelState.alertCalendarIds,
                                     )
                                 },
                             allDayEvents = viewModelState.events.filterIsInstance<CalendarRepository.CalendarEvent.AllDay>()
@@ -165,9 +166,20 @@ class CalendarDisplayScreenViewModel(
     }
 
     private suspend fun observeAlertSettings() {
-        settingsRepository.getAlertEnabledFlow().collectLatest { alertEnabled ->
-            viewModelStateFlow.update { state ->
-                state.copy(alertEnabled = alertEnabled)
+        coroutineScope {
+            launch {
+                settingsRepository.getAlertEnabledFlow().collectLatest { alertEnabled ->
+                    viewModelStateFlow.update { state ->
+                        state.copy(alertEnabled = alertEnabled)
+                    }
+                }
+            }
+            launch {
+                settingsRepository.getAlertCalendarIdsFlow().collectLatest { alertCalendarIds ->
+                    viewModelStateFlow.update { state ->
+                        state.copy(alertCalendarIds = alertCalendarIds)
+                    }
+                }
             }
         }
     }
@@ -210,6 +222,7 @@ class CalendarDisplayScreenViewModel(
         val events: List<CalendarRepository.CalendarEvent> = listOf(),
         val lastInteractionTime: Instant,
         val alertEnabled: Boolean = false,
+        val alertCalendarIds: List<Long> = listOf(),
     )
 
     private fun AttendeeStatus.toDisplayIsBorderDisplayType(): Boolean {

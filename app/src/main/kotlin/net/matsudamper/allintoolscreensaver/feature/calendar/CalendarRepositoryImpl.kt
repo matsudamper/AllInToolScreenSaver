@@ -22,6 +22,7 @@ interface CalendarRepository {
 
     sealed interface CalendarEvent {
         val id: Long
+        val calendarId: Long
         val title: String
         val description: String?
         val color: Int
@@ -29,6 +30,7 @@ interface CalendarRepository {
 
         data class Time(
             override val id: Long,
+            override val calendarId: Long,
             override val title: String,
             override val description: String?,
             override val color: Int,
@@ -39,6 +41,7 @@ interface CalendarRepository {
 
         data class AllDay(
             override val id: Long,
+            override val calendarId: Long,
             override val title: String,
             override val description: String?,
             override val color: Int,
@@ -155,6 +158,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
         cursor.use { c ->
             while (c.moveToNext()) {
                 val id = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events._ID))
+                val calendarId = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Instances.CALENDAR_ID))
                 val title = c.getString(c.getColumnIndexOrThrow(CalendarContract.Events.TITLE)).orEmpty()
                 val description = c.getString(c.getColumnIndexOrThrow(CalendarContract.Events.DESCRIPTION))
                 val eventStartTime = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events.DTSTART))
@@ -183,6 +187,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                     if (allDay) {
                         CalendarRepository.CalendarEvent.AllDay(
                             id = id,
+                            calendarId = calendarId,
                             title = title,
                             description = description,
                             color = color,
@@ -191,6 +196,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                     } else {
                         CalendarRepository.CalendarEvent.Time(
                             id = id,
+                            calendarId = calendarId,
                             title = title,
                             description = description,
                             startTime = Instant.ofEpochMilli(eventStartTime),
