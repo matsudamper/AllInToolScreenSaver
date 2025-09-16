@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import net.matsudamper.allintoolscreensaver.ActivityResultRequest
 import net.matsudamper.allintoolscreensaver.ui.main.MainScreen
 import net.matsudamper.allintoolscreensaver.viewmodel.MainScreenViewModel
@@ -21,7 +22,7 @@ import org.koin.core.context.GlobalContext
 
 @Composable
 fun MainScreenAdapter(
-    backStack: NavBackStack,
+    backStack: NavBackStack<NavKey>,
     modifier: Modifier = Modifier,
     viewModel: MainScreenViewModel = viewModel {
         val koin = GlobalContext.get()

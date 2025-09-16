@@ -17,7 +17,7 @@ import org.koin.core.context.GlobalContext
 
 @Composable
 fun CalendarSelectionScreenAdapter(
-    backStack: NavBackStack,
+    backStack: NavBackStack<*>,
     modifier: Modifier = Modifier,
     viewModel: CalendarSelectionScreenViewModel = viewModel {
         val koin = GlobalContext.get()

@@ -14,6 +14,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.matsudamper.allintoolscreensaver.ActivityResultRequest
@@ -23,7 +24,7 @@ import net.matsudamper.allintoolscreensaver.navigation.NavKeys
 class MainScreenViewModelListenerImpl(
     private val application: Application,
     private val calendarManager: CalendarRepository,
-    private val backStack: NavBackStack,
+    private val backStack: NavBackStack<NavKey>,
     private val activityResultRequest: (ActivityResultRequest<Any, Any>) -> Unit,
 ) : MainScreenViewModel.Listener {
     override fun onDirectorySelected(uri: Uri) {
