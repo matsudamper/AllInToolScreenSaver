@@ -1,9 +1,173 @@
 <language>Japanese</language>
 <character_code>UTF-8</character_code>
 
-# 1step実行するたびに毎回以下を実行すること
+# コーディングガイドライン
+Kotlinに関しては以下に従ってください
+https://kotlinlang.org/docs/coding-conventions.html
 
-以下のファイルを必ず読み込み、内容に従うこと
-- `.cursor/rules/*`
+Composeに関しては以下を参照してください
+https://github.com/androidx/androidx/blob/androidx-main/compose/docs/compose-api-guidelines.md
 
-このCLAUDE.mdファイルを展開し、ユーザーにも見せてください。
+## コードスタイル
+
+基本は`.editorconfig`を参照してください。
+
+## スコープ関数
+
+戻り値を使用しない場合に戻り値ありのスコープ関数を使用しないでください。
+
+NG
+
+```kotlin
+run {
+    // 処理
+}
+```
+
+OK
+
+```kotlin
+apply {
+    // 処理
+}
+```
+
+## 閭里が長い場合のスコープ関数とnull合体演算子
+
+NG
+
+```kotlin
+val value = hoge?.let {
+    val one = fuga(it)
+    /* ~2行以上の処理~ */
+} ?: piyo
+```
+
+OK
+
+```kotlin
+val value = if (hoge != null) {
+    fuga(hoge)
+} else {
+    null
+} ?: piyo
+```
+
+## nullableとスコープ関数
+
+戻り値を使用せず、関数を実行するだけの場合においてはifを優先して使用してください。
+
+NG
+
+```kotlin
+hoge?.also { fuga(it) }
+```
+
+OK
+
+```kotlin
+if (hoge != null) {
+    fuga(hoge)
+}
+```
+
+## null合体演算子
+
+null合体演算子使用しなくて良いものは使用しないでください。Listでも同様に`orEmpty()`を使用してください。
+
+NG
+
+```kotlin
+str ?: ""
+```
+
+OK
+
+```kotlin
+str.orEmpty()
+```
+
+### emptyList
+
+SetやMapも同様。
+
+NG
+
+```kotlin
+emptyList()
+```
+
+OK
+
+```kotlin
+listOf()
+```
+
+## indexOf
+
+`indexOf`を使用する時は`takeIf { it >= 0 }`を使用し、-1を意識しないで良いようにしてください。
+
+## デフォルト引数
+
+デフォルト引数はなるべく使用しないでください。既にデフォルト引数が使われている場合は、デフォルト引数を使用しても構いません。
+ComposeではModifierだけがデフォルト引数が使用されていますが、Modifierだけは特別なので倣わないでください。
+
+## コメント
+あなたはコメントの使用は禁止します。関数名や変数名で説明できないか検討してください。コメントはコードの説明であってはなりません。コメントが必要な時はWhyを書く時です。
+それでもどうしてもコメントが無いと意味が伝わらないと思った場合は、コードは変更せずに、チャットで必要だと思う場所と理由を書いて、助言を求めてください。
+コメントは日本語で書いてください。日本語で書くのはコメントだけです。
+既にあるコメントがある場所は削除しないでください。あなたの変更によってコメントの内容が古くなってしまう場合は、コメントの内容を更新を許可します。
+
+## Mutable
+
+`var`はなるべく使わず、`val`を使用してください。どうしてもvarを使う必要がある、varを使わないと可読性が落ちる場合は関数に切り出せないか検討してください。
+Composeの`mutableStateOf`は例外で、`var`を使用しても構いませんが、使わなくても良いかは検討してください。
+MutableListやMutableMapはなるべく使わず、buildList等を使うことも検討してください
+
+## Force unwrap
+`!!`を使用しないでください。nullチェックを行ってください。
+モジュールが違うなどでnullチェックをしてもnullになる場合はvalに代入し直して直してください。
+
+## 定義の順番
+変数/関数の順番に並べてください。
+public/internal/privateの順番に並べてください。
+
+# 変更にあたって
+実装方針を変更するならまずこちらに確認を取れ。
+勝手にlintのsuppressとignoreを追加するな
+
+# Compose
+- UiStateにデフォルト値は禁止
+
+# コマンド
+ファイルの移動にはgit mvを使用してください。
+
+# 自動実行ルール
+タスク開始時とタスク完了時に、以下を実行してください
+1. context.txtを読み込んで現在の状況を把握
+2. タスク完了後にcontext.txtを最新の作業内容で更新
+
+理由を聞いているだけの時はファイルの変更やビルドを行うな
+
+# 確認
+一回の命令で5回連続で失敗したら失敗した経緯ややったことのまとめを提出して。
+ビルドは1つずつ行ってください。
+キャッシュのクリア、クリーンビルドは禁止します。なんでもかんでもキャッシュのせいにするな。
+
+コードを編集した後、コミットする前は必ず以下を実行してエラーを確認してください。1つずつ実行し、全部一気には実行しないでください。
+```sh
+./gradlew assembleDebug
+./gradlew assembleDebugAndroidTest
+./gradlew detekt detektMain
+./gradlew :app:lintDebug
+```
+
+ビルドができたらFormatしてください
+```sh
+./gradlew ktlintFormat
+```
+
+ビルドが通ったらUIテストは以下のコマンドで実行してください。
+```sh
+./gradlew pixel9api35DebugAndroidTest
+```
