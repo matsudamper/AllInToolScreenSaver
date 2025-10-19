@@ -9,8 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavEntry
-import androidx.navigation3.runtime.SceneStrategy
 import androidx.navigation3.runtime.Scene
+import androidx.navigation3.runtime.SceneStrategy
 import androidx.window.core.layout.WindowSizeClass
 
 class CustomTwoPaneSceneStrategy<T : Any> : SceneStrategy<T> {
