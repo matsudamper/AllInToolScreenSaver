@@ -161,7 +161,7 @@ class MainScreenViewModel(
         }
     }
 
-    val notificationSettingListener = object : NotificationSectionUiState.Listener {
+    private val notificationSettingListener = object : NotificationSectionUiState.Listener {
         override fun onClickSendTestNotification() {
             viewModelScope.launch {
                 suspend fun sendTestNotification() {
