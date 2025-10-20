@@ -1,4 +1,8 @@
 {
+  "env": {
+    "BASH_DEFAULT_TIMEOUT_MS": "2400000",
+    "BASH_MAX_TIMEOUT_MS": "2400000"
+  },
   "permissions": {
     "allow": [
       "Bash(mkdir:*)",
@@ -22,9 +26,5 @@
       "Bash(./gradlew:--stop)",
       "Bash(./gradlew:clean)"
     ]
-  },
-  "env": {
-    "BASH_DEFAULT_TIMEOUT_MS": 2400000,
-    "BASH_MAX_TIMEOUT_MS": 2400000
   }
 }
