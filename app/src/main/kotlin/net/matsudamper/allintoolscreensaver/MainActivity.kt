@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -58,14 +60,19 @@ class MainActivity : ComponentActivity() {
             NavDisplay(
                 backStack = backStack,
                 modifier = Modifier.fillMaxSize(),
-                onBack = { count ->
-                    repeat(count) {
-                        if (backStack.isNotEmpty()) {
-                            backStack.removeLastOrNull()
-                        }
+                onBack = {
+                    if (backStack.isNotEmpty()) {
+                        backStack.removeLastOrNull()
                     }
                 },
-                sceneStrategy = CustomTwoPaneSceneStrategy(),
+                sceneStrategy = run {
+                    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+                    remember(windowSizeClass) {
+                        CustomTwoPaneSceneStrategy(
+                            windowSizeClass = windowSizeClass,
+                        )
+                    }
+                },
                 entryProvider = entryProvider {
                     entry<NavKeys.Main> {
                         val viewModel = viewModel {

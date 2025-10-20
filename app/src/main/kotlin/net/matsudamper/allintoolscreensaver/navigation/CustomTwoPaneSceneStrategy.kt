@@ -4,26 +4,24 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavEntry
-import androidx.navigation3.runtime.Scene
-import androidx.navigation3.runtime.SceneStrategy
+import androidx.navigation3.scene.Scene
+import androidx.navigation3.scene.SceneStrategy
+import androidx.navigation3.scene.SceneStrategyScope
 import androidx.window.core.layout.WindowSizeClass
 
-class CustomTwoPaneSceneStrategy<T : Any> : SceneStrategy<T> {
-    @Composable
-    override fun calculateScene(entries: List<NavEntry<T>>, onBack: (Int) -> Unit): Scene<T>? {
+class CustomTwoPaneSceneStrategy<T : Any>(
+    private val windowSizeClass: WindowSizeClass,
+) : SceneStrategy<T> {
+    override fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T>? {
         if (entries.isEmpty()) {
             return null
         }
-        val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
 
-        val isExtended = remember(windowSizeClass) {
-            windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)
-        }
+
+        val isExtended = windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)
         return if (isExtended) {
             val extendPane = entries.lastOrNull { it.metadata.containsKey(KEY_EXTEND_PANE) }
             val previousEntries = entries.filterNot { it.metadata.containsKey(KEY_EXTEND_PANE) }
