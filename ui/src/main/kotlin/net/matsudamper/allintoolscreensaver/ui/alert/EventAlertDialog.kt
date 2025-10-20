@@ -7,7 +7,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import java.time.LocalTime
 import net.matsudamper.allintoolscreensaver.ui.component.DreamAlertDialog
 import net.matsudamper.allintoolscreensaver.ui.component.SuspendLifecycleStartEffect
 import net.matsudamper.allintoolscreensaver.ui.screensaver.EventAlertUiState
@@ -60,5 +62,28 @@ fun EventAlertDialog(
                 Text(text = currentAlert.description)
             }
         }
+    }
+}
+
+@Composable
+@Preview
+private fun Preview() {
+    MaterialTheme {
+        EventAlertDialog(
+            uiState = EventAlertUiState(
+                currentAlert = EventAlertUiState.DialogInfo(
+                    title = "会議の予定",
+                    description = "プロジェクトAの定例ミーティング",
+                    alertTypeDisplayText = "15分前",
+                    eventStartTime = LocalTime.of(14, 0),
+                    eventStartTimeText = "14:00",
+                    isRepeatingAlert = false,
+                ),
+                listener = object : EventAlertUiState.Listener {
+                    override suspend fun onStart() = Unit
+                    override fun onAlertDismiss() = Unit
+                },
+            ),
+        )
     }
 }

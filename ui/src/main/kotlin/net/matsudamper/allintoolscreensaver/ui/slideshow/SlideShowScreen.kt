@@ -7,7 +7,9 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -16,6 +18,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
@@ -123,5 +126,33 @@ fun SlideShowScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+@Preview
+private fun Preview() {
+    MaterialTheme {
+        SlideShowScreen(
+            uiState = SlideshowUiState(
+                showAlertDialog = false,
+                imageUri = null,
+                isLoading = false,
+                pagerItems = List(3) { index ->
+                    PagerItem(
+                        id = index.toString(),
+                        imageUri = null,
+                    )
+                },
+                imageSwitchIntervalSeconds = 10,
+                listener = object : SlideshowUiState.Listener {
+                    override suspend fun onStart() = Unit
+                    override fun onPageChanged(newPage: Int) = Unit
+                },
+            ),
+            hazeState = remember { HazeState() },
+            updatedPagerState = {},
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }

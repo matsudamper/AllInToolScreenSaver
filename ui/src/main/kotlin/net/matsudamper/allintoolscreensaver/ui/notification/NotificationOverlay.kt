@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -31,9 +32,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import dev.chrisbanes.haze.HazeState
@@ -185,5 +188,32 @@ private fun NotificationItem(
                 )
             }
         }
+    }
+}
+
+@Composable
+@Preview
+private fun Preview() {
+    MaterialTheme {
+        NotificationOverlay(
+            uiState = NotificationOverlayUiState(
+                notifications = List(3) { index ->
+                    NotificationOverlayUiState.NotificationItem(
+                        id = index.toString(),
+                        title = "通知タイトル $index",
+                        text = "通知の内容がここに表示されます。",
+                        appName = "アプリ名",
+                        listener = object : NotificationOverlayUiState.NotificationItem.ItemListener {
+                            override fun dismissRequest() = Unit
+                            override fun onClick() = Unit
+                        },
+                    )
+                },
+                displayDuration = 10.seconds,
+                listener = object : NotificationOverlayUiState.Listener {},
+            ),
+            hazeState = remember { HazeState() },
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }

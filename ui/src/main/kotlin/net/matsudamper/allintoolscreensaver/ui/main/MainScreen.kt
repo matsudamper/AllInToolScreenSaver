@@ -28,7 +28,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlin.time.Duration.Companion.seconds
 import net.matsudamper.allintoolscreensaver.ui.component.SuspendLifecycleResumeEffect
 import net.matsudamper.allintoolscreensaver.ui.component.SuspendLifecycleStartEffect
 import net.matsudamper.allintoolscreensaver.ui.ext.plus
@@ -500,4 +502,74 @@ private fun NotificationSection(
             },
         ),
     )
+}
+
+@Composable
+@Preview
+private fun Preview() {
+    MaterialTheme {
+        MainScreen(
+            uiState = MainScreenUiState(
+                screenSaverSectionUiState = ScreenSaverSectionUiState(
+                    selectedDirectoryPath = "/storage/emulated/0/Pictures",
+                    imageSwitchIntervalSeconds = 10,
+                    intervalOptions = List(3) { index ->
+                        IntervalOption(
+                            seconds = listOf(5, 10, 30)[index],
+                            displayText = "${listOf(5, 10, 30)[index]}秒",
+                            isSelected = index == 1,
+                        )
+                    },
+                ),
+                calendarSectionUiState = CalendarSectionUiState(
+                    selectedCalendarDisplayName = "マイカレンダー",
+                    selectedAlertCalendarDisplayName = "仕事用カレンダー",
+                    hasOverlayPermission = true,
+                    hasCalendarPermission = true,
+                ),
+                notificationSectionUiState = NotificationSectionUiState(
+                    hasNotificationPermission = true,
+                    hasNotificationListenerPermission = true,
+                    displayDurationOptions = List(3) { index ->
+                        NotificationSectionUiState.DurationOption(
+                            duration = listOf(5, 10, 30)[index].seconds,
+                            displayText = "${listOf(5, 10, 30)[index]}秒",
+                            isSelected = index == 1,
+                        )
+                    },
+                    listener = object : NotificationSectionUiState.Listener {
+                        override fun onClickSendTestNotification() = Unit
+                        override fun onOpenNotificationListenerSettings() = Unit
+                    },
+                ),
+                listener = object : MainScreenUiState.Listener {
+                    override suspend fun onStart() = Unit
+                    override fun onDirectorySelected(uri: android.net.Uri) = Unit
+                    override fun onCalendarSelectionChanged(calendarId: Long, isSelected: Boolean) = Unit
+                    override fun onImageSwitchIntervalChanged(seconds: Int) = Unit
+                    override fun onNotificationDisplayDurationChanged(duration: kotlin.time.Duration) = Unit
+                    override fun onOpenDreamSettings() = Unit
+                    override fun onNavigateToCalendarSelection() = Unit
+                    override fun onNavigateToAlertCalendarSelection() = Unit
+                    override fun onNavigateToCalendarDisplay() = Unit
+                    override fun onNavigateToSlideShowPreview() = Unit
+                    override fun onNavigateToNotificationPreview() = Unit
+                    override fun onRequestOverlayPermission() = Unit
+                    override fun updatePermissions(calendar: Boolean?, overlay: Boolean?) = Unit
+                    override suspend fun onResume() = Unit
+                },
+            ),
+            onDirectorySelect = {},
+            onImageSwitchIntervalChange = {},
+            onNotificationDisplayDurationChange = {},
+            onCalendarSelect = {},
+            onAlertCalendarSelect = {},
+            onCalendarPreview = {},
+            onSlideShowPreview = {},
+            onNotificationPreview = {},
+            onOpenDreamSettings = {},
+            onRequestOverlayPermission = {},
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
 }

@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -205,5 +206,58 @@ private fun CalendarItem(
                 ) {}
             }
         }
+    }
+}
+
+@Composable
+@Preview
+private fun PreviewWithCalendars() {
+    MaterialTheme {
+        CalendarSelectionScreen(
+            uiState = CalendarSelectionScreenUiState(
+                availableCalendars = List(3) { index ->
+                    CalendarSelectionScreenUiState.Calendar(
+                        id = index.toLong(),
+                        displayName = listOf("マイカレンダー", "仕事用", "家族の予定")[index],
+                        accountName = "example@gmail.com",
+                        color = android.graphics.Color.parseColor(listOf("#FF0000", "#0000FF", "#00FF00")[index]),
+                        isSelected = index % 2 == 0,
+                        listener = object : CalendarSelectionScreenUiState.CalendarListener {
+                            override fun onSelectionChanged(isSelected: Boolean) = Unit
+                        },
+                    )
+                },
+                hasCalendarPermission = true,
+                selectionMode = CalendarSelectionMode.DISPLAY,
+                listener = object : CalendarSelectionScreenUiState.Listener {
+                    override suspend fun onStart() = Unit
+                    override fun updateCalendarPermission(granted: Boolean) = Unit
+                    override fun onCalendarPermissionLaunch() = Unit
+                    override fun onBack() = Unit
+                },
+            ),
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
+}
+
+@Composable
+@Preview
+private fun PreviewWithoutPermission() {
+    MaterialTheme {
+        CalendarSelectionScreen(
+            uiState = CalendarSelectionScreenUiState(
+                availableCalendars = listOf(),
+                hasCalendarPermission = false,
+                selectionMode = CalendarSelectionMode.ALERT,
+                listener = object : CalendarSelectionScreenUiState.Listener {
+                    override suspend fun onStart() = Unit
+                    override fun updateCalendarPermission(granted: Boolean) = Unit
+                    override fun onCalendarPermissionLaunch() = Unit
+                    override fun onBack() = Unit
+                },
+            ),
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }
