@@ -20,7 +20,6 @@ class CustomTwoPaneSceneStrategy<T : Any>(
             return null
         }
 
-
         val isExtended = windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)
         return if (isExtended) {
             val extendPane = entries.lastOrNull { it.metadata.containsKey(KEY_EXTEND_PANE) }
