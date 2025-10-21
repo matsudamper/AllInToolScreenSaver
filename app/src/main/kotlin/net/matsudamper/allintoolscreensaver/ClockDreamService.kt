@@ -35,7 +35,6 @@ class ClockDreamService :
     }
 
     private val koin get() = GlobalContext.get()
-    private val alertManager by koin.inject<AlertManager>()
 
     override fun onCreate() {
         super.onCreate()
