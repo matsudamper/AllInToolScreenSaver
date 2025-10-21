@@ -15,7 +15,6 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import net.matsudamper.allintoolscreensaver.adapter.ScreenSaverScreenAdapter
-import net.matsudamper.allintoolscreensaver.feature.alert.AlertManager
 import net.matsudamper.allintoolscreensaver.ui.theme.AllInToolScreenSaverTheme
 import org.koin.core.context.GlobalContext
 
