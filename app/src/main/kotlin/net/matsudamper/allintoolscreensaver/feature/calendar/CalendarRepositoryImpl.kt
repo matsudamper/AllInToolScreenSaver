@@ -13,6 +13,13 @@ import kotlinx.coroutines.withContext
 import net.matsudamper.allintoolscreensaver.lib.PermissionChecker
 
 interface CalendarRepository {
+    suspend fun getAvailableCalendars(): List<CalendarInfo>
+    suspend fun getEventsForTimeRange(
+        calendarIds: List<Long>,
+        startTime: Instant,
+        endTime: Instant,
+    ): List<CalendarEvent>
+
     data class CalendarInfo(
         val id: Long,
         val displayName: String,
@@ -48,13 +55,6 @@ interface CalendarRepository {
             override val attendeeStatus: AttendeeStatus,
         ) : CalendarEvent
     }
-
-    suspend fun getAvailableCalendars(): List<CalendarInfo>
-    suspend fun getEventsForTimeRange(
-        calendarIds: List<Long>,
-        startTime: Instant,
-        endTime: Instant,
-    ): List<CalendarEvent>
 }
 
 class CalendarRepositoryImpl(private val context: Context) : CalendarRepository {
