@@ -4,10 +4,13 @@ import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
 import android.provider.CalendarContract
+import androidx.core.database.getLongOrNull
+import androidx.core.database.getStringOrNull
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import kotlin.time.Duration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.matsudamper.allintoolscreensaver.lib.PermissionChecker
@@ -115,6 +118,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                 CalendarContract.Instances.DESCRIPTION,
                 CalendarContract.Instances.DTSTART,
                 CalendarContract.Instances.DTEND,
+                CalendarContract.Instances.DURATION,
                 CalendarContract.Instances.ALL_DAY,
                 CalendarContract.Instances.CALENDAR_ID,
                 CalendarContract.Instances.CALENDAR_COLOR,
@@ -162,7 +166,8 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                 val title = c.getString(c.getColumnIndexOrThrow(CalendarContract.Events.TITLE)).orEmpty()
                 val description = c.getString(c.getColumnIndexOrThrow(CalendarContract.Events.DESCRIPTION))
                 val eventStartTime = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events.DTSTART))
-                val eventEndTime = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events.DTEND))
+                val eventEndTime = c.getLongOrNull(c.getColumnIndexOrThrow(CalendarContract.Events.DTEND))
+                val eventDuration = c.getStringOrNull(c.getColumnIndexOrThrow(CalendarContract.Instances.DURATION))
                 val allDay = c.getInt(c.getColumnIndexOrThrow(CalendarContract.Events.ALL_DAY)) == 1
                 val color = run {
                     val eventColorIndex = c.getColumnIndexOrThrow(CalendarContract.Instances.EVENT_COLOR)
@@ -194,13 +199,42 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                             attendeeStatus = attendeeStatus,
                         )
                     } else {
+                        val startTime = Instant.ofEpochMilli(eventStartTime)
+                        val endTime: Instant
+                        val parseFailedDescription: String?
+
+                        if (eventEndTime != null) {
+                            endTime = Instant.ofEpochMilli(eventEndTime)
+                            parseFailedDescription = null
+                        } else {
+                            if (eventDuration != null) {
+                                val parsedDuration = parseDuration(eventDuration)
+                                if (parsedDuration != null) {
+                                    endTime = Instant.ofEpochMilli(eventStartTime + parsedDuration.inWholeMilliseconds)
+                                    parseFailedDescription = null
+                                } else {
+                                    endTime = startTime.plus(java.time.Duration.ofMinutes(30))
+                                    parseFailedDescription = "「${eventDuration}」がパースできませんでした".trimIndent()
+                                }
+                            } else {
+                                endTime = startTime.plus(java.time.Duration.ofMinutes(30))
+                                parseFailedDescription = "DTENDもDURATIONも設定されていません。30分で設定しました。".trimIndent()
+                            }
+                        }
                         CalendarRepository.CalendarEvent.Time(
                             id = id,
                             calendarId = calendarId,
                             title = title,
-                            description = description,
-                            startTime = Instant.ofEpochMilli(eventStartTime),
-                            endTime = Instant.ofEpochMilli(eventEndTime),
+                            description = buildString {
+                                if (parseFailedDescription != null) {
+                                    appendLine("アプリからのお知らせ")
+                                    appendLine(parseFailedDescription)
+                                    appendLine(List(20) { "-" }.joinToString("") { it })
+                                }
+                                append(description)
+                            },
+                            startTime = startTime,
+                            endTime = endTime,
                             color = color,
                             attendeeStatus = attendeeStatus,
                         )
@@ -209,5 +243,19 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
             }
         }
         return events
+    }
+
+    private fun parseDuration(durationStr: String): Duration? {
+        return if (durationStr.contains("T")) {
+            Duration.parseIsoStringOrNull(durationStr)
+        } else {
+            if (durationStr.startsWith("P")) {
+                Duration.parseIsoStringOrNull(
+                    durationStr.replaceFirst("P", "PT"),
+                )
+            } else {
+                null
+            }
+        }
     }
 }
