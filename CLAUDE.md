@@ -1,6 +1,64 @@
 <language>Japanese</language>
 <character_code>UTF-8</character_code>
 
+# プロジェクト概要
+
+AllInToolScreenSaverは、カレンダー、通知、スライドショー表示機能を統合したAndroidスクリーンセーバー（DreamService）アプリケーションです。
+
+## 技術スタック
+
+- **言語:** Kotlin 2.2.21
+- **UI:** Jetpack Compose (BOM 2025.07.00) + Material 3
+- **ナビゲーション:** Navigation3 (androidx.navigation3)
+- **DI:** Koin 4.1.1
+- **データ永続化:** Protocol Buffers + DataStore
+- **画像読み込み:** Coil Compose 2.7.0
+- **ビルドシステム:** Gradle 9.1.0 / AGP 8.12.0
+- **Java:** 17
+- **最小SDK:** 35 / **ターゲットSDK:** 36
+
+## モジュール構成
+
+| モジュール | 種別 | 説明 |
+|-----------|------|------|
+| `:app` | Android Application | メインアプリ。Activity、ViewModel、Service、Feature層を含む |
+| `:ui` | Android Library | Compose UIコンポーネント、テーマ、画面 |
+| `:ktlint-custom-rules` | JVM Library | カスタムktlintルール |
+| `:costom-detekt-rules` | JVM Library | カスタムdetektルール（JavaTimeClockRule, UseKotlinDurationForDelayRule） |
+
+## ディレクトリ構成
+
+```
+app/src/main/kotlin/.../
+├── MainActivity.kt              # メイン設定画面
+├── ClockDreamService.kt         # スクリーンセーバー本体（DreamService）
+├── MyApp.kt                     # Applicationクラス（Koin DI設定）
+├── adapter/                     # ViewModel→Compose UIブリッジ
+├── feature/
+│   ├── alert/                   # アラート機能
+│   ├── calendar/                # カレンダー連携
+│   ├── notification/            # 通知リスナー
+│   └── setting/                 # 設定管理（DataStore + Protobuf）
+├── lib/                         # ユーティリティ（EventHandler, PermissionChecker等）
+├── navigation/                  # ナビゲーション定義（NavKeys, CustomTwoPaneSceneStrategy）
+└── viewmodel/                   # ViewModelクラス群
+
+ui/src/main/kotlin/.../ui/
+├── main/                        # メイン設定画面UI
+├── screensaver/                 # スクリーンセーバー画面UI
+├── slideshow/                   # スライドショーUI
+├── calendar/                    # カレンダー表示UI
+├── theme/                       # テーマ（Color, Type, Theme）
+└── lib/                         # UI共通ユーティリティ
+```
+
+## アーキテクチャ
+
+- **パターン:** MVVM + Repository
+- **状態管理:** StateFlow / MutableStateFlow
+- **DI:** Koin（Application, Repository, ViewModel等をシングルトン/ファクトリで管理）
+- **データ永続化:** Protocol Buffers スキーマ（`app/src/main/proto/settings.proto`）
+
 # コーディングガイドライン
 Kotlinに関しては以下に従ってください
 https://kotlinlang.org/docs/coding-conventions.html
@@ -141,6 +199,10 @@ public/internal/privateの順番に並べてください。
 
 # コマンド
 ファイルの移動にはgit mvを使用してください。
+
+# Git / PR
+- PRのタイトル・本文は日本語で作成してください。
+- コミットメッセージも日本語で作成してください。
 
 # 自動実行ルール
 タスク開始時とタスク完了時に、以下を実行してください
