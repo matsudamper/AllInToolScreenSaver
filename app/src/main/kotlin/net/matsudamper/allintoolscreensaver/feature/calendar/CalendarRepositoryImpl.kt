@@ -214,7 +214,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                                     parseFailedDescription = null
                                 } else {
                                     endTime = startTime.plus(java.time.Duration.ofMinutes(30))
-                                    parseFailedDescription = "「${eventDuration}」がパースできませんでした".trimIndent()
+                                    parseFailedDescription = "「$eventDuration」がパースできませんでした".trimIndent()
                                 }
                             } else {
                                 endTime = startTime.plus(java.time.Duration.ofMinutes(30))
