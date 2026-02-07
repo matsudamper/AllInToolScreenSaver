@@ -120,7 +120,7 @@ fun SlideShowScreen(
                             contentDescription = null,
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop,
-                            alignment = Alignment.TopCenter,
+                            alignment = item.alignment,
                         )
                     }
                 }
@@ -142,6 +142,7 @@ private fun Preview() {
                     PagerItem(
                         id = index.toString(),
                         imageUri = null,
+                        alignment = Alignment.Center,
                     )
                 },
                 imageSwitchIntervalSeconds = 10,

@@ -2,6 +2,7 @@ package net.matsudamper.allintoolscreensaver.ui.slideshow
 
 import android.net.Uri
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.Alignment
 
 data class SlideshowUiState(
     val showAlertDialog: Boolean,
@@ -21,4 +22,5 @@ data class SlideshowUiState(
 data class PagerItem(
     val id: String,
     val imageUri: Uri?,
+    val alignment: Alignment,
 )

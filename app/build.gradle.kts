@@ -111,6 +111,8 @@ dependencies {
 
     implementation(libs.androidxMaterial3AdaptiveNavigation3)
 
+    implementation(libs.mlkitFaceDetection)
+
     androidTestImplementation(platform(libs.androidxComposeBom))
     androidTestImplementation(libs.androidxJunit)
     androidTestImplementation(libs.androidxEspressoCore)

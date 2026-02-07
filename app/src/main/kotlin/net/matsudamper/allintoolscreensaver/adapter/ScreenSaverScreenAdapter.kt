@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.time.Clock
 import dev.chrisbanes.haze.HazeState
+import net.matsudamper.allintoolscreensaver.feature.FaceDetectionManager
 import net.matsudamper.allintoolscreensaver.feature.ImageManager
 import net.matsudamper.allintoolscreensaver.ui.LocalClock
 import net.matsudamper.allintoolscreensaver.ui.alert.ClockContent
@@ -116,6 +117,7 @@ fun SlideShowScreenAdapter(
                 imageManager = ImageManager(context),
                 inMemoryCache = koin.get(),
                 clock = koin.get(),
+                faceDetectionManager = FaceDetectionManager(context),
             )
         },
     )
