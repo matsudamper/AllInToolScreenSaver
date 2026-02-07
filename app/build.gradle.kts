@@ -68,7 +68,7 @@ android {
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:4.33.0"
+        artifact = "com.google.protobuf:protoc:4.33.5"
     }
     generateProtoTasks {
         all().forEach { task ->
