@@ -26,6 +26,11 @@ jobs:
       run: ./gradlew ktlintCheck
     - name: Assemble
       run: ./gradlew assembleDebug
+    - name: Upload APK
+      uses: actions/upload-artifact@v6
+      with:
+        name: apk
+        path: app/build/outputs/apk/debug/*.apk
     - name: Detekt
       run: ./gradlew detektDebug
     - name: Android Lint
