@@ -27,8 +27,11 @@ class FaceDetectionManager(private val context: Context) {
             val bitmap = loadBitmap(uri) ?: return@withContext Alignment.Center
             val bitmapWidth = bitmap.width
             val bitmapHeight = bitmap.height
-            val faces = detectFaces(bitmap)
-            bitmap.recycle()
+            val faces = try {
+                detectFaces(bitmap)
+            } finally {
+                bitmap.recycle()
+            }
 
             if (faces.isEmpty()) {
                 return@withContext Alignment.Center
