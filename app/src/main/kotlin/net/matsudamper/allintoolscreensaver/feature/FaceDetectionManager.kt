@@ -6,14 +6,14 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.face.FaceDetection
-import com.google.mlkit.vision.face.FaceDetectorOptions
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.face.FaceDetection
+import com.google.mlkit.vision.face.FaceDetectorOptions
 
 class FaceDetectionManager(private val context: Context) {
     private val detector = FaceDetection.getClient(
