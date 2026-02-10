@@ -7,7 +7,6 @@ import android.net.Uri
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -27,13 +26,10 @@ class FaceDetectionManager(private val context: Context) {
             val bitmap = loadBitmap(uri) ?: return@withContext Alignment.Center
             val bitmapWidth = bitmap.width
             val bitmapHeight = bitmap.height
-            val faces = try {
-                detectFaces(bitmap)
-            } finally {
-                bitmap.recycle()
-            }
+            val faces = detectFaces(bitmap)
+            bitmap.recycle()
 
-            if (faces.isEmpty()) {
+            if (faces.isNullOrEmpty()) {
                 return@withContext Alignment.Center
             }
 
@@ -60,7 +56,7 @@ class FaceDetectionManager(private val context: Context) {
         }.getOrNull()
     }
 
-    private suspend fun detectFaces(bitmap: Bitmap): List<FaceCenter> {
+    private suspend fun detectFaces(bitmap: Bitmap): List<FaceCenter>? {
         val inputImage = InputImage.fromBitmap(bitmap, 0)
         return suspendCancellableCoroutine { continuation ->
             detector.process(inputImage)
@@ -73,8 +69,8 @@ class FaceDetectionManager(private val context: Context) {
                     }
                     continuation.resume(centers)
                 }
-                .addOnFailureListener { exception ->
-                    continuation.resumeWithException(exception)
+                .addOnFailureListener {
+                    continuation.resume(null)
                 }
         }
     }
