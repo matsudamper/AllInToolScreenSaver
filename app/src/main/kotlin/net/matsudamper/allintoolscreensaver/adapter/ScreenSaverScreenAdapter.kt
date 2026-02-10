@@ -117,7 +117,7 @@ fun SlideShowScreenAdapter(
                 imageManager = ImageManager(context),
                 inMemoryCache = koin.get(),
                 clock = koin.get(),
-                faceDetectionManager = FaceDetectionManager(context),
+                faceDetectionManager = FaceDetectionManager(context.applicationContext),
             )
         },
     )
