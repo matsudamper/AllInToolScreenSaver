@@ -1,0 +1,4 @@
+最終作業: kotlinx-serialization-core を 1.9.0 → 1.10.0 にアップグレード (PR #72対応)
+ブランチ: claude/fix-ci-version-upgrade-p1C2y
+変更ファイル: gradle/libs.versions.toml
+ビルド確認: ネットワーク制約によりローカルビルド不可。ソースコードの互換性は確認済み（@Serializableアノテーションのみ使用）。
