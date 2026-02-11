@@ -33,7 +33,6 @@ class SlideshowScreenViewModel(
     private val clock: Clock,
     private val faceDetectionManager: FaceDetectionManager,
 ) : ViewModel() {
-    private val faceAlignmentCache = mutableMapOf<Uri, Alignment>()
     private val viewModelStateFlow = MutableStateFlow(
         run {
             val imageInfo = inMemoryCache.imageInfo
@@ -128,18 +127,21 @@ class SlideshowScreenViewModel(
             PagerItem(
                 id = uri.toString(),
                 imageUri = uri,
-                alignment = faceAlignmentCache[uri] ?: Alignment.Center,
+                alignment = viewModelState.faceAlignmentCache[uri] ?: Alignment.Center,
             )
         }
     }
 
     private fun requestFaceDetection(uris: List<Uri>) {
         uris.forEach { uri ->
-            if (faceAlignmentCache.containsKey(uri)) return@forEach
+            if (viewModelStateFlow.value.faceAlignmentCache.containsKey(uri)) return@forEach
             viewModelScope.launch {
                 val alignment = faceDetectionManager.detectFaceAlignment(uri)
-                faceAlignmentCache[uri] = alignment
-                viewModelStateFlow.update { it.copy() }
+                viewModelStateFlow.update {
+                    it.copy(
+                        faceAlignmentCache = it.faceAlignmentCache.plus(uri to alignment),
+                    )
+                }
             }
         }
     }
@@ -253,6 +255,7 @@ class SlideshowScreenViewModel(
         val imagesLastUpdate: Instant = Instant.MIN,
         val isLoading: Boolean = true,
         val imageSwitchIntervalSeconds: Int? = null,
+        val faceAlignmentCache: Map<Uri, Alignment> = mapOf(),
     ) {
         fun getPagerImage(index: Int): Uri {
             return images[imagesShuffledIndex[index]]
