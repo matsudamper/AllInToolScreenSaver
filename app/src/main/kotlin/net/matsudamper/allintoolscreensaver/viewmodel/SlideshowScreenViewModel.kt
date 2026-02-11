@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.matsudamper.allintoolscreensaver.feature.FaceDetectionManager
 import net.matsudamper.allintoolscreensaver.feature.ImageManager
 import net.matsudamper.allintoolscreensaver.feature.InMemoryCache
@@ -132,15 +134,18 @@ class SlideshowScreenViewModel(
         }
     }
 
+    private val requestFaceDetectionMutex = Mutex()
     private fun requestFaceDetection(uris: List<Uri>) {
-        uris.forEach { uri ->
-            if (viewModelStateFlow.value.faceAlignmentCache.containsKey(uri)) return@forEach
-            viewModelScope.launch {
-                val alignment = faceDetectionManager.detectFaceAlignment(uri)
-                viewModelStateFlow.update {
-                    it.copy(
-                        faceAlignmentCache = it.faceAlignmentCache.plus(uri to alignment),
-                    )
+        viewModelScope.launch {
+            requestFaceDetectionMutex.withLock {
+                uris.forEach { uri ->
+                    if (viewModelStateFlow.value.faceAlignmentCache.containsKey(uri)) return@forEach
+                    val alignment = faceDetectionManager.detectFaceAlignment(uri)
+                    viewModelStateFlow.update {
+                        it.copy(
+                            faceAlignmentCache = it.faceAlignmentCache.plus(uri to alignment),
+                        )
+                    }
                 }
             }
         }
