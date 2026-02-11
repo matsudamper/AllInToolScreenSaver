@@ -1,6 +1,7 @@
 package net.matsudamper.allintoolscreensaver.viewmodel
 
 import android.net.Uri
+import androidx.compose.ui.Alignment
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,6 +19,9 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import net.matsudamper.allintoolscreensaver.feature.FaceDetectionManager
 import net.matsudamper.allintoolscreensaver.feature.ImageManager
 import net.matsudamper.allintoolscreensaver.feature.InMemoryCache
 import net.matsudamper.allintoolscreensaver.feature.setting.SettingsRepository
@@ -29,6 +33,7 @@ class SlideshowScreenViewModel(
     private val imageManager: ImageManager,
     private val inMemoryCache: InMemoryCache,
     private val clock: Clock,
+    private val faceDetectionManager: FaceDetectionManager,
 ) : ViewModel() {
     private val viewModelStateFlow = MutableStateFlow(
         run {
@@ -100,9 +105,9 @@ class SlideshowScreenViewModel(
     private fun createPagerItems(viewModelState: ViewModelState): List<PagerItem> {
         if (viewModelState.images.isEmpty()) {
             return listOf(
-                PagerItem(id = "left", imageUri = null),
-                PagerItem(id = "center", imageUri = null),
-                PagerItem(id = "right", imageUri = null),
+                PagerItem(id = "left", imageUri = null, alignment = Alignment.Center),
+                PagerItem(id = "center", imageUri = null, alignment = Alignment.Center),
+                PagerItem(id = "right", imageUri = null, alignment = Alignment.Center),
             )
         }
 
@@ -112,20 +117,38 @@ class SlideshowScreenViewModel(
         val prevIndex = if (currentIndex > 0) currentIndex - 1 else shuffledIndices.size - 1
         val nextIndex = if (currentIndex < shuffledIndices.size - 1) currentIndex + 1 else 0
 
-        return listOf(
-            PagerItem(
-                id = viewModelState.getPagerImage(prevIndex).toString(),
-                imageUri = viewModelState.getPagerImage(prevIndex),
-            ),
-            PagerItem(
-                id = viewModelState.getPagerImage(currentIndex).toString(),
-                imageUri = viewModelState.getPagerImage(currentIndex),
-            ),
-            PagerItem(
-                id = viewModelState.getPagerImage(nextIndex).toString(),
-                imageUri = viewModelState.getPagerImage(nextIndex),
-            ),
+        val pagerUris = listOf(
+            viewModelState.getPagerImage(prevIndex),
+            viewModelState.getPagerImage(currentIndex),
+            viewModelState.getPagerImage(nextIndex),
         )
+
+        requestFaceDetection(pagerUris)
+
+        return pagerUris.map { uri ->
+            PagerItem(
+                id = uri.toString(),
+                imageUri = uri,
+                alignment = viewModelState.faceAlignmentCache[uri] ?: Alignment.Center,
+            )
+        }
+    }
+
+    private val requestFaceDetectionMutex = Mutex()
+    private fun requestFaceDetection(uris: List<Uri>) {
+        viewModelScope.launch {
+            requestFaceDetectionMutex.withLock {
+                uris.forEach { uri ->
+                    if (viewModelStateFlow.value.faceAlignmentCache.containsKey(uri)) return@forEach
+                    val alignment = faceDetectionManager.detectFaceAlignment(uri)
+                    viewModelStateFlow.update {
+                        it.copy(
+                            faceAlignmentCache = it.faceAlignmentCache.plus(uri to alignment),
+                        )
+                    }
+                }
+            }
+        }
     }
 
     private fun moveToNextImage() {
@@ -237,6 +260,7 @@ class SlideshowScreenViewModel(
         val imagesLastUpdate: Instant = Instant.MIN,
         val isLoading: Boolean = true,
         val imageSwitchIntervalSeconds: Int? = null,
+        val faceAlignmentCache: Map<Uri, Alignment> = mapOf(),
     ) {
         fun getPagerImage(index: Int): Uri {
             return images[imagesShuffledIndex[index]]
