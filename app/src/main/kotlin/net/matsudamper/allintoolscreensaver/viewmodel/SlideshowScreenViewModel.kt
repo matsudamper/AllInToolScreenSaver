@@ -137,9 +137,7 @@ class SlideshowScreenViewModel(
         uris.forEach { uri ->
             if (faceAlignmentCache.containsKey(uri)) return@forEach
             viewModelScope.launch {
-                val alignment = runCatching {
-                    faceDetectionManager.detectFaceAlignment(uri)
-                }.getOrElse { Alignment.Center }
+                val alignment = faceDetectionManager.detectFaceAlignment(uri)
                 faceAlignmentCache[uri] = alignment
                 viewModelStateFlow.update { it.copy() }
             }
