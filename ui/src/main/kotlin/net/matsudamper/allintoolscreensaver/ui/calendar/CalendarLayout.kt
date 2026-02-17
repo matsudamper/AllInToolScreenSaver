@@ -4,11 +4,13 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
@@ -69,6 +71,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import net.matsudamper.allintoolscreensaver.ui.LocalClock
 import net.matsudamper.allintoolscreensaver.ui.component.DreamAlertDialog
+import net.matsudamper.allintoolscreensaver.ui.icons.NotificationsOff
 
 data class CalendarLayoutUiState(
     val events: List<Event.Time>,
@@ -90,7 +93,7 @@ data class CalendarLayoutUiState(
             override val color: Color,
             override val isBorderDisplayType: Boolean,
             override val hasTextDecoration: Boolean,
-            val isAlertTarget: Boolean,
+            val alertType: AlertType,
         ) : Event
 
         data class AllDay(
@@ -100,6 +103,12 @@ data class CalendarLayoutUiState(
             override val isBorderDisplayType: Boolean,
             override val hasTextDecoration: Boolean,
         ) : Event
+
+        enum class AlertType {
+            NONE,
+            ALERT,
+            ALERT_DISABLED,
+        }
     }
 }
 
@@ -423,7 +432,7 @@ private fun AllDayCard(
         color = event.color,
         isBorderDisplayType = event.isBorderDisplayType,
         hasTextDecoration = event.hasTextDecoration,
-        isAlertTarget = false,
+        alertType = CalendarLayoutUiState.Event.AlertType.NONE,
         onClick = onClick,
     )
 }
@@ -442,7 +451,7 @@ private fun TimeCard(
         color = event.uiState.color,
         isBorderDisplayType = event.uiState.isBorderDisplayType,
         hasTextDecoration = event.uiState.hasTextDecoration,
-        isAlertTarget = event.uiState.isAlertTarget,
+        alertType = event.uiState.alertType,
         onClick = onClick,
     )
 }
@@ -454,7 +463,7 @@ private fun EventCard(
     color: Color,
     isBorderDisplayType: Boolean,
     hasTextDecoration: Boolean,
-    isAlertTarget: Boolean,
+    alertType: CalendarLayoutUiState.Event.AlertType,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -473,42 +482,58 @@ private fun EventCard(
             Box(
                 modifier = Modifier.padding(4.dp),
             ) {
-                Column(
-                    modifier = if (isAlertTarget) Modifier.padding(end = 12.dp) else Modifier,
-                ) {
-                    BasicText(
-                        text = remember(title, hasTextDecoration) {
-                            if (hasTextDecoration) {
-                                buildAnnotatedString {
-                                    append(title)
-                                    addStyle(
-                                        style = SpanStyle(
-                                            textDecoration = TextDecoration.LineThrough,
-                                        ),
-                                        start = 0,
-                                        end = title.length,
-                                    )
-                                    // Add second line for thicker strikethrough
-                                    addStyle(
-                                        style = SpanStyle(
-                                            textDecoration = TextDecoration.LineThrough,
-                                            shadow = Shadow(
-                                                offset = Offset(0f, 1f),
-                                                blurRadius = 0f,
+                Column {
+                    Row {
+                        BasicText(
+                            text = remember(title, hasTextDecoration) {
+                                if (hasTextDecoration) {
+                                    buildAnnotatedString {
+                                        append(title)
+                                        addStyle(
+                                            style = SpanStyle(
+                                                textDecoration = TextDecoration.LineThrough,
                                             ),
-                                        ),
-                                        start = 0,
-                                        end = title.length,
-                                    )
+                                            start = 0,
+                                            end = title.length,
+                                        )
+                                        // Add second line for thicker strikethrough
+                                        addStyle(
+                                            style = SpanStyle(
+                                                textDecoration = TextDecoration.LineThrough,
+                                                shadow = Shadow(
+                                                    offset = Offset(0f, 1f),
+                                                    blurRadius = 0f,
+                                                ),
+                                            ),
+                                            start = 0,
+                                            end = title.length,
+                                        )
+                                    }
+                                } else {
+                                    AnnotatedString(title)
                                 }
-                            } else {
-                                AnnotatedString(title)
-                            }
-                        },
-                        autoSize = TextAutoSize.StepBased(
-                            maxFontSize = MaterialTheme.typography.labelMedium.fontSize,
-                        ),
-                    )
+                            },
+                            autoSize = TextAutoSize.StepBased(
+                                maxFontSize = MaterialTheme.typography.labelMedium.fontSize,
+                            ),
+                        )
+                        val alertIcon = when (alertType) {
+                            CalendarLayoutUiState.Event.AlertType.NONE -> null
+                            CalendarLayoutUiState.Event.AlertType.ALERT -> Icons.Default.Notifications
+                            CalendarLayoutUiState.Event.AlertType.ALERT_DISABLED -> NotificationsOff
+                        }
+
+                        if (alertIcon != null) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Icon(
+                                imageVector = alertIcon,
+                                contentDescription = "アラート対象",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .size(16.dp),
+                            )
+                        }
+                    }
                     if (displayTime != null) {
                         BasicText(
                             text = remember(displayTime, hasTextDecoration) {
@@ -546,16 +571,6 @@ private fun EventCard(
                             overflow = TextOverflow.Ellipsis,
                         )
                     }
-                }
-                if (isAlertTarget) {
-                    Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = "アラート対象",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .size(10.dp),
-                    )
                 }
             }
         }
@@ -629,7 +644,7 @@ private fun PreviewEventDialogContent() {
             color = Color.Blue,
             isBorderDisplayType = false,
             hasTextDecoration = false,
-            isAlertTarget = true,
+            alertType = CalendarLayoutUiState.Event.AlertType.ALERT,
         ),
         onDismissRequest = {},
     )
@@ -646,7 +661,7 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             color = Color.Red,
             isBorderDisplayType = false,
             hasTextDecoration = false,
-            isAlertTarget = true,
+            alertType = CalendarLayoutUiState.Event.AlertType.ALERT_DISABLED,
         ),
         CalendarLayoutUiState.Event.Time(
             startTime = LocalTime.of(1, 0),
@@ -657,7 +672,7 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             color = Color.Blue,
             isBorderDisplayType = true,
             hasTextDecoration = true,
-            isAlertTarget = false,
+            alertType = CalendarLayoutUiState.Event.AlertType.ALERT_DISABLED,
         ),
         CalendarLayoutUiState.Event.Time(
             startTime = LocalTime.of(1, 0),
@@ -668,7 +683,7 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             color = Color.Yellow,
             isBorderDisplayType = true,
             hasTextDecoration = false,
-            isAlertTarget = true,
+            alertType = CalendarLayoutUiState.Event.AlertType.ALERT,
         ),
         CalendarLayoutUiState.Event.Time(
             startTime = LocalTime.of(1, 30),
@@ -679,7 +694,7 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             color = Color.Green,
             isBorderDisplayType = false,
             hasTextDecoration = false,
-            isAlertTarget = false,
+            alertType = CalendarLayoutUiState.Event.AlertType.ALERT_DISABLED,
         ),
         CalendarLayoutUiState.Event.Time(
             startTime = LocalTime.of(2, 0),
@@ -690,7 +705,7 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             color = Color.Magenta,
             isBorderDisplayType = false,
             hasTextDecoration = false,
-            isAlertTarget = false,
+            alertType = CalendarLayoutUiState.Event.AlertType.ALERT_DISABLED,
         ),
         CalendarLayoutUiState.Event.Time(
             startTime = LocalTime.of(3, 15),
@@ -701,7 +716,7 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             color = Color.Cyan,
             isBorderDisplayType = false,
             hasTextDecoration = false,
-            isAlertTarget = true,
+            alertType = CalendarLayoutUiState.Event.AlertType.ALERT,
         ),
     ),
     allDayEvents = listOf(
