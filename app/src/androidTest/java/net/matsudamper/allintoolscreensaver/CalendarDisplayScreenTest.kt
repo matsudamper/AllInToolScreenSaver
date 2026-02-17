@@ -120,7 +120,7 @@ class CalendarDisplayScreenTest {
                 color = Color.Red,
                 isBorderDisplayType = false,
                 hasTextDecoration = false,
-                isAlertTarget = true,
+                alertType = CalendarLayoutUiState.Event.AlertType.ALERT,
             ),
             CalendarLayoutUiState.Event.Time(
                 startTime = java.time.LocalTime.of(10, 30),
@@ -131,7 +131,7 @@ class CalendarDisplayScreenTest {
                 color = Color.Blue,
                 isBorderDisplayType = false,
                 hasTextDecoration = false,
-                isAlertTarget = false,
+                alertType = CalendarLayoutUiState.Event.AlertType.NONE,
             ),
         )
 
