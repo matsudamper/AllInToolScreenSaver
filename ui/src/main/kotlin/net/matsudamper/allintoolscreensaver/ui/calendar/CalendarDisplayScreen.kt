@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.matsudamper.allintoolscreensaver.ui.LocalClock
+import net.matsudamper.allintoolscreensaver.ui.icons.NotificationsOff
 
 @Composable
 fun CalendarDisplayScreen(
@@ -118,10 +119,10 @@ fun CalendarDisplayScreen(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Notifications,
+                            imageVector = if (uiState.alertEnabled) Icons.Default.Notifications else NotificationsOff,
                             contentDescription = if (uiState.alertEnabled) "アラート有効" else "アラート無効",
                             tint = MaterialTheme.colorScheme.primary.copy(alpha = if (uiState.alertEnabled) 1.0f else 0.5f),
-                            modifier = Modifier.size(16.dp),
+                            modifier = Modifier.size(24.dp),
                         )
                         Switch(
                             checked = uiState.alertEnabled,

@@ -105,7 +105,15 @@ class CalendarDisplayScreenViewModel(
                                         description = event.description,
                                         isBorderDisplayType = event.attendeeStatus.toDisplayIsBorderDisplayType(),
                                         hasTextDecoration = event.attendeeStatus.toDisplayIsDecorationVisible(),
-                                        isAlertTarget = event.calendarId in viewModelState.alertCalendarIds,
+                                        alertType = run alertType@{
+                                            val isAlertCalendar = event.calendarId in viewModelState.alertCalendarIds
+                                            if (!isAlertCalendar) return@alertType CalendarLayoutUiState.Event.AlertType.NONE
+                                            if (viewModelState.alertEnabled) {
+                                                CalendarLayoutUiState.Event.AlertType.ALERT
+                                            } else {
+                                                CalendarLayoutUiState.Event.AlertType.ALERT_DISABLED
+                                            }
+                                        },
                                     )
                                 },
                             allDayEvents = viewModelState.events.filterIsInstance<CalendarRepository.CalendarEvent.AllDay>()
