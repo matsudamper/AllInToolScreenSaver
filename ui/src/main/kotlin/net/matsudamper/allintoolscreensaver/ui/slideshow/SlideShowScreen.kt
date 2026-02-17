@@ -51,8 +51,8 @@ fun SlideShowScreen(
         }
     } else {
         val pagerState = rememberPagerState(
-            initialPage = 1,
-            pageCount = { 3 },
+            initialPage = 2,
+            pageCount = { 5 },
         )
         LaunchedEffect(updatedPagerState) {
             updatedPagerState(pagerState)
@@ -83,10 +83,10 @@ fun SlideShowScreen(
             while (isActive) {
                 delay(uiState.imageSwitchIntervalSeconds.seconds)
                 val currentPage = pagerState.currentPage
-                if (currentPage == 1) {
-                    listener.onPageChanged(2)
+                if (currentPage == 2) {
+                    listener.onPageChanged(3)
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(2)
+                        pagerState.animateScrollToPage(3)
                     }
                 } else {
                     listener.onPageChanged(currentPage)
@@ -138,7 +138,7 @@ private fun Preview() {
                 showAlertDialog = false,
                 imageUri = null,
                 isLoading = false,
-                pagerItems = List(3) { index ->
+                pagerItems = List(5) { index ->
                     PagerItem(
                         id = index.toString(),
                         imageUri = null,

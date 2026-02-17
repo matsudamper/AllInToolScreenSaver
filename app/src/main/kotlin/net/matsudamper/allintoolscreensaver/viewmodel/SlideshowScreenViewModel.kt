@@ -58,9 +58,10 @@ class SlideshowScreenViewModel(
         }
 
         override fun onPageChanged(newPage: Int) {
-            when (newPage) {
-                0 -> moveToPreviousImage()
-                2 -> moveToNextImage()
+            val centerPage = 2
+            val offset = newPage - centerPage
+            if (offset != 0) {
+                moveByOffset(offset)
             }
         }
     }
@@ -105,23 +106,22 @@ class SlideshowScreenViewModel(
     private fun createPagerItems(viewModelState: ViewModelState): List<PagerItem> {
         if (viewModelState.images.isEmpty()) {
             return listOf(
-                PagerItem(id = "left", imageUri = null, alignment = Alignment.Center),
+                PagerItem(id = "left2", imageUri = null, alignment = Alignment.Center),
+                PagerItem(id = "left1", imageUri = null, alignment = Alignment.Center),
                 PagerItem(id = "center", imageUri = null, alignment = Alignment.Center),
-                PagerItem(id = "right", imageUri = null, alignment = Alignment.Center),
+                PagerItem(id = "right1", imageUri = null, alignment = Alignment.Center),
+                PagerItem(id = "right2", imageUri = null, alignment = Alignment.Center),
             )
         }
 
         val currentIndex = viewModelState.currentIndex
         val shuffledIndices = viewModelState.imagesShuffledIndex
 
-        val prevIndex = if (currentIndex > 0) currentIndex - 1 else shuffledIndices.size - 1
-        val nextIndex = if (currentIndex < shuffledIndices.size - 1) currentIndex + 1 else 0
+        val indices = (-2..2).map { offset ->
+            wrapIndex(currentIndex + offset, shuffledIndices.size)
+        }
 
-        val pagerUris = listOf(
-            viewModelState.getPagerImage(prevIndex),
-            viewModelState.getPagerImage(currentIndex),
-            viewModelState.getPagerImage(nextIndex),
-        )
+        val pagerUris = indices.map { viewModelState.getPagerImage(it) }
 
         requestFaceDetection(pagerUris)
 
@@ -151,32 +151,17 @@ class SlideshowScreenViewModel(
         }
     }
 
-    private fun moveToNextImage() {
-        viewModelStateFlow.update { viewModelState ->
-            val nextShuffledIndex = viewModelState.currentIndex + 1
-            val nextImageIndex = viewModelState.imagesShuffledIndex.getOrNull(nextShuffledIndex)
-
-            viewModelState.copy(
-                currentIndex = if (nextImageIndex == null) {
-                    0
-                } else {
-                    nextShuffledIndex
-                },
-            )
-        }
+    private fun wrapIndex(index: Int, size: Int): Int {
+        return ((index % size) + size) % size
     }
 
-    private fun moveToPreviousImage() {
+    private fun moveByOffset(offset: Int) {
         viewModelStateFlow.update { viewModelState ->
-            val prevShuffledIndex = if (viewModelState.currentIndex > 0) {
-                viewModelState.currentIndex - 1
-            } else {
-                viewModelState.imagesShuffledIndex.size - 1
-            }
-
-            viewModelState.copy(
-                currentIndex = prevShuffledIndex,
+            val newIndex = wrapIndex(
+                viewModelState.currentIndex + offset,
+                viewModelState.imagesShuffledIndex.size,
             )
+            viewModelState.copy(currentIndex = newIndex)
         }
     }
 
