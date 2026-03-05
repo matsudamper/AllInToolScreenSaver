@@ -27,7 +27,7 @@ jobs:
     - name: Assemble
       run: ./gradlew assembleDebug
     - name: Upload APK
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: apk
         path: app/build/outputs/apk/debug/*.apk
@@ -36,7 +36,7 @@ jobs:
     - name: Android Lint
       run: ./gradlew lint
     - name: Upload lint reports
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       if: always()
       with:
         name: lint-reports
@@ -71,7 +71,7 @@ jobs:
       run: ./gradlew pixel9api35DebugAndroidTest
 
     - name: Upload test reports
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       if: always()
       with:
         name: android-test-reports
