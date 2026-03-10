@@ -9,6 +9,10 @@ import org.junit.Test
 
 class AlertManagerAlertKeyTest {
 
+    /**
+     * 同一のイベントIDを持つ繰り返し予定でも、発生日時が異なれば
+     * 通知キーは別物として扱われることを確認する。
+     */
     @Test
     fun recurringEventWithSameEventIdHasDifferentAlertKeyPerOccurrence() {
         val alertKey = AlertManager.AlertKey()
@@ -27,6 +31,10 @@ class AlertManagerAlertKeyTest {
         assertNotEquals(firstKey, nextDayKey)
     }
 
+    /**
+     * 生成済みの通知キーから、発生単位で一意なイベント識別子を
+     * 正しく取り出せることを確認する。
+     */
     @Test
     fun parseEventIdentifierReturnsOccurrenceScopedIdentifier() {
         val alertKey = AlertManager.AlertKey()
