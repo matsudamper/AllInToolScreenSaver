@@ -39,6 +39,7 @@ detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 
 [libraries]
 androidxCoreKtx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+junit4 = { group = "junit", name = "junit", version.ref = "junit" }
 androidxDatastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidxDocumentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
 coilCompose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }

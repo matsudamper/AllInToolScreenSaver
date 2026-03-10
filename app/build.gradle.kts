@@ -113,6 +113,8 @@ dependencies {
 
     implementation(libs.mlkitFaceDetection)
 
+    testImplementation(libs.junit4)
+
     androidTestImplementation(platform(libs.androidxComposeBom))
     androidTestImplementation(libs.androidxJunit)
     androidTestImplementation(libs.androidxEspressoCore)

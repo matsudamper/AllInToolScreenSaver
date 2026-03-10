@@ -139,10 +139,10 @@ class AlertManager(
     }
 
     private fun cleanupOldAlerts(currentEvents: List<CalendarRepository.CalendarEvent>) {
-        val currentEventIds = currentEvents.map { it.id }.toSet()
+        val currentEventIdentifiers = currentEvents.map { alertKey.eventIdentifier(it) }.toSet()
         val keysToRemove = activeAlerts.keys.filter { key ->
-            val eventId = alertKey.parseEventId(key)
-            eventId !in currentEventIds
+            val eventIdentifier = alertKey.parseEventIdentifier(key)
+            eventIdentifier !in currentEventIdentifiers
         }
 
         keysToRemove.forEach { key ->
@@ -151,8 +151,8 @@ class AlertManager(
         }
 
         val dismissedKeysToRemove = dismissedAlerts.filter { key ->
-            val eventId = alertKey.parseEventId(key)
-            eventId !in currentEventIds
+            val eventIdentifier = alertKey.parseEventIdentifier(key)
+            eventIdentifier !in currentEventIdentifiers
         }
 
         dismissedKeysToRemove.forEach { key ->
@@ -197,11 +197,18 @@ class AlertManager(
 
     class AlertKey {
         fun create(event: CalendarRepository.CalendarEvent, alertType: AlertType): String {
-            return "${event.id}_${alertType.name}"
+            return "${eventIdentifier(event)}|${alertType.name}"
         }
 
-        fun parseEventId(alertKey: String): Long? {
-            return alertKey.split("_")[0].toLongOrNull()
+        fun parseEventIdentifier(alertKey: String): String {
+            return alertKey.substringBefore("|")
+        }
+
+        internal fun eventIdentifier(event: CalendarRepository.CalendarEvent): String {
+            return when (event) {
+                is CalendarRepository.CalendarEvent.Time -> "${event.id}@${event.startTime.epochSecond}"
+                is CalendarRepository.CalendarEvent.AllDay -> "${event.id}@allDay"
+            }
         }
     }
 
