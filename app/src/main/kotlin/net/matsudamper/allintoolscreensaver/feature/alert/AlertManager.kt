@@ -3,6 +3,7 @@ package net.matsudamper.allintoolscreensaver.feature.alert
 import android.app.Application
 import android.media.Ringtone
 import android.media.RingtoneManager
+import android.util.Log
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalTime
@@ -55,7 +56,8 @@ class AlertManager(
                         }
                     } catch (e: CancellationException) {
                         throw e
-                    } catch (_: Exception) {
+                    } catch (e: Exception) {
+                        Log.e("AlertManager", "startAlertMonitoring", e)
                     }
                     delay(10.seconds)
                 }
