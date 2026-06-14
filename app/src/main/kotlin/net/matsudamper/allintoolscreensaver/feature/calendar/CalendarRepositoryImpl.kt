@@ -116,8 +116,8 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                 CalendarContract.Instances._ID,
                 CalendarContract.Instances.TITLE,
                 CalendarContract.Instances.DESCRIPTION,
-                CalendarContract.Instances.DTSTART,
-                CalendarContract.Instances.DTEND,
+                CalendarContract.Instances.BEGIN,
+                CalendarContract.Instances.END,
                 CalendarContract.Instances.DURATION,
                 CalendarContract.Instances.ALL_DAY,
                 CalendarContract.Instances.CALENDAR_ID,
@@ -136,8 +136,8 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
 
             val selection = listOf(
                 "${CalendarContract.Events.CALENDAR_ID} IN (${calendarIds.joinToString(",")})",
-                "(${CalendarContract.Events.ALL_DAY} = 0) OR (${CalendarContract.Events.ALL_DAY} = 1 AND ${CalendarContract.Events.DTSTART} = ${minDayStartUTC.toEpochMilli()})",
-                "${CalendarContract.Events.DTSTART} < ${endTime.toEpochMilli()}",
+                "(${CalendarContract.Events.ALL_DAY} = 0) OR (${CalendarContract.Events.ALL_DAY} = 1 AND ${CalendarContract.Instances.BEGIN} = ${minDayStartUTC.toEpochMilli()})",
+                "${CalendarContract.Instances.BEGIN} <= ${endTime.toEpochMilli()}",
             ).joinToString(" AND ") { "($it) " }
 
             val cursor = context.contentResolver.query(
@@ -165,8 +165,8 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                 val calendarId = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Instances.CALENDAR_ID))
                 val title = c.getString(c.getColumnIndexOrThrow(CalendarContract.Events.TITLE)).orEmpty()
                 val description = c.getString(c.getColumnIndexOrThrow(CalendarContract.Events.DESCRIPTION))
-                val eventStartTime = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events.DTSTART))
-                val eventEndTime = c.getLongOrNull(c.getColumnIndexOrThrow(CalendarContract.Events.DTEND))
+                val eventStartTime = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Instances.BEGIN))
+                val eventEndTime = c.getLongOrNull(c.getColumnIndexOrThrow(CalendarContract.Instances.END))
                 val eventDuration = c.getStringOrNull(c.getColumnIndexOrThrow(CalendarContract.Instances.DURATION))
                 val allDay = c.getInt(c.getColumnIndexOrThrow(CalendarContract.Events.ALL_DAY)) == 1
                 val color = run {

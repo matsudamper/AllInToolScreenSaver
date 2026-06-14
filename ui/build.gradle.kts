@@ -1,12 +1,11 @@
 plugins {
-    alias(libs.plugins.kotlinAndroid)
-    alias(libs.plugins.kotlinCompose)
     id("com.android.library")
+    alias(libs.plugins.kotlinCompose)
 }
 
 android {
     namespace = "net.matsudamper.allintoolscreensaver.ui"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 35
@@ -16,8 +15,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
     }
     buildFeatures {
         compose = true

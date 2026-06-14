@@ -3,10 +3,12 @@ package net.matsudamper.allintoolscreensaver.feature.alert
 import android.app.Application
 import android.media.Ringtone
 import android.media.RingtoneManager
+import android.util.Log
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneId
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -47,9 +49,15 @@ class AlertManager(
             )
             launch {
                 while (isActive) {
-                    if (settingsRepository.settingsFlow.first().alertEnabled) {
-                        checkUpcomingEvents()
-                        checkRepeatingAlerts()
+                    try {
+                        if (settingsRepository.settingsFlow.first().alertEnabled) {
+                            checkUpcomingEvents()
+                            checkRepeatingAlerts()
+                        }
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Log.e("AlertManager", "startAlertMonitoring", e)
                     }
                     delay(10.seconds)
                 }
