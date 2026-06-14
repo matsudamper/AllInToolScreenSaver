@@ -32,7 +32,7 @@ jobs:
         name: apk
         path: app/build/outputs/apk/debug/*.apk
     - name: Detekt
-      run: ./gradlew detektDebug
+      run: ./gradlew detekt detektMain
     - name: Android Lint
       run: ./gradlew lint
     - name: Upload lint reports
