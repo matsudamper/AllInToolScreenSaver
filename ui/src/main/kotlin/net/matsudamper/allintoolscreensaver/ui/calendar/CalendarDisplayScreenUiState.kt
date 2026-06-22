@@ -19,5 +19,9 @@ data class CalendarDisplayScreenUiState(
         suspend fun onStart()
         fun onInteraction()
         fun onAlertEnabledChanged(enabled: Boolean)
+        fun onEventAttendeeStatusChanged(
+            eventId: Long,
+            attendeeStatus: CalendarLayoutUiState.Event.AttendeeStatus,
+        )
     }
 }

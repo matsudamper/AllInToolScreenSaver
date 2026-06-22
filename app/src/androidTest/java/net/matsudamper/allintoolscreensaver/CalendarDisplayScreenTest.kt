@@ -87,6 +87,7 @@ class CalendarDisplayScreenTest {
 
         val event1 = CalendarRepository.CalendarEvent.Time(
             id = 1L,
+            eventId = 1L,
             calendarId = 1L,
             title = "会議A",
             description = "重要な会議",
@@ -98,6 +99,7 @@ class CalendarDisplayScreenTest {
 
         val event2 = CalendarRepository.CalendarEvent.Time(
             id = 2L,
+            eventId = 2L,
             calendarId = 2L,
             title = "会議B",
             description = "別の会議",
@@ -112,6 +114,7 @@ class CalendarDisplayScreenTest {
 
         val testEvents = listOf(
             CalendarLayoutUiState.Event.Time(
+                eventId = 1L,
                 startTime = java.time.LocalTime.of(10, 0),
                 endTime = java.time.LocalTime.of(11, 0),
                 title = "会議A",
@@ -120,9 +123,11 @@ class CalendarDisplayScreenTest {
                 color = Color.Red,
                 isBorderDisplayType = false,
                 hasTextDecoration = false,
+                attendeeStatus = CalendarLayoutUiState.Event.AttendeeStatus.ACCEPTED,
                 alertType = CalendarLayoutUiState.Event.AlertType.ALERT,
             ),
             CalendarLayoutUiState.Event.Time(
+                eventId = 2L,
                 startTime = java.time.LocalTime.of(10, 30),
                 endTime = java.time.LocalTime.of(11, 30),
                 title = "会議B",
@@ -131,6 +136,7 @@ class CalendarDisplayScreenTest {
                 color = Color.Blue,
                 isBorderDisplayType = false,
                 hasTextDecoration = false,
+                attendeeStatus = CalendarLayoutUiState.Event.AttendeeStatus.ACCEPTED,
                 alertType = CalendarLayoutUiState.Event.AlertType.NONE,
             ),
         )
@@ -148,6 +154,10 @@ class CalendarDisplayScreenTest {
                         override suspend fun onStart() = Unit
                         override fun onInteraction() = Unit
                         override fun onAlertEnabledChanged(enabled: Boolean) = Unit
+                        override fun onEventAttendeeStatusChanged(
+                            eventId: Long,
+                            attendeeStatus: CalendarLayoutUiState.Event.AttendeeStatus,
+                        ) = Unit
                     },
                 ),
                 clock = previewCalendarLayoutClock,
