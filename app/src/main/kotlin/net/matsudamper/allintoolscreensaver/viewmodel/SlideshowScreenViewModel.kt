@@ -156,6 +156,7 @@ class SlideshowScreenViewModel(
     }
 
     private fun moveByOffset(offset: Int) {
+        if (viewModelStateFlow.value.imagesShuffledIndex.isEmpty()) return
         viewModelStateFlow.update { viewModelState ->
             val newIndex = wrapIndex(
                 viewModelState.currentIndex + offset,
