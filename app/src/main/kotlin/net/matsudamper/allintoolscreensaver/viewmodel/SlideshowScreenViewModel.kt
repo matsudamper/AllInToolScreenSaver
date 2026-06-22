@@ -163,6 +163,7 @@ class SlideshowScreenViewModel(
             )
             viewModelState.copy(currentIndex = newIndex)
         }
+        updateInMemoryCache()
     }
 
     private suspend fun updateImages() {
@@ -174,10 +175,10 @@ class SlideshowScreenViewModel(
             }
         }
 
-        // 1000枚以上の場合は負荷を軽減する為に更新頻度を設定
-        if (viewModelStateFlow.value.images.size > 1000 &&
+        // 端末を開く度に画像が再読み込みされないよう、最終更新から一定時間はディレクトリを再取得しない
+        if (viewModelStateFlow.value.images.isNotEmpty() &&
             viewModelStateFlow.value.imagesLastUpdate
-                .plusMillis(1.hours.inWholeMilliseconds)
+                .plusMillis(imageReloadInterval.inWholeMilliseconds)
                 .isAfter(Instant.now(clock))
         ) {
             return
@@ -254,5 +255,6 @@ class SlideshowScreenViewModel(
 
     companion object {
         val defaultSlideshowDuration = 30.seconds
+        private val imageReloadInterval = 1.hours
     }
 }
