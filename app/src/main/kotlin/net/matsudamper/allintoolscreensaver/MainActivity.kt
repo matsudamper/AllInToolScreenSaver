@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
                     }
                 },
                 sceneStrategy = run {
-                    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+                    val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
                     remember(windowSizeClass) {
                         CustomTwoPaneSceneStrategy(
                             windowSizeClass = windowSizeClass,
