@@ -2,18 +2,18 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.kotlinCompose)
-    id("com.google.protobuf") version "0.9.6"
+    id("com.google.protobuf") version "0.10.0"
     id("org.jetbrains.kotlin.plugin.serialization") version "2.2.21"
 }
 
 android {
     namespace = "net.matsudamper.allintoolscreensaver"
-    compileSdk = 36
+    compileSdkVersion("android-37.0")
 
     defaultConfig {
         applicationId = "net.matsudamper.allintoolscreensaver"
         minSdk = 35
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
 
@@ -68,7 +68,7 @@ android {
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:4.34.0"
+        artifact = "com.google.protobuf:protoc:4.35.1"
     }
     generateProtoTasks {
         all().forEach { task ->
