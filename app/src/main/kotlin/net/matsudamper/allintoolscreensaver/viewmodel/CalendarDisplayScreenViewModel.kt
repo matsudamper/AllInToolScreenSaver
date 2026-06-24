@@ -76,6 +76,25 @@ class CalendarDisplayScreenViewModel(
                 settingsRepository.saveAlertEnabled(enabled)
             }
         }
+
+        override fun onEventAttendeeStatusChanged(
+            eventId: Long,
+            attendeeStatus: CalendarLayoutUiState.Event.AttendeeStatus,
+        ) {
+            val calendarId = viewModelStateFlow.value.events
+                .firstOrNull { it.eventId == eventId }
+                ?.calendarId
+                ?: return
+
+            viewModelScope.launch {
+                calendarRepository.updateAttendeeStatus(
+                    eventId = eventId,
+                    calendarId = calendarId,
+                    attendeeStatus = attendeeStatus.toFeatureAttendeeStatus(),
+                )
+                fetchEvent()
+            }
+        }
     }
     private val operationFlow = Channel<(CalendarDisplayScreenUiState.Operation) -> Unit>(Channel.UNLIMITED)
     val uiState: StateFlow<CalendarDisplayScreenUiState> = MutableStateFlow(
@@ -97,6 +116,7 @@ class CalendarDisplayScreenViewModel(
                             events = viewModelState.events.filterIsInstance<CalendarRepository.CalendarEvent.Time>()
                                 .map { event ->
                                     CalendarLayoutUiState.Event.Time(
+                                        eventId = event.eventId,
                                         startTime = LocalTime.ofInstant(event.startTime, ZoneId.systemDefault()),
                                         endTime = LocalTime.ofInstant(event.endTime, ZoneId.systemDefault()),
                                         title = event.title,
@@ -105,6 +125,7 @@ class CalendarDisplayScreenViewModel(
                                         description = event.description,
                                         isBorderDisplayType = event.attendeeStatus.toDisplayIsBorderDisplayType(),
                                         hasTextDecoration = event.attendeeStatus.toDisplayIsDecorationVisible(),
+                                        attendeeStatus = event.attendeeStatus.toUiAttendeeStatus(),
                                         alertType = run alertType@{
                                             val isAlertCalendar = event.calendarId in viewModelState.alertCalendarIds
                                             if (!isAlertCalendar) return@alertType CalendarLayoutUiState.Event.AlertType.NONE
@@ -119,11 +140,13 @@ class CalendarDisplayScreenViewModel(
                             allDayEvents = viewModelState.events.filterIsInstance<CalendarRepository.CalendarEvent.AllDay>()
                                 .map { event ->
                                     CalendarLayoutUiState.Event.AllDay(
+                                        eventId = event.eventId,
                                         title = event.title,
                                         description = event.description,
                                         color = Color(event.color),
                                         isBorderDisplayType = event.attendeeStatus.toDisplayIsBorderDisplayType(),
                                         hasTextDecoration = event.attendeeStatus.toDisplayIsDecorationVisible(),
+                                        attendeeStatus = event.attendeeStatus.toUiAttendeeStatus(),
                                     )
                                 },
                         ),
@@ -256,6 +279,26 @@ class CalendarDisplayScreenViewModel(
             AttendeeStatus.ACCEPTED,
             AttendeeStatus.INVITED,
             -> false
+        }
+    }
+
+    private fun AttendeeStatus.toUiAttendeeStatus(): CalendarLayoutUiState.Event.AttendeeStatus {
+        return when (this) {
+            AttendeeStatus.UNKNOWN -> CalendarLayoutUiState.Event.AttendeeStatus.NONE
+            AttendeeStatus.ACCEPTED -> CalendarLayoutUiState.Event.AttendeeStatus.ACCEPTED
+            AttendeeStatus.DECLINED -> CalendarLayoutUiState.Event.AttendeeStatus.DECLINED
+            AttendeeStatus.INVITED -> CalendarLayoutUiState.Event.AttendeeStatus.INVITED
+            AttendeeStatus.TENTATIVE -> CalendarLayoutUiState.Event.AttendeeStatus.TENTATIVE
+        }
+    }
+
+    private fun CalendarLayoutUiState.Event.AttendeeStatus.toFeatureAttendeeStatus(): AttendeeStatus {
+        return when (this) {
+            CalendarLayoutUiState.Event.AttendeeStatus.NONE -> AttendeeStatus.UNKNOWN
+            CalendarLayoutUiState.Event.AttendeeStatus.ACCEPTED -> AttendeeStatus.ACCEPTED
+            CalendarLayoutUiState.Event.AttendeeStatus.DECLINED -> AttendeeStatus.DECLINED
+            CalendarLayoutUiState.Event.AttendeeStatus.INVITED -> AttendeeStatus.INVITED
+            CalendarLayoutUiState.Event.AttendeeStatus.TENTATIVE -> AttendeeStatus.TENTATIVE
         }
     }
 }
