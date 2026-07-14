@@ -84,6 +84,7 @@ class AlertManager(
 
     private fun checkAlertForEvent(event: CalendarRepository.CalendarEvent.Time, now: Instant) {
         if (event.attendeeStatus == AttendeeStatus.DECLINED) return
+        if (!event.hasAlarm) return
 
         val eventStartTime = event.startTime
 
