@@ -79,7 +79,7 @@ class AlertManager(
             checkAlertForEvent(event, now)
         }
 
-        cleanupOldAlerts(events)
+        cleanupOldAlerts(events.filter { it.hasAlarm })
     }
 
     private fun checkAlertForEvent(event: CalendarRepository.CalendarEvent.Time, now: Instant) {
