@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
@@ -48,6 +49,8 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -332,6 +335,7 @@ private fun AttendeeStatusSelector(
         )
         Spacer(modifier = Modifier.height(8.dp))
         Row(
+            modifier = Modifier.selectableGroup(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             val options = listOf(
@@ -341,11 +345,17 @@ private fun AttendeeStatusSelector(
             )
             for ((status, label) in options) {
                 if (status == currentStatus) {
-                    Button(onClick = { onStatusChange(status) }) {
+                    Button(
+                        onClick = {},
+                        modifier = Modifier.semantics { selected = true },
+                    ) {
                         Text(text = label)
                     }
                 } else {
-                    OutlinedButton(onClick = { onStatusChange(status) }) {
+                    OutlinedButton(
+                        onClick = { onStatusChange(status) },
+                        modifier = Modifier.semantics { selected = false },
+                    ) {
                         Text(text = label)
                     }
                 }

@@ -185,17 +185,23 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                 AttendeeStatus.UNKNOWN -> return@withContext
             }
 
-            val ownerAccount = getCalendarOwnerAccount(calendarId) ?: return@withContext
-            val selfAttendeeId = findSelfAttendeeId(eventId, ownerAccount) ?: return@withContext
+            // 権限チェック後でも端末のCalendarProvider実装差異により
+            // SecurityException/IllegalArgumentExceptionが発生し得るため、クラッシュさせずに諦める
+            try {
+                val ownerAccount = getCalendarOwnerAccount(calendarId) ?: return@withContext
+                val selfAttendeeId = findSelfAttendeeId(eventId, ownerAccount) ?: return@withContext
 
-            context.contentResolver.update(
-                ContentUris.withAppendedId(CalendarContract.Attendees.CONTENT_URI, selfAttendeeId),
-                ContentValues().apply {
-                    put(CalendarContract.Attendees.ATTENDEE_STATUS, androidStatus)
-                },
-                null,
-                null,
-            )
+                context.contentResolver.update(
+                    ContentUris.withAppendedId(CalendarContract.Attendees.CONTENT_URI, selfAttendeeId),
+                    ContentValues().apply {
+                        put(CalendarContract.Attendees.ATTENDEE_STATUS, androidStatus)
+                    },
+                    null,
+                    null,
+                )
+            } catch (ignored: SecurityException) {
+            } catch (ignored: IllegalArgumentException) {
+            }
         }
     }
 
