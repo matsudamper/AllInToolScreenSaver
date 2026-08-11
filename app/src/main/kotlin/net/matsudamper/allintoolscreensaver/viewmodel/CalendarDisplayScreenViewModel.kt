@@ -108,6 +108,7 @@ class CalendarDisplayScreenViewModel(
                                         alertType = run alertType@{
                                             val isAlertCalendar = event.calendarId in viewModelState.alertCalendarIds
                                             if (!isAlertCalendar) return@alertType CalendarLayoutUiState.Event.AlertType.NONE
+                                            if (!event.hasAlarm) return@alertType CalendarLayoutUiState.Event.AlertType.NONE
                                             if (viewModelState.alertEnabled) {
                                                 CalendarLayoutUiState.Event.AlertType.ALERT
                                             } else {

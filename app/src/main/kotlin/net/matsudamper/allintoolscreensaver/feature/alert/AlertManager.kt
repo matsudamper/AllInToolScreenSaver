@@ -79,11 +79,12 @@ class AlertManager(
             checkAlertForEvent(event, now)
         }
 
-        cleanupOldAlerts(events)
+        cleanupOldAlerts(events.filter { it.hasAlarm })
     }
 
     private fun checkAlertForEvent(event: CalendarRepository.CalendarEvent.Time, now: Instant) {
         if (event.attendeeStatus == AttendeeStatus.DECLINED) return
+        if (!event.hasAlarm) return
 
         val eventStartTime = event.startTime
 
