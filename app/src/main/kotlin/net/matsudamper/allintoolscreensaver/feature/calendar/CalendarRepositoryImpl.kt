@@ -45,6 +45,7 @@ interface CalendarRepository {
         val description: String?
         val color: Int
         val attendeeStatus: AttendeeStatus
+        val hasAlarm: Boolean
 
         data class Time(
             override val id: Long,
@@ -54,6 +55,7 @@ interface CalendarRepository {
             override val description: String?,
             override val color: Int,
             override val attendeeStatus: AttendeeStatus,
+            override val hasAlarm: Boolean,
             val startTime: Instant,
             val endTime: Instant,
         ) : CalendarEvent
@@ -66,6 +68,7 @@ interface CalendarRepository {
             override val description: String?,
             override val color: Int,
             override val attendeeStatus: AttendeeStatus,
+            override val hasAlarm: Boolean,
         ) : CalendarEvent
     }
 }
@@ -135,6 +138,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                 CalendarContract.Instances.CALENDAR_COLOR,
                 CalendarContract.Instances.EVENT_COLOR,
                 CalendarContract.Instances.SELF_ATTENDEE_STATUS,
+                CalendarContract.Instances.HAS_ALARM,
             )
 
             // その日付のUTCでの始まりの時間を取得
@@ -280,6 +284,10 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                         }
                     }
                 }
+                val hasAlarm = run {
+                    val hasAlarmIndex = c.getColumnIndexOrThrow(CalendarContract.Instances.HAS_ALARM)
+                    !c.isNull(hasAlarmIndex) && c.getInt(hasAlarmIndex) == 1
+                }
                 events.add(
                     if (allDay) {
                         CalendarRepository.CalendarEvent.AllDay(
@@ -290,6 +298,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                             description = description,
                             color = color,
                             attendeeStatus = attendeeStatus,
+                            hasAlarm = hasAlarm,
                         )
                     } else {
                         val startTime = Instant.ofEpochMilli(eventStartTime)
@@ -331,6 +340,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                             endTime = endTime,
                             color = color,
                             attendeeStatus = attendeeStatus,
+                            hasAlarm = hasAlarm,
                         )
                     },
                 )

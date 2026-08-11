@@ -79,11 +79,12 @@ class AlertManager(
             checkAlertForEvent(event, now)
         }
 
-        cleanupOldAlerts(events)
+        cleanupOldAlerts(events.filter { it.hasAlarm })
     }
 
     private fun checkAlertForEvent(event: CalendarRepository.CalendarEvent.Time, now: Instant) {
         if (event.attendeeStatus == AttendeeStatus.DECLINED) return
+        if (!event.hasAlarm) return
 
         val eventStartTime = event.startTime
 
@@ -92,13 +93,12 @@ class AlertManager(
             val alertKeyValue = alertKey.create(event, alertType)
 
             if (shouldTriggerAlert(alertKeyValue, alertTime, now)) {
-                val alertInfo = AlertInfo(
+                activeAlerts[alertKeyValue] = AlertInfo(
                     event = event,
                     alertType = alertType,
                     triggeredAt = now,
                     isRepeating = alertType == AlertType.EVENT_TIME,
                 )
-                activeAlerts[alertKeyValue] = alertInfo
 
                 if (alertType == AlertType.EVENT_TIME) {
                     repeatingAlerts[alertKeyValue] = now

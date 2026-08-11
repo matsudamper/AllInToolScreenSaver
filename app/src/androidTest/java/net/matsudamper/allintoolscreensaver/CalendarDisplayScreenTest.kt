@@ -95,6 +95,7 @@ class CalendarDisplayScreenTest {
             startTime = startTime.atZone(ZoneId.systemDefault()).toInstant(),
             endTime = endTime.atZone(ZoneId.systemDefault()).toInstant(),
             attendeeStatus = AttendeeStatus.ACCEPTED,
+            hasAlarm = true,
         )
 
         val event2 = CalendarRepository.CalendarEvent.Time(
@@ -107,6 +108,7 @@ class CalendarDisplayScreenTest {
             startTime = startTime.plusMinutes(30).atZone(ZoneId.systemDefault()).toInstant(),
             endTime = endTime.plusMinutes(30).atZone(ZoneId.systemDefault()).toInstant(),
             attendeeStatus = AttendeeStatus.ACCEPTED,
+            hasAlarm = true,
         )
 
         calendarRepository.addEvent(event1)

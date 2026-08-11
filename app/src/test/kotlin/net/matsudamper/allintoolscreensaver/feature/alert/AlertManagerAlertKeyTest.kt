@@ -57,6 +57,7 @@ class AlertManagerAlertKeyTest {
             description = null,
             color = 0,
             attendeeStatus = AttendeeStatus.ACCEPTED,
+            hasAlarm = true,
             startTime = startTime,
             endTime = startTime.plusSeconds(600),
         )

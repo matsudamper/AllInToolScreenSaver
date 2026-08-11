@@ -15,7 +15,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.matsudamper.allintoolscreensaver.ActivityResultRequest
 import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepository
@@ -143,7 +142,7 @@ class MainScreenViewModelListenerImpl(
                     contract = contract,
                     input = input,
                     result = { output ->
-                        continuation.resume(output)
+                        continuation.resumeWith(Result.success(output))
                     },
                 ) as ActivityResultRequest<Any, Any>,
             )
