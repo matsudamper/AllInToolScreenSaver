@@ -183,9 +183,13 @@ class SlideshowScreenViewModel(
             return
         }
 
-        val directoryUri =
-            settingsRepositor.settingsFlow.first().imageDirectoryUri.takeIf { it.isNotEmpty() }
-                ?.toUri() ?: return updateLoadingFalse()
+        val directoryUri = settingsRepositor.settingsFlow.first().imageDirectoryUri
+            .takeIf { it.isNotEmpty() }
+            ?.toUri()
+        if (directoryUri == null) {
+            updateLoadingFalse()
+            return
+        }
 
         if (viewModelStateFlow.value.images.isEmpty()) {
             val uris = imageManager.getImageUrisFromDirectory(directoryUri)

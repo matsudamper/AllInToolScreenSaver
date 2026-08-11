@@ -6,7 +6,6 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
-import kotlin.coroutines.resume
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -67,10 +66,10 @@ class FaceDetectionManager(private val context: Context) {
                             centerY = face.boundingBox.exactCenterY(),
                         )
                     }
-                    continuation.resume(centers)
+                    continuation.resumeWith(Result.success(centers))
                 }
                 .addOnFailureListener {
-                    continuation.resume(null)
+                    continuation.resumeWith(Result.success(null))
                 }
         }
     }
