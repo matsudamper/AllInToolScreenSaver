@@ -93,13 +93,12 @@ class AlertManager(
             val alertKeyValue = alertKey.create(event, alertType)
 
             if (shouldTriggerAlert(alertKeyValue, alertTime, now)) {
-                val alertInfo = AlertInfo(
+                activeAlerts[alertKeyValue] = AlertInfo(
                     event = event,
                     alertType = alertType,
                     triggeredAt = now,
                     isRepeating = alertType == AlertType.EVENT_TIME,
                 )
-                activeAlerts[alertKeyValue] = alertInfo
 
                 if (alertType == AlertType.EVENT_TIME) {
                     repeatingAlerts[alertKeyValue] = now
