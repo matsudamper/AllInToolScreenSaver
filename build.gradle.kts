@@ -24,6 +24,9 @@ allprojects {
             "$rootDir/.detekt/custom.yml",
         )
     }
+    tasks.withType<io.gitlab.arturbosch.detekt.Detekt> {
+        jvmTarget = "17"
+    }
     dependencies {
         detektPlugins(rootProject.libs.kotlinCompilerWrapper)
         detektPlugins(rootProject.libs.detekt)
