@@ -14,11 +14,11 @@ JDK_LTS_MAJOR="25"
 JDKS_DIR="$HOME/.jdks"
 
 find_lts_jdk_home() {
-  ls -d "$JDKS_DIR/jdk-${JDK_LTS_MAJOR}"* 2>/dev/null | head -1
+  ls -d "$JDKS_DIR/jdk-${JDK_LTS_MAJOR}"* 2>/dev/null | head -1 || true
 }
 
 find_detekt_jdk_home() {
-  ls -d /usr/lib/jvm/*-21-openjdk* /usr/lib/jvm/*21*openjdk* 2>/dev/null | head -1
+  ls -d /usr/lib/jvm/*-21-openjdk* /usr/lib/jvm/*21*openjdk* 2>/dev/null | head -1 || true
 }
 
 # 最新 LTS(Temurin) を foojay Disco API から取得する。リポジトリの
@@ -32,11 +32,14 @@ ensure_lts_jdk() {
   fi
   mkdir -p "$JDKS_DIR"
   local api_url="https://api.foojay.io/disco/v3.0/packages?distro=temurin&architecture=x64&archive_type=tar.gz&operating_system=linux&libc_type=glibc&package_type=jdk&javafx_bundled=false&version=${JDK_LTS_MAJOR}&latest=overall"
-  local pkg_id
-  pkg_id="$(curl -fsSL "$api_url" | python3 -c 'import sys, json; print(json.load(sys.stdin)["result"][0]["id"])')"
-  local tmp_tar
-  tmp_tar="$(mktemp --suffix=.tar.gz)"
-  curl -fsSL -o "$tmp_tar" "https://api.foojay.io/disco/v3.0/ids/${pkg_id}/redirect"
+  local redirect_url
+  redirect_url="$(curl -fsSL "$api_url" | grep -o '"pkg_download_redirect":"[^"]*"' | head -1 | cut -d'"' -f4 || true)"
+  if [ -z "$redirect_url" ]; then
+    echo "foojay Disco API から JDK ${JDK_LTS_MAJOR} のダウンロード URL を取得できませんでした" >&2
+    exit 1
+  fi
+  local tmp_tar="$JDKS_DIR/temurin-${JDK_LTS_MAJOR}.tar.gz"
+  curl -fsSL -o "$tmp_tar" "$redirect_url"
   tar -xzf "$tmp_tar" -C "$JDKS_DIR"
   rm -f "$tmp_tar"
   LTS_JAVA_HOME="$(find_lts_jdk_home)"
