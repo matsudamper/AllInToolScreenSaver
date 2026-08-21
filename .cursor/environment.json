@@ -1,0 +1,6 @@
+{
+  "name": "AllInToolScreenSaver",
+  "user": "ubuntu",
+  "install": "bash .cursor/install.sh",
+  "start": "sudo chmod 666 /dev/kvm 2>/dev/null || true"
+}
