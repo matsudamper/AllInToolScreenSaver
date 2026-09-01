@@ -1,6 +1,7 @@
 package net.matsudamper.allintoolscreensaver
 
 import java.time.Instant
+import net.matsudamper.allintoolscreensaver.feature.calendar.AttendeeStatus
 import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepository
 
 class FakeCalendarRepository : CalendarRepository {
@@ -34,5 +35,24 @@ class FakeCalendarRepository : CalendarRepository {
                 }
             }
         }
+    }
+
+    override suspend fun updateAttendeeStatus(
+        eventId: Long,
+        calendarId: Long,
+        attendeeStatus: AttendeeStatus,
+    ) {
+        val updatedEvents = fakeEvents.map { event ->
+            if (event.eventId == eventId) {
+                when (event) {
+                    is CalendarRepository.CalendarEvent.Time -> event.copy(attendeeStatus = attendeeStatus)
+                    is CalendarRepository.CalendarEvent.AllDay -> event.copy(attendeeStatus = attendeeStatus)
+                }
+            } else {
+                event
+            }
+        }
+        fakeEvents.clear()
+        fakeEvents.addAll(updatedEvents)
     }
 }
