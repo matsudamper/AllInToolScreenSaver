@@ -800,10 +800,9 @@ style:
       - 'java.util.*'
 
 compiler:
-  CompilerInfo:
-    active: false
-    ignoreDiagnostic: []
-  CompilerWarning:
+  CompilerDiagnostics:
     active: true
+    reportSeverities:
+      - warning
     ignoreDiagnostic:
       - 'OPT_IN_IS_NOT_ENABLED'
