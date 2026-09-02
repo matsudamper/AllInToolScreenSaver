@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
@@ -65,11 +66,13 @@ class MainActivity : ComponentActivity() {
                         backStack.removeLastOrNull()
                     }
                 },
-                sceneStrategy = run {
+                sceneStrategies = run {
                     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
                     remember(windowSizeClass) {
-                        CustomTwoPaneSceneStrategy(
-                            windowSizeClass = windowSizeClass,
+                        listOf(
+                            CustomTwoPaneSceneStrategy<NavKey>(
+                                windowSizeClass = windowSizeClass,
+                            ),
                         )
                     }
                 },
