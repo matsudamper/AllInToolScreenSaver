@@ -29,6 +29,7 @@ class FakeCalendarRepository : CalendarRepository {
                 is CalendarRepository.CalendarEvent.Time -> {
                     event.startTime >= startTime && event.startTime <= endTime
                 }
+
                 is CalendarRepository.CalendarEvent.AllDay -> {
                     true
                 }

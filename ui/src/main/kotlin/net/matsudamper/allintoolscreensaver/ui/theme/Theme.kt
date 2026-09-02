@@ -54,6 +54,7 @@ fun AllInToolScreenSaverTheme(
         }
 
         darkTheme -> DarkColorScheme
+
         else -> LightColorScheme
     }
 
