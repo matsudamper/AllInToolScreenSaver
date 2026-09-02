@@ -111,6 +111,7 @@ class CalendarSelectionScreenViewModel(
                                             CalendarSelectionMode.DISPLAY -> {
                                                 settingsRepository.saveSelectedCalendarIds(newSelectedIds.toList())
                                             }
+
                                             CalendarSelectionMode.ALERT -> {
                                                 settingsRepository.saveAlertCalendarIds(newSelectedIds.toList())
                                             }
