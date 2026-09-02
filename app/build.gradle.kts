@@ -89,6 +89,7 @@ protobuf {
 
 dependencies {
     implementation(project(":ui"))
+    implementation(platform(libs.kotlinxCoroutinesBom))
     implementation(platform(libs.androidxComposeBom))
     implementation(libs.androidxUi)
     implementation(libs.androidxUiGraphics)

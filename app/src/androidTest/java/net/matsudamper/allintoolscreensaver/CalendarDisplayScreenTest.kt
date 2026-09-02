@@ -20,7 +20,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import net.matsudamper.allintoolscreensaver.feature.calendar.AttendeeStatus
 import net.matsudamper.allintoolscreensaver.feature.calendar.CalendarRepository
 import net.matsudamper.allintoolscreensaver.feature.setting.SettingsRepository
@@ -189,7 +189,7 @@ class CalendarDisplayScreenTest {
         filename: String = checkNotNull(object : Any() {}.javaClass.enclosingMethod).name,
         block: suspend () -> Unit,
     ) {
-        runTest {
+        runBlocking {
             val result = runCatching { block() }
 
             composeTestRule.waitForIdle()

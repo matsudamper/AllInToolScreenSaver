@@ -19,7 +19,8 @@ ktlintGradle = "14.2.0"
 ktlint = "1.8.0"
 protobufKotlinLite = "4.36.1"
 detekt = "1.23.8"
-coroutinesTest = "1.10.2"
+coroutines = "1.11.0"
+coroutinesTest = "1.11.0"
 mockk = "1.13.8"
 koin = "4.2.2"
 haze = "1.7.3"
@@ -67,7 +68,8 @@ ktlintCliRulesetCore = { module = "com.pinterest.ktlint:ktlint-cli-ruleset-core"
 ktlintRuleEngine = { module = "com.pinterest.ktlint:ktlint-rule-engine", version.ref = "ktlint" }
 haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
 protobufKotlinLite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobufKotlinLite" }
-coroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesTest" }
+kotlinxCoroutinesBom = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-bom", version.ref = "coroutines" }
+coroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 koinAndroid = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koinAndroidxCompose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
 koinTest = { module = "io.insert-koin:koin-test", version.ref = "koin" }
