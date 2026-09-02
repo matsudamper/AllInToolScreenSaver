@@ -58,6 +58,7 @@ androidxUiToolingPreview = { group = "androidx.compose.ui", name = "ui-tooling-p
 androidxUiTestManifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidxUiTestJunit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidxMaterial3 = { group = "androidx.compose.material3", name = "material3" }
+androidxMaterialIconsExtended = { group = "androidx.compose.material", name = "material-icons-extended" }
 detekt = { module = "io.nlopez.compose.rules:detekt", version.ref = "detektVersion" }
 kotlinCompilerWrapper = { module = "com.braisgabin.detekt:kotlin-compiler-wrapper", version.ref = "kotlinCompilerWrapper" }
 ktlint = { module = "com.pinterest:ktlint", version.ref = "ktlint" }

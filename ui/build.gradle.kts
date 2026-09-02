@@ -30,6 +30,7 @@ dependencies {
     implementation(libs.androidxUiGraphics)
     implementation(libs.androidxUiToolingPreview)
     implementation(libs.androidxMaterial3)
+    implementation(libs.androidxMaterialIconsExtended)
     implementation(libs.androidxFoundationPager)
     implementation(libs.androidxLifecycleViewmodelCompose)
     implementation(libs.androidxLifecycleRuntimeCompose)
