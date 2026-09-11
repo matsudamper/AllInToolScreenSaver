@@ -1,6 +1,7 @@
 package net.matsudamper.allintoolscreensaver.feature.calendar
 
 import android.content.ContentUris
+import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.provider.CalendarContract
@@ -23,6 +24,12 @@ interface CalendarRepository {
         endTime: Instant,
     ): List<CalendarEvent>
 
+    suspend fun updateAttendeeStatus(
+        eventId: Long,
+        calendarId: Long,
+        attendeeStatus: AttendeeStatus,
+    )
+
     data class CalendarInfo(
         val id: Long,
         val displayName: String,
@@ -32,6 +39,7 @@ interface CalendarRepository {
 
     sealed interface CalendarEvent {
         val id: Long
+        val eventId: Long
         val calendarId: Long
         val title: String
         val description: String?
@@ -41,6 +49,7 @@ interface CalendarRepository {
 
         data class Time(
             override val id: Long,
+            override val eventId: Long,
             override val calendarId: Long,
             override val title: String,
             override val description: String?,
@@ -53,6 +62,7 @@ interface CalendarRepository {
 
         data class AllDay(
             override val id: Long,
+            override val eventId: Long,
             override val calendarId: Long,
             override val title: String,
             override val description: String?,
@@ -117,6 +127,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
 
             val projection = arrayOf(
                 CalendarContract.Instances._ID,
+                CalendarContract.Instances.EVENT_ID,
                 CalendarContract.Instances.TITLE,
                 CalendarContract.Instances.DESCRIPTION,
                 CalendarContract.Instances.DTSTART,
@@ -159,6 +170,86 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
         }
     }
 
+    override suspend fun updateAttendeeStatus(
+        eventId: Long,
+        calendarId: Long,
+        attendeeStatus: AttendeeStatus,
+    ) {
+        withContext(Dispatchers.IO) {
+            val permissionChecker = PermissionChecker(context)
+            if (!permissionChecker.hasCalendarWritePermission()) {
+                return@withContext
+            }
+
+            val androidStatus = when (attendeeStatus) {
+                AttendeeStatus.ACCEPTED -> CalendarContract.Attendees.ATTENDEE_STATUS_ACCEPTED
+                AttendeeStatus.DECLINED -> CalendarContract.Attendees.ATTENDEE_STATUS_DECLINED
+                AttendeeStatus.TENTATIVE -> CalendarContract.Attendees.ATTENDEE_STATUS_TENTATIVE
+                AttendeeStatus.INVITED -> CalendarContract.Attendees.ATTENDEE_STATUS_INVITED
+                AttendeeStatus.UNKNOWN -> return@withContext
+            }
+
+            // 権限チェック後でも端末のCalendarProvider実装差異により
+            // SecurityException/IllegalArgumentExceptionが発生し得るため、クラッシュさせずに諦める
+            try {
+                val ownerAccount = getCalendarOwnerAccount(calendarId) ?: return@withContext
+                val selfAttendeeId = findSelfAttendeeId(eventId, ownerAccount) ?: return@withContext
+
+                context.contentResolver.update(
+                    ContentUris.withAppendedId(CalendarContract.Attendees.CONTENT_URI, selfAttendeeId),
+                    ContentValues().apply {
+                        put(CalendarContract.Attendees.ATTENDEE_STATUS, androidStatus)
+                    },
+                    null,
+                    null,
+                )
+            } catch (ignored: SecurityException) {
+            } catch (ignored: IllegalArgumentException) {
+            }
+        }
+    }
+
+    private fun getCalendarOwnerAccount(calendarId: Long): String? {
+        val cursor = context.contentResolver.query(
+            ContentUris.withAppendedId(CalendarContract.Calendars.CONTENT_URI, calendarId),
+            arrayOf(CalendarContract.Calendars.OWNER_ACCOUNT),
+            null,
+            null,
+            null,
+        ) ?: return null
+
+        return cursor.use { c ->
+            if (c.moveToFirst()) {
+                c.getStringOrNull(c.getColumnIndexOrThrow(CalendarContract.Calendars.OWNER_ACCOUNT))
+            } else {
+                null
+            }
+        }
+    }
+
+    private fun findSelfAttendeeId(eventId: Long, ownerAccount: String): Long? {
+        val cursor = context.contentResolver.query(
+            CalendarContract.Attendees.CONTENT_URI,
+            arrayOf(
+                CalendarContract.Attendees._ID,
+                CalendarContract.Attendees.ATTENDEE_EMAIL,
+            ),
+            "${CalendarContract.Attendees.EVENT_ID} = ?",
+            arrayOf(eventId.toString()),
+            null,
+        ) ?: return null
+
+        return cursor.use { c ->
+            buildList {
+                while (c.moveToNext()) {
+                    val attendeeId = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Attendees._ID))
+                    val email = c.getStringOrNull(c.getColumnIndexOrThrow(CalendarContract.Attendees.ATTENDEE_EMAIL))
+                    add(attendeeId to email)
+                }
+            }.firstOrNull { it.second == ownerAccount }?.first
+        }
+    }
+
     private fun collectCalendarEvent(
         cursor: Cursor,
     ): MutableList<CalendarRepository.CalendarEvent> {
@@ -166,6 +257,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
         cursor.use { c ->
             while (c.moveToNext()) {
                 val id = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Events._ID))
+                val eventId = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Instances.EVENT_ID))
                 val calendarId = c.getLong(c.getColumnIndexOrThrow(CalendarContract.Instances.CALENDAR_ID))
                 val title = c.getString(c.getColumnIndexOrThrow(CalendarContract.Events.TITLE)).orEmpty()
                 val description = c.getString(c.getColumnIndexOrThrow(CalendarContract.Events.DESCRIPTION))
@@ -200,6 +292,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                     if (allDay) {
                         CalendarRepository.CalendarEvent.AllDay(
                             id = id,
+                            eventId = eventId,
                             calendarId = calendarId,
                             title = title,
                             description = description,
@@ -232,6 +325,7 @@ class CalendarRepositoryImpl(private val context: Context) : CalendarRepository 
                         }
                         CalendarRepository.CalendarEvent.Time(
                             id = id,
+                            eventId = eventId,
                             calendarId = calendarId,
                             title = title,
                             description = buildString {

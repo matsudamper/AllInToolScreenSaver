@@ -2,6 +2,7 @@ package net.matsudamper.allintoolscreensaver.ui.calendar
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,18 +12,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,6 +49,8 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -78,13 +84,16 @@ data class CalendarLayoutUiState(
     val allDayEvents: List<Event.AllDay>,
 ) {
     sealed interface Event {
+        val eventId: Long
         val title: String
         val description: String?
         val color: Color
         val isBorderDisplayType: Boolean
         val hasTextDecoration: Boolean
+        val attendeeStatus: AttendeeStatus
 
         data class Time(
+            override val eventId: Long,
             val startTime: LocalTime,
             val endTime: LocalTime,
             val displayTime: String,
@@ -93,21 +102,32 @@ data class CalendarLayoutUiState(
             override val color: Color,
             override val isBorderDisplayType: Boolean,
             override val hasTextDecoration: Boolean,
+            override val attendeeStatus: AttendeeStatus,
             val alertType: AlertType,
         ) : Event
 
         data class AllDay(
+            override val eventId: Long,
             override val title: String,
             override val description: String?,
             override val color: Color,
             override val isBorderDisplayType: Boolean,
             override val hasTextDecoration: Boolean,
+            override val attendeeStatus: AttendeeStatus,
         ) : Event
 
         enum class AlertType {
             NONE,
             ALERT,
             ALERT_DISABLED,
+        }
+
+        enum class AttendeeStatus {
+            NONE,
+            INVITED,
+            ACCEPTED,
+            TENTATIVE,
+            DECLINED,
         }
     }
 }
@@ -119,6 +139,7 @@ private val CurrentTimeMarkerRadius = 5.dp
 @Composable
 internal fun CalendarLayout(
     uiState: CalendarLayoutUiState,
+    onAttendeeStatusChange: (eventId: Long, status: CalendarLayoutUiState.Event.AttendeeStatus) -> Unit,
     modifier: Modifier = Modifier,
     state: CalendarState = rememberCalendarState(),
     clock: Clock = LocalClock.current,
@@ -172,6 +193,10 @@ internal fun CalendarLayout(
         EventDialog(
             event = dialogInfo,
             onDismissRequest = { dialogInfoState.value = null },
+            onAttendeeStatusChange = { status ->
+                onAttendeeStatusChange(dialogInfo.eventId, status)
+                dialogInfoState.value = dialogInfo.copyWithAttendeeStatus(status)
+            },
         )
     }
 
@@ -245,6 +270,7 @@ internal fun CalendarLayout(
 private fun EventDialog(
     event: CalendarLayoutUiState.Event,
     onDismissRequest: () -> Unit,
+    onAttendeeStatusChange: (CalendarLayoutUiState.Event.AttendeeStatus) -> Unit,
 ) {
     DreamAlertDialog(
         dismissRequest = onDismissRequest,
@@ -285,7 +311,65 @@ private fun EventDialog(
                     )
                 }
             }
+            if (event.attendeeStatus != CalendarLayoutUiState.Event.AttendeeStatus.NONE) {
+                Spacer(modifier = Modifier.height(16.dp))
+                AttendeeStatusSelector(
+                    currentStatus = event.attendeeStatus,
+                    onStatusChange = onAttendeeStatusChange,
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun AttendeeStatusSelector(
+    currentStatus: CalendarLayoutUiState.Event.AttendeeStatus,
+    onStatusChange: (CalendarLayoutUiState.Event.AttendeeStatus) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = "参加状況",
+            style = MaterialTheme.typography.bodyLarge,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.selectableGroup(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            val options = listOf(
+                CalendarLayoutUiState.Event.AttendeeStatus.ACCEPTED to "出席",
+                CalendarLayoutUiState.Event.AttendeeStatus.TENTATIVE to "未定",
+                CalendarLayoutUiState.Event.AttendeeStatus.DECLINED to "欠席",
+            )
+            for ((status, label) in options) {
+                if (status == currentStatus) {
+                    Button(
+                        onClick = {},
+                        modifier = Modifier.semantics { selected = true },
+                    ) {
+                        Text(text = label)
+                    }
+                } else {
+                    OutlinedButton(
+                        onClick = { onStatusChange(status) },
+                        modifier = Modifier.semantics { selected = false },
+                    ) {
+                        Text(text = label)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun CalendarLayoutUiState.Event.copyWithAttendeeStatus(
+    status: CalendarLayoutUiState.Event.AttendeeStatus,
+): CalendarLayoutUiState.Event {
+    return when (this) {
+        is CalendarLayoutUiState.Event.Time -> copy(attendeeStatus = status)
+        is CalendarLayoutUiState.Event.AllDay -> copy(attendeeStatus = status)
     }
 }
 
@@ -636,6 +720,7 @@ private fun assignEventRows(events: List<CalcTimeEvent>): List<CalcTimeEvent> {
 private fun PreviewEventDialogContent() {
     EventDialog(
         event = CalendarLayoutUiState.Event.Time(
+            eventId = 1L,
             startTime = LocalTime.of(1, 0),
             endTime = LocalTime.of(2, 0),
             title = "Sample Event",
@@ -644,15 +729,18 @@ private fun PreviewEventDialogContent() {
             color = Color.Blue,
             isBorderDisplayType = false,
             hasTextDecoration = false,
+            attendeeStatus = CalendarLayoutUiState.Event.AttendeeStatus.ACCEPTED,
             alertType = CalendarLayoutUiState.Event.AlertType.ALERT,
         ),
         onDismissRequest = {},
+        onAttendeeStatusChange = {},
     )
 }
 
 internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
     events = listOf(
         CalendarLayoutUiState.Event.Time(
+            eventId = 1L,
             startTime = LocalTime.of(0, 0),
             endTime = LocalTime.of(1, 0),
             title = "One",
@@ -661,9 +749,11 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             color = Color.Red,
             isBorderDisplayType = false,
             hasTextDecoration = false,
+            attendeeStatus = CalendarLayoutUiState.Event.AttendeeStatus.NONE,
             alertType = CalendarLayoutUiState.Event.AlertType.ALERT_DISABLED,
         ),
         CalendarLayoutUiState.Event.Time(
+            eventId = 2L,
             startTime = LocalTime.of(1, 0),
             endTime = LocalTime.of(3, 0),
             title = "Two",
@@ -672,9 +762,11 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             color = Color.Blue,
             isBorderDisplayType = true,
             hasTextDecoration = true,
+            attendeeStatus = CalendarLayoutUiState.Event.AttendeeStatus.DECLINED,
             alertType = CalendarLayoutUiState.Event.AlertType.ALERT_DISABLED,
         ),
         CalendarLayoutUiState.Event.Time(
+            eventId = 3L,
             startTime = LocalTime.of(1, 0),
             endTime = LocalTime.of(2, 0),
             title = "Three",
@@ -683,9 +775,11 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             color = Color.Yellow,
             isBorderDisplayType = true,
             hasTextDecoration = false,
+            attendeeStatus = CalendarLayoutUiState.Event.AttendeeStatus.TENTATIVE,
             alertType = CalendarLayoutUiState.Event.AlertType.ALERT,
         ),
         CalendarLayoutUiState.Event.Time(
+            eventId = 4L,
             startTime = LocalTime.of(1, 30),
             endTime = LocalTime.of(3, 0),
             title = "Four",
@@ -694,9 +788,11 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             color = Color.Green,
             isBorderDisplayType = false,
             hasTextDecoration = false,
+            attendeeStatus = CalendarLayoutUiState.Event.AttendeeStatus.ACCEPTED,
             alertType = CalendarLayoutUiState.Event.AlertType.ALERT_DISABLED,
         ),
         CalendarLayoutUiState.Event.Time(
+            eventId = 5L,
             startTime = LocalTime.of(2, 0),
             endTime = LocalTime.of(3, 0),
             title = "Five",
@@ -705,9 +801,11 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             color = Color.Magenta,
             isBorderDisplayType = false,
             hasTextDecoration = false,
+            attendeeStatus = CalendarLayoutUiState.Event.AttendeeStatus.NONE,
             alertType = CalendarLayoutUiState.Event.AlertType.ALERT_DISABLED,
         ),
         CalendarLayoutUiState.Event.Time(
+            eventId = 6L,
             startTime = LocalTime.of(3, 15),
             endTime = LocalTime.of(3, 30),
             title = "Six",
@@ -716,23 +814,28 @@ internal val previewCalendarLayoutUiState = CalendarLayoutUiState(
             color = Color.Cyan,
             isBorderDisplayType = false,
             hasTextDecoration = false,
+            attendeeStatus = CalendarLayoutUiState.Event.AttendeeStatus.INVITED,
             alertType = CalendarLayoutUiState.Event.AlertType.ALERT,
         ),
     ),
     allDayEvents = listOf(
         CalendarLayoutUiState.Event.AllDay(
+            eventId = 7L,
             title = "All Day Event",
             description = "Description",
             color = Color.Red,
             isBorderDisplayType = false,
             hasTextDecoration = false,
+            attendeeStatus = CalendarLayoutUiState.Event.AttendeeStatus.ACCEPTED,
         ),
         CalendarLayoutUiState.Event.AllDay(
+            eventId = 8L,
             title = "All Day Event 2",
             description = "Description",
             color = Color.Yellow,
             isBorderDisplayType = true,
             hasTextDecoration = true,
+            attendeeStatus = CalendarLayoutUiState.Event.AttendeeStatus.DECLINED,
         ),
     ),
 )
@@ -754,6 +857,7 @@ private fun Preview() {
     MaterialTheme {
         CalendarLayout(
             uiState = previewCalendarLayoutUiState,
+            onAttendeeStatusChange = { _, _ -> },
             clock = previewCalendarLayoutClock,
         )
     }
