@@ -1,5 +1,5 @@
 [versions]
-agp = "9.4.0"
+agp = "9.4.1"
 coilCompose = "2.7.0"
 detektVersion = "0.6.6"
 documentfile = "1.1.0"
