@@ -43,9 +43,9 @@ fun MainScreenAdapter(
     }
 
     val calendarPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-    ) { isGranted ->
-        uiState.listener.updatePermissions(calendar = isGranted)
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+    ) { result ->
+        uiState.listener.updatePermissions(calendar = result[Manifest.permission.READ_CALENDAR] == true)
     }
 
     val requestState = remember {
@@ -95,14 +95,18 @@ fun MainScreenAdapter(
             if (uiState.calendarSectionUiState.hasCalendarPermission) {
                 uiState.listener.onNavigateToCalendarSelection()
             } else {
-                calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR)
+                calendarPermissionLauncher.launch(
+                    arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR),
+                )
             }
         },
         onAlertCalendarSelect = {
             if (uiState.calendarSectionUiState.hasCalendarPermission) {
                 uiState.listener.onNavigateToAlertCalendarSelection()
             } else {
-                calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR)
+                calendarPermissionLauncher.launch(
+                    arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR),
+                )
             }
         },
         onCalendarPreview = {

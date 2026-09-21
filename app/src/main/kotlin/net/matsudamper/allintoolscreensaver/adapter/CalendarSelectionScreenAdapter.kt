@@ -30,9 +30,9 @@ fun CalendarSelectionScreenAdapter(
     val uiState by viewModel.uiState.collectAsState()
 
     val calendarPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-    ) { isGranted ->
-        uiState.listener.updateCalendarPermission(isGranted)
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+    ) { result ->
+        uiState.listener.updateCalendarPermission(result[android.Manifest.permission.READ_CALENDAR] == true)
     }
 
     LaunchedEffect(viewModel.eventHandler) {

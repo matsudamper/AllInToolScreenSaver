@@ -93,6 +93,9 @@ fun CalendarDisplayScreen(
                 CalendarLayout(
                     modifier = Modifier.fillMaxSize(),
                     uiState = uiState.calendarUiState,
+                    onAttendeeStatusChange = { eventId, status ->
+                        uiState.listener.onEventAttendeeStatusChanged(eventId, status)
+                    },
                     state = calendarState,
                     clock = clock,
                 )
@@ -177,6 +180,10 @@ private fun Preview() {
                 override suspend fun onStart() = Unit
                 override fun onInteraction() = Unit
                 override fun onAlertEnabledChanged(enabled: Boolean) = Unit
+                override fun onEventAttendeeStatusChanged(
+                    eventId: Long,
+                    attendeeStatus: CalendarLayoutUiState.Event.AttendeeStatus,
+                ) = Unit
             },
         ),
         clock = previewCalendarLayoutClock,
