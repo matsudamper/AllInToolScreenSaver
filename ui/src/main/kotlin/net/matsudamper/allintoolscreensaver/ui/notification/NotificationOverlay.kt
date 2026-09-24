@@ -39,9 +39,10 @@ import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import dev.chrisbanes.haze.HazeInput
 import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.HazeStyle
-import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.blur.HazeBlurStyle
+import dev.chrisbanes.haze.blur.hazeBlur
 
 @Composable
 fun NotificationOverlay(
@@ -143,11 +144,11 @@ private fun NotificationItem(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .hazeEffect(
-                state = hazeState,
-                style = HazeStyle.Unspecified.copy(
-                    blurRadius = 8.dp,
-                ),
+            .hazeBlur(
+                input = HazeInput.Sources(hazeState),
+                style = HazeBlurStyle {
+                    blurRadius(8.dp)
+                },
             )
             .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.4f))
             .clickable { onClick() }

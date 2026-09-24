@@ -67,6 +67,7 @@ ktlintLogger = { module = "com.pinterest.ktlint:ktlint-logger", version.ref = "k
 ktlintCliRulesetCore = { module = "com.pinterest.ktlint:ktlint-cli-ruleset-core", version.ref = "ktlint" }
 ktlintRuleEngine = { module = "com.pinterest.ktlint:ktlint-rule-engine", version.ref = "ktlint" }
 haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
+hazeBlur = { module = "dev.chrisbanes.haze:haze-blur", version.ref = "haze" }
 protobufKotlinLite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobufKotlinLite" }
 kotlinxCoroutinesBom = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-bom", version.ref = "coroutines" }
 coroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
