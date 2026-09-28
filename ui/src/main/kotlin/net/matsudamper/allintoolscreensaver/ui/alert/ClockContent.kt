@@ -20,9 +20,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.chrisbanes.haze.HazeInput
 import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.HazeStyle
-import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.blur.HazeBlurStyle
+import dev.chrisbanes.haze.blur.hazeBlur
 
 @Composable
 fun ClockContent(
@@ -42,11 +43,11 @@ fun ClockContent(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
-            .hazeEffect(
-                state = hazeState,
-                style = HazeStyle.Unspecified.copy(
-                    blurRadius = 8.dp,
-                ),
+            .hazeBlur(
+                input = HazeInput.Sources(hazeState),
+                style = HazeBlurStyle {
+                    blurRadius(8.dp)
+                },
             )
             .background(animatedBackgroundColor),
     ) {
