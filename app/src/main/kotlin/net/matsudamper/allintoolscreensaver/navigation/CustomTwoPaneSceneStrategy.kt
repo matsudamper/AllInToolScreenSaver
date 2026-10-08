@@ -44,7 +44,7 @@ class CustomTwoPaneSceneStrategy<T : Any>(
     }
 }
 
-private class TwoPaneScene<T : Any>(
+private data class TwoPaneScene<T : Any>(
     override val key: Any,
     override val previousEntries: List<NavEntry<T>>,
     private val firstEntry: NavEntry<T>,
