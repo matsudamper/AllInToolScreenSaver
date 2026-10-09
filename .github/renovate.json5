@@ -8,6 +8,15 @@
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true,
       "autoApprove": true
+    },
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchPackageNames": [
+        "/^actions\\//"
+      ],
+      "automerge": true
     }
   ],
 }
