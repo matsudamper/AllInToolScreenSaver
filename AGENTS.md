@@ -15,7 +15,11 @@
 ./gradlew detekt detektMain
 ./gradlew :app:lintDebug
 ./gradlew ktlintFormat
-./gradlew pixel9api35DebugAndroidTest
+```
+
+## 個別テスト例（テストのロジック変更時のみ）
+```sh
+./gradlew :app:testDebugUnitTest --tests 'net.matsudamper.allintoolscreensaver.feature.alert.AlertManagerAlertKeyTest'
 ```
 
 # 共通ルール
