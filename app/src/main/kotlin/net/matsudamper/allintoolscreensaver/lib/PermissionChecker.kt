@@ -15,6 +15,13 @@ class PermissionChecker(private val context: Context) {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
+    fun hasCalendarWritePermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.WRITE_CALENDAR,
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
     fun hasPostNotificationsPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
             context,

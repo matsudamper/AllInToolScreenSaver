@@ -51,6 +51,7 @@ class AlertManagerAlertKeyTest {
     private fun createTimeEvent(id: Long, startTime: Instant): CalendarRepository.CalendarEvent.Time {
         return CalendarRepository.CalendarEvent.Time(
             id = id,
+            eventId = id,
             calendarId = 1,
             title = "event",
             description = null,
