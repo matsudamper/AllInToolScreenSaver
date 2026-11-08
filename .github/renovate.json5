@@ -5,6 +5,11 @@
   "extends": [":dependencyDashboard"],
   "packageRules": [
     {
+      "matchManagers": ["gradle"],
+      "matchPackageNames": ["/^androidx\\.test(?:[.:]|$)/"],
+      "automerge": true,
+    },
+    {
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true,
       "autoApprove": true

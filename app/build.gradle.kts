@@ -121,7 +121,6 @@ dependencies {
 
     androidTestImplementation(platform(libs.androidxComposeBom))
     androidTestImplementation(libs.androidxJunit)
-    androidTestImplementation(libs.androidxEspressoCore)
     androidTestImplementation(libs.androidxUiTestJunit4)
     androidTestImplementation(libs.coroutinesTest)
     androidTestImplementation(libs.koinTest)
