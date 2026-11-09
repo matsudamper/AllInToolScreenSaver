@@ -70,7 +70,11 @@ class NotificationListenerService : NotificationListenerService() {
             packageManager.getApplicationInfo(sbn.packageName, 0),
         ).toString()
 
-        val shownContent = ShownContent(title = title, text = text)
+        val shownContent = ShownContent(
+            title = title,
+            text = text,
+            postedAt = notification.`when`,
+        )
         if (shownContentByKey[sbn.key] == shownContent) return
         shownContentByKey[sbn.key] = shownContent
 
@@ -96,6 +100,7 @@ class NotificationListenerService : NotificationListenerService() {
     private data class ShownContent(
         val title: String,
         val text: String,
+        val postedAt: Long,
     )
 
     companion object {
