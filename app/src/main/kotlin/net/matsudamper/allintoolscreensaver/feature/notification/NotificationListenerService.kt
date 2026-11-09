@@ -76,7 +76,6 @@ class NotificationListenerService : NotificationListenerService() {
             postedAt = notification.`when`,
         )
         if (shownContentByKey[sbn.key] == shownContent) return
-        shownContentByKey[sbn.key] = shownContent
 
         val notificationInfo = NotificationInfo(
             title = title,
@@ -85,7 +84,10 @@ class NotificationListenerService : NotificationListenerService() {
             timestamp = sbn.postTime,
         )
 
-        notificationRepository.addNotification(notificationInfo)
+        val delivered = notificationRepository.addNotification(notificationInfo)
+        if (delivered) {
+            shownContentByKey[sbn.key] = shownContent
+        }
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
