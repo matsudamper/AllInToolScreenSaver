@@ -11,6 +11,9 @@ import org.koin.core.context.GlobalContext
 class NotificationListenerService : NotificationListenerService() {
     private val notificationRepository: NotificationRepository get() = GlobalContext.get().get()
 
+    // 通知の更新やグループ化でも同じ key で再投稿されるため、表示済みの内容を key ごとに覚えて重複を除く
+    private val shownContentByKey = mutableMapOf<String, ShownContent>()
+
     override fun onListenerConnected() {
         super.onListenerConnected()
         instance.set(this)
@@ -30,6 +33,7 @@ class NotificationListenerService : NotificationListenerService() {
         if ((notification.flags and NotificationCompat.FLAG_FOREGROUND_SERVICE) != 0) return
         if ((notification.flags and NotificationCompat.FLAG_ONGOING_EVENT) != 0) return
         if ((notification.flags and NotificationCompat.FLAG_NO_CLEAR) != 0) return
+        if ((notification.flags and NotificationCompat.FLAG_GROUP_SUMMARY) != 0) return
 
         val title = run {
             val keys = listOf(
@@ -66,6 +70,13 @@ class NotificationListenerService : NotificationListenerService() {
             packageManager.getApplicationInfo(sbn.packageName, 0),
         ).toString()
 
+        val shownContent = ShownContent(
+            title = title,
+            text = text,
+            postedAt = notification.`when`,
+        )
+        if (shownContentByKey[sbn.key] == shownContent) return
+
         val notificationInfo = NotificationInfo(
             title = title,
             text = text,
@@ -73,12 +84,26 @@ class NotificationListenerService : NotificationListenerService() {
             timestamp = sbn.postTime,
         )
 
-        notificationRepository.addNotification(notificationInfo)
+        val delivered = notificationRepository.addNotification(notificationInfo)
+        if (delivered) {
+            shownContentByKey[sbn.key] = shownContent
+        }
+    }
+
+    override fun onNotificationRemoved(sbn: StatusBarNotification) {
+        super.onNotificationRemoved(sbn)
+        shownContentByKey.remove(sbn.key)
     }
 
     private fun Bundle.getText(key: String): String? {
         return getString(key) ?: getParcelable(key, SpannableString::class.java)?.toString()
     }
+
+    private data class ShownContent(
+        val title: String,
+        val text: String,
+        val postedAt: Long,
+    )
 
     companion object {
         private val instance = AtomicReference<NotificationListenerService?>()
