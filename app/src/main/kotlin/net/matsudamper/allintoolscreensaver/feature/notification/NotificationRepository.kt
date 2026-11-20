@@ -13,7 +13,11 @@ class NotificationRepository {
     )
     val notificationFlow: Flow<NotificationInfo> = _notificationFlow.asSharedFlow()
 
-    fun addNotification(notificationInfo: NotificationInfo) {
-        _notificationFlow.tryEmit(notificationInfo)
+    /**
+     * @return 表示先が購読していて通知を届けられた場合 true
+     */
+    fun addNotification(notificationInfo: NotificationInfo): Boolean {
+        if (_notificationFlow.subscriptionCount.value == 0) return false
+        return _notificationFlow.tryEmit(notificationInfo)
     }
 }
